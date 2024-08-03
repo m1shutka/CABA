@@ -1,0 +1,68 @@
+﻿<!DOCTYPE HTML>
+<html lang="en" class="h-100" data-bs-theme="light">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CABCDA</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="static/test4.js"></script>
+</head>
+
+    <body class="d-flex h-100 text-center text-bg-light">
+    
+        <div class="container">
+
+            <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+
+                <header class="mb-auto">
+                    <div>
+                        <h1 class="float-md-start mb-0">CABCDA</h1>
+                        <nav class="nav nav-underline justify-content-center float-md-end">
+                            <a class="nav-link active" aria-current="page" href="/">Главная</a>
+                            <a class="nav-link" aria-current="page" href="#">Справка</a>
+                            <a class="nav-link" aria-current="page" href="/sign_in">Войти</a>
+                        </nav>
+
+                    </div>
+                </header>
+
+                <main class="px-3 alert alert-warning text-start">
+
+                    <br>
+
+                    <div class="row g-5">
+
+                        {% for i in info %}
+                        <div class="col-xxl-12">
+                            <div class="{{ i[0] }}"><h2>{{ i[1] }}</h2></div>
+                        </div>
+                        {% endfor %}
+                            
+                        <div class="d-grid gap-4 d-sm-flex w-100 justify-content-sm-center">
+                            {% for i in data %}
+                            <button class="{{ i[0] }}"><h2>{{ i[1] }}</h2></button>
+                            {% endfor %}
+                        </div>
+                            
+                        <br>
+                        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                            {% for i in navigation %}
+                            <a class="{{ i[0] }}" href="{{ i[2] }}"><h2>{{ i[1] }}</h2></a>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+
+                </main>
+
+                <footer class="mt-auto text-black-50">
+                    <p>Интеллектуальная собственность <a href="https://getbootstrap.com/" class="text-black">NSTU</a></p>
+                </footer>
+
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    </body>
+</html>
