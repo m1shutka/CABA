@@ -1,4 +1,6 @@
-﻿class stage():
+﻿import copy
+
+class stage():
     def __init__(self, attr: dict, prev: str = None, next: str = None):
         self.prev = prev
         self.next = next
@@ -8,7 +10,7 @@
                      'navigation': attr['navigation']}
 
     def copy(self):
-        return stage(prev=self.prev, next=self.next, attr=self.attr.copy())
+        return copy.deepcopy(self)
 
 progress = {'1': {'1': False, '2': False, '3': False, '4': False}, 
                   '2': {'1': False, '2': False, '3': False, '4': False, '5': False, '6': False, '7': False},
@@ -55,11 +57,11 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
 
           '2': stage(prev='1', next = '3', attr={'base_url': 'test_second', 
                                                  'info': {}, 
-                                                 'buttons': {'text': ['Примерный возраст до 1 года Примерный вес до 10 кг', 'Примерный возраст 1-3 года Примерный вес 10-15 кг', 'Примерный возраст 3-7 лет Примерный вес 15-20 кг', 'Примерный возраст 7-10 лет Примерный вес 20-30 кг', 'Примерный возраст старше 10 лет Примерный вес 30-50 кг', 'Примерный возраст старше 10 лет Примерный более 50-90 кг', 'Примерный возраст старше 10 лет Примерный вес более 90 кг'], 
-                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100', 'btn btn-lg btn-outline-success btn3 w-100', 'btn btn-lg btn-outline-success btn4 w-100', 'btn btn-lg btn-outline-success btn5 w-100', 'btn btn-lg btn-outline-success btn6 w-100', 'btn btn-lg btn-outline-success btn7 w-100']}, 
-                                                 'navigation': {'text': ['Назад', 'Далее'], 
-                                                                 'styles': ['btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
-                                                                 'links': ['/prev_stage', '/next_stage']}
+                                                 'buttons': {'text': ['Примерный возраст до 1 года Примерный вес до 10 кг', 'Примерный возраст 1-3 года Примерный вес 10-15 кг', 'Примерный возраст 3-7 лет Примерный вес 15-20 кг', 'Примерный возраст 7-10 лет Примерный вес 20-30 кг', 'Примерный возраст старше 10 лет Примерный вес 30-50 кг', 'Примерный возраст старше 10 лет Примерный вес 50-90 кг', 'Примерный возраст старше 10 лет Примерный вес более 90 кг'], 
+                                                             'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100', 'btn btn-lg btn-outline-success btn3 w-100', 'btn btn-lg btn-outline-success btn4 w-100', 'btn btn-lg btn-outline-success btn5 w-100', 'btn btn-lg btn-outline-success btn6 w-100', 'btn btn-lg btn-outline-success btn7 w-100']}, 
+                                                 'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }),
 
           '3': stage(prev='2', next = '4', attr={'base_url': 'test_third', 
@@ -69,9 +71,9 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
                                                                      'styles': ['btn btn-lg btn-outline-success btn31 w-100', 'btn btn-lg btn-outline-danger btn33 w-100']}, 
                                                             'right': {'text': ['Нет', 'Нет'], 
                                                                       'styles': ['btn btn-lg btn-outline-danger btn32 w-100', 'btn btn-lg btn-outline-success btn34 w-100']}}, 
-                                                 'navigation': {'text': ['Назад', 'Далее'], 
-                                                                'styles': ['btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
-                                                                'links': ['/prev_stage', '/next_stage']}
+                                                 'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }),
           
           '4': stage(prev='3', next = '5', attr={'base_url': 'test_fourth', 
@@ -79,9 +81,9 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                  'buttons': {'text': ["Нормальное", "Нарушена проходимость", "Одышка", "Агональное или отсутствует"], 
                                                              'styles': ['btn btn-lg btn-outline-success btn41 w-100', 'btn btn-lg btn-outline-warning btn42 w-100', 'btn btn-lg btn-outline-warning btn43 w-100', 'btn btn-lg btn-outline-danger btn44 w-100']}, 
-                                                 'navigation': {'text': ['Назад', 'Далее'], 
-                                                                'styles': ['btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
-                                                                'links': ['/prev_stage', '/next_stage']}
+                                                 'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining align-middle', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }),
 
           '5': stage(prev='4', next = '6', attr={'base_url': 'test_fourth', 
@@ -89,9 +91,9 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                  'buttons': {'text': ["Затруднен вдох,свистящие хрипы, осиплость голоса", "Затруднен выдох,  свистящие хрипы", "Затруднены вдох и выдох, влажные хрипы"], 
                                                              'styles': ['btn btn-lg btn-outline-warning btn51 w-100', 'btn btn-lg btn-outline-warning btn52 w-100', 'btn btn-lg btn-outline-warning btn53 w-100']}, 
-                                                 'navigation': {'text': ['Назад', 'Далее'], 
-                                                                'styles': ['btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
-                                                                'links': ['/prev_stage', '/next_stage']}
+                                                 'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }),
 
           '6': stage(prev='5', next = '7', attr={'base_url': 'test_fourth', 
@@ -99,9 +101,9 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                  'buttons': {'text': ["Отчетливый", "Резко ослаблен или отсутствует"], 
                                                              'styles': ['btn btn-lg btn-outline-success btn61 w-100', 'btn btn-lg btn-outline-danger btn62 w-100']}, 
-                                                 'navigation': {'text': ['Назад', 'Далее'], 
-                                                                'styles': ['btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
-                                                                'links': ['/prev_stage', '/next_stage']}
+                                                 'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }),
 
           '7': stage(prev='6', next = '8', attr={'base_url': 'test_first', 
@@ -109,9 +111,9 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить', 'Выполнить'], 
                                                               'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
-                                                  'navigation': {'text': ['Назад', 'Далее'],
-                                                                 'styles': ['btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
-                                                                 'links': ['/prev_stage', '/next_stage']}
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }),
 
           '8': stage(prev='7', next = '9', attr={'base_url': 'test_fourth', 
@@ -119,9 +121,9 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                  'buttons': {'text': ["Нормальное", "Выше 180/120 мм.рт.ст", "Ниже 90/60 мм.рт.ст. у взрослого", "Не определяется"], 
                                                              'styles': ['btn btn-lg btn-outline-success btn81 w-100', 'btn btn-lg btn-outline-warning btn82 w-100', 'btn btn-lg btn-outline-warning btn83 w-100', 'btn btn-lg btn-outline-danger btn84 w-100']}, 
-                                                 'navigation': {'text': ['Назад', 'Далее'], 
-                                                                'styles': ['btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
-                                                                'links': ['/prev_stage', '/next_stage']}
+                                                 'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }),
 
           '9': stage(prev='7', next = '10', attr={'base_url': 'test_first', 
@@ -129,19 +131,19 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить', 'Выполнить'], 
                                                               'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
-                                                  'navigation': {'text': ['Назад', 'Далее'],
-                                                                 'styles': ['btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
-                                                                 'links': ['/prev_stage', '/next_stage']}
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }),
 
           '10': stage(prev='9', next = '11', attr={'base_url': 'test_first', 
-                                                  'info': {'text': ['Оценивайте дыхание, пульс и SpO2 непрерывно, измеряйте АД не реже раза в 5 минут)'], 
+                                                  'info': {'text': ['Оценивайте дыхание, пульс и SpO2 непрерывно, измеряйте АД не реже раза в 5 минут'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить'], 
                                                               'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
-                                                  'navigation': {'text': ['Назад', 'Далее'],
-                                                                 'styles': ['btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
-                                                                 'links': ['/prev_stage', '/next_stage']}
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }),
 
           '11': stage(prev='10', next = '12', attr={'base_url': 'test_third', 
@@ -151,9 +153,9 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
                                                                      'styles': ['btn btn-lg btn-outline-danger btn111 w-100', 'btn btn-lg btn-outline-danger btn113 w-100']}, 
                                                             'right': {'text': ['Нет', 'Нет'], 
                                                                       'styles': ['btn btn-lg btn-outline-success btn112 w-100', 'btn btn-lg btn-outline-success btn114 w-100']}}, 
-                                                 'navigation': {'text': ['Назад', 'Далее'], 
-                                                                'styles': ['btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-warning w-100 btn-next disabled'],
-                                                                'links': ['/prev_stage', '/next_stage']}
+                                                 'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-warning w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }),
 
           '12': stage(prev='11', next = '13', attr={'base_url': 'test_first', 
@@ -161,9 +163,9 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить', 'Выполнить'], 
                                                               'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
-                                                  'navigation': {'text': ['Назад', 'Далее'],
-                                                                 'styles': ['btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
-                                                                 'links': ['/prev_stage', '/next_stage']}
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }),
 
           '13': stage(prev='11', next = '13.1', attr={'base_url': 'test_first', 
@@ -171,9 +173,9 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить', 'Выполнить'], 
                                                               'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
-                                                  'navigation': {'text': ['Назад', 'Далее'],
-                                                                 'styles': ['btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
-                                                                 'links': ['/prev_stage', '/next_stage']}
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }),
 
           '13.1': stage(prev='13', next = '14', attr={'base_url': 'test_first', 
@@ -181,9 +183,9 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить'], 
                                                               'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
-                                                  'navigation': {'text': ['Назад', 'Далее'],
-                                                                 'styles': ['btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
-                                                                 'links': ['/prev_stage', '/next_stage']}
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }),
 
           '14': stage(prev='13.1', next = '15', attr={'base_url': 'test_first', 
@@ -191,9 +193,9 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить', 'Выполнить', 'Выполнить'], 
                                                               'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100', 'btn btn-lg btn-outline-success btn3 w-100', 'btn btn-lg btn-outline-success btn4 w-100']}, 
-                                                  'navigation': {'text': ['Назад', 'Далее'],
-                                                                 'styles': ['btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
-                                                                 'links': ['/prev_stage', '/next_stage']}
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }),
 
           '15': stage(prev='14', next = '16', attr={'base_url': 'test_third', 
@@ -203,9 +205,9 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
                                                                      'styles': ['btn btn-lg btn-outline-success btn151 w-100', 'btn btn-lg btn-outline-success btn153 w-100']}, 
                                                             'right': {'text': ['Нет', 'Нет'], 
                                                                       'styles': ['btn btn-lg btn-outline-danger btn152 w-100', 'btn btn-lg btn-outline-danger btn154 w-100']}}, 
-                                                 'navigation': {'text': ['Назад', 'Далее'], 
-                                                                'styles': ['btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-warning w-100 btn-next disabled'],
-                                                                'links': ['/prev_stage', '/next_stage']}
+                                                 'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-warning w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }),
           
           '16': stage(prev='15', next = '17', attr={'base_url': 'test_first', 
@@ -213,9 +215,9 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить'], 
                                                               'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
-                                                  'navigation': {'text': ['Назад', 'Далее'],
-                                                                 'styles': ['btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
-                                                                 'links': ['/prev_stage', '/next_stage']}
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }),
 
           '17': stage(prev='16', next = '18', attr={'base_url': 'test_first', 
@@ -223,9 +225,9 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить'], 
                                                               'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
-                                                  'navigation': {'text': ['Назад', 'Далее'],
-                                                                 'styles': ['btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
-                                                                 'links': ['/prev_stage', '/next_stage']}
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }),
 
           '18': stage(prev='17', next = '18.1', attr={'base_url': 'test_first', 
@@ -233,9 +235,9 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить'], 
                                                               'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
-                                                  'navigation': {'text': ['Назад', 'Далее'],
-                                                                 'styles': ['btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
-                                                                 'links': ['/prev_stage', '/next_stage']}
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }),
 
           '18.1': stage(prev='18', next = '19', attr={'base_url': 'test_fourth', 
@@ -243,9 +245,9 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                  'buttons': {'text': ["Да", "Нет"], 
                                                              'styles': ['btn btn-lg btn-outline-success btn181 w-100', 'btn btn-lg btn-outline-danger btn182 w-100']}, 
-                                                 'navigation': {'text': ['Назад', 'Далее'], 
-                                                                'styles': ['btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
-                                                                'links': ['/prev_stage', '/next_stage']}
+                                                 'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }),
 
           '19': stage(prev='18.1', next = '20', attr={'base_url': 'test_fourth', 
@@ -253,9 +255,9 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                  'buttons': {'text': ["Выше 3 ммоль/л", "Ниже 3 ммоль/л "], 
                                                              'styles': ['btn btn-lg btn-outline-success btn191 w-100', 'btn btn-lg btn-outline-danger btn192 w-100']}, 
-                                                 'navigation': {'text': ['Назад', 'Далее'], 
-                                                                'styles': ['btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
-                                                                'links': ['/prev_stage', '/next_stage']}
+                                                 'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }),
 
           '20': stage(prev='19', next = '21', attr={'base_url': 'test_first', 
@@ -263,9 +265,9 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить', 'Выполнить'], 
                                                               'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
-                                                  'navigation': {'text': ['Назад', 'Далее'],
-                                                                 'styles': ['btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
-                                                                 'links': ['/prev_stage', '/next_stage']}
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }),
 
           '21': stage(prev='20', next = '22', attr={'base_url': 'test_first', 
@@ -273,9 +275,9 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить', 'Выполнить'], 
                                                               'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
-                                                  'navigation': {'text': ['Назад', 'Далее'],
-                                                                 'styles': ['btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
-                                                                 'links': ['/prev_stage', '/next_stage']}
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }),
 
           '22': stage(prev='21', next = '1', attr={'base_url': 'test_fourth', 
@@ -283,8 +285,8 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                  'buttons': {'text': ["Да", "Нет"], 
                                                              'styles': ['btn btn-lg btn-outline-success btn221 w-100', 'btn btn-lg btn-outline-danger btn222 w-100']}, 
-                                                 'navigation': {'text': ['Назад', 'Далее'], 
-                                                                'styles': ['btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
-                                                                'links': ['/prev_stage', '/next_stage']}
+                                                 'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }),
           }
