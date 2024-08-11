@@ -2,14 +2,20 @@
 from flask import render_template, request, jsonify, redirect
 from stages import stages, progress
 
+
 app = Flask(__name__)
 
-current_stage = '0'
-
 stage = 0
-
 local_stages = [('0', stages['0'])]
 local_progress = [{'1': False}]
+local_flags = {'flag_changes': False}
+local_changes = []
+
+def progress_output():
+    global local_progress, local_stages, stage
+    print(f'Current stage: {stage}')
+    for i in range(1, stage + 1):
+        print(f'stage: {i}, template: {local_stages[i][0]}, Current progress {local_progress[i]}')
 
 def body_params():
     global local_progress
@@ -20,21 +26,25 @@ def body_params():
 
 @app.route("/registration")
 def registration():
+
     return render_template("registration.html")
 
 
 @app.route("/sign_in", methods = ['GET', 'POST'])
 def sign_in():
+
     return render_template("sign_in.html")
 
 
 @app.route("/main")
 @app.route("/")
 def main():
+
     global local_stages, local_progress, stage
 
     stage = 0
     local_stages = [('0', stages['0'])]
+    local_progress = [{'1': False}]
     
     return render_template("index.html")
 
@@ -42,33 +52,57 @@ def main():
 @app.route("/next_stage")
 def next_stage():
     
-    global local_stages, local_progress, stage
+    global local_stages, local_progress, stage, local_flags, local_changes
 
-    local_stages.append((local_stages[stage][1].next, stages[local_stages[stage][1].next].copy()))
-    local_progress.append(progress[local_stages[stage][1].next].copy())
-    stage += 1
+    if stage + 1 == len(local_progress):
+        print(f'var1')
+        local_stages.append((local_stages[stage][1].next, stages[local_stages[stage][1].next].copy()))
+        local_progress.append(progress[local_stages[stage][1].next].copy())
+        stage += 1
+        local_stages[stage][1].prev = local_stages[stage - 1][0]
+        local_flags['flag_changes'] = False
 
-    #print(f'move to {stage}')
-    print(f'local progress {local_progress}')
-    print(f'local stage {local_stages[stage][0]}')
-    print(f'local stage {local_stages[stage][1].attr["navigation"]}')
-    #print(stage)
+    elif local_flags['flag_changes']:
+        print(f'var2')
 
-    return redirect(local_stages[stage][1].attr['base_url'])
+        local_stages = local_stages[:stage + 1]
+        local_progress = local_progress[:stage + 1]
+        local_stages.append((local_stages[stage][1].next, stages[local_stages[stage][1].next].copy()))
+        local_progress.append(progress[local_stages[stage][1].next].copy())
+        stage += 1
+        local_stages[stage][1].prev = local_stages[stage - 1][0]
+        local_flags['flag_changes'] = False
+
+        print(stage)
+
+    elif not local_flags['flag_changes'] and stage < len(local_progress):
+        print(f'var3')
+        stage += 1
+
+    progress_output()
+
+    local_changes.clear()
+
+    if local_stages[stage][1].prev == '12':
+        return redirect('/main')
+    else:
+        return redirect(local_stages[stage][1].attr['base_url'])
 
 
 @app.route("/prev_stage")
 def prev_stage():
 
-    global stage, local_stages, local_progress
+    global stage, local_stages, local_progress, local_flags, local_changes
 
-    local_stages = local_stages[:len(local_stages) - 1]
-    local_progress = local_progress[:len(local_progress) - 1]
+    if local_flags['flag_changes']:
+        local_stages = local_stages[:stage]
+        local_progress = local_progress[:stage]
 
     stage -= 1
 
-    print(f'move to {current_stage}')
-    print(f'local progress {local_progress}')
+    progress_output()
+
+    local_changes.clear()
 
     return redirect(local_stages[stage][1].attr['base_url'])
 
@@ -76,7 +110,7 @@ def prev_stage():
 @app.route("/test_first", methods = ['GET', 'POST'])
 def test_first():
 
-    global local_progress, local_stages, current_stage, stage
+    global local_progress, local_stages, stage, local_flags
 
     if request.is_json:
         button_number = request.args.get('button_number')
@@ -88,8 +122,12 @@ def test_first():
             local_stages[stage][1].attr['buttons']['text'][int(i) - 1] = 'Выполнено'
             local_stages[stage][1].attr['buttons']['styles'][int(i) - 1] = f'btn btn-lg btn-success btn{i} w-100'
             true_count += 1
+        else:
+            local_stages[stage][1].attr['buttons']['text'][int(i) - 1] = 'Выполнить'
+            local_stages[stage][1].attr['buttons']['styles'][int(i) - 1] = f'btn btn-lg btn-outline-success btn{i} w-100'
 
     navigation = []
+
     if true_count == len(local_progress[stage].keys()):
         if local_stages[stage][0] == '1':
             local_stages[stage][1].attr['navigation']['styles'][0] = 'btn btn-lg btn-success w-100 btn-next'
@@ -100,7 +138,6 @@ def test_first():
             navigation.append((local_stages[stage][1].attr['navigation']['styles'][1], local_stages[stage][1].attr['navigation']['text'][1], local_stages[stage][1].attr['navigation']['links'][1]))
     else:
         if local_stages[stage][0] == '1':
-            #print(local_stages[stage][1].attr['navigation']['styles'])
             local_stages[stage][1].attr['navigation']['styles'][0] = 'btn btn-lg btn-outline-danger w-100 btn-next disabled'
             navigation.append((local_stages[stage][1].attr['navigation']['styles'][0], local_stages[stage][1].attr['navigation']['text'][0], local_stages[stage][1].attr['navigation']['links'][0]))
         else:
@@ -127,7 +164,10 @@ def test_first():
         local_stages[stage][1].next = '4'
 
     elif local_stages[stage][0] == '18':
-        local_stages[stage][1].next = '21'
+        if local_flags[3] == '3.3':
+            local_stages[stage][1].next = '21'
+        elif local_flags[3] == '3.2':
+            local_stages[stage][1].next = '19'
         ################################
 
     elif local_stages[stage][0] == '17':
@@ -162,9 +202,6 @@ def test_second():
                 local_progress[stage][i] = True
             else:
                 local_progress[stage][i] = False
-
-        print(f'button_number {button_number}')
-        print(f'local progress {local_progress}')
     
     data = []
     next_ability = False
@@ -191,7 +228,7 @@ def test_second():
 @app.route("/test_third", methods = ['GET', 'POST'])
 def test_third():
 
-    global local_progress, local_stages, current_stage, stage
+    global local_progress, local_stages, stage, local_flags, local_changes
     data, navigation = [], []
     navigation.append((local_stages[stage][1].attr['navigation']['styles'][0], local_stages[stage][1].attr['navigation']['text'][0], local_stages[stage][1].attr['navigation']['links'][0]))
 
@@ -199,20 +236,31 @@ def test_third():
 
         if request.is_json:
             button_number = request.args.get('button_number')
+
+            local_changes.append(local_progress[stage].copy())
+            changes = local_progress[stage].copy()
+            
             if button_number == '1':
-                local_progress[stage][button_number] = True
-                local_progress[stage]['2'] = False
+                changes[button_number] = True
+                changes['2'] = False
             elif button_number == '2':
-                local_progress[stage][button_number] = True
-                local_progress[stage]['1'] = False
+                changes[button_number] = True
+                changes['1'] = False
             elif button_number == '3':
-                local_progress[stage][button_number] = True
-                local_progress[stage]['4'] = False
+                changes[button_number] = True
+                changes['4'] = False
             else:
-                local_progress[stage][button_number] = True
-                local_progress[stage]['3'] = False
-            print(f'button_number {button_number}')
-            print(f'local progress {local_progress}')
+                changes[button_number] = True
+                changes['3'] = False
+
+            local_changes.append(changes)
+
+            if changes != local_changes[0]:
+                local_flags['flag_changes'] = True
+            else:
+                local_flags['flag_changes'] = False
+
+            local_progress[stage] = changes
 
         if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-success btn31 w-100'
@@ -222,6 +270,8 @@ def test_third():
             local_stages[stage][1].attr['navigation']['styles'][1] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][1] = 'SOS. Судороги'
             local_stages[stage][1].next = '4'
+            local_flags[stage] = '3.1'
+
 
         elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-success btn31 w-100'
@@ -231,6 +281,7 @@ def test_third():
             local_stages[stage][1].attr['navigation']['styles'][1] = 'btn btn-lg btn-danger w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][1] = 'SOS. Оценить дыхание!'
             local_stages[stage][1].next = '13'
+            local_flags[stage] = '3.3'
 
         elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-success btn31 w-100'
@@ -240,6 +291,7 @@ def test_third():
             local_stages[stage][1].attr['navigation']['styles'][1] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][1] = 'Далее'
             local_stages[stage][1].next = '4'
+            local_flags[stage] = '3.1'
 
         elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-success btn31 w-100'
@@ -249,26 +301,37 @@ def test_third():
             local_stages[stage][1].attr['navigation']['styles'][1] = 'btn btn-lg btn-danger w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][1] = 'SOS. Оценить дыхание!'
             local_stages[stage][1].next = '13.1'
+            local_flags[stage] = '3.2'
 
     if local_stages[stage][0] == '11':
 
         if request.is_json:
-
             button_number = request.args.get('button_number')
+
+            local_changes.append(local_progress[stage].copy())
+            changes = local_progress[stage].copy()
+            
             if button_number == '1':
-                local_progress[stage][button_number] = True
-                local_progress[stage]['2'] = False
+                changes[button_number] = True
+                changes['2'] = False
             elif button_number == '2':
-                local_progress[stage][button_number] = True
-                local_progress[stage]['1'] = False
+                changes[button_number] = True
+                changes['1'] = False
             elif button_number == '3':
-                local_progress[stage][button_number] = True
-                local_progress[stage]['4'] = False
+                changes[button_number] = True
+                changes['4'] = False
             else:
-                local_progress[stage][button_number] = True
-                local_progress[stage]['3'] = False
-            print(f'button_number {button_number}')
-            print(f'local progress {local_progress}')
+                changes[button_number] = True
+                changes['3'] = False
+
+            local_changes.append(changes)
+
+            if changes != local_changes[0]:
+                local_flags['flag_changes'] = True
+            else:
+                local_flags['flag_changes'] = False
+
+            local_progress[stage] = changes
 
         if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-danger btn111 w-100'
@@ -309,22 +372,32 @@ def test_third():
     if local_stages[stage][0] == '15':
 
         if request.is_json:
-
             button_number = request.args.get('button_number')
+
+            local_changes.append(local_progress[stage].copy())
+            changes = local_progress[stage].copy()
+            
             if button_number == '1':
-                local_progress[stage][button_number] = True
-                local_progress[stage]['2'] = False
+                changes[button_number] = True
+                changes['2'] = False
             elif button_number == '2':
-                local_progress[stage][button_number] = True
-                local_progress[stage]['1'] = False
+                changes[button_number] = True
+                changes['1'] = False
             elif button_number == '3':
-                local_progress[stage][button_number] = True
-                local_progress[stage]['4'] = False
+                changes[button_number] = True
+                changes['4'] = False
             else:
-                local_progress[stage][button_number] = True
-                local_progress[stage]['3'] = False
-            print(f'button_number {button_number}')
-            print(f'local progress {local_progress}')
+                changes[button_number] = True
+                changes['3'] = False
+
+            local_changes.append(changes)
+
+            if changes != local_changes[0]:
+                local_flags['flag_changes'] = True
+            else:
+                local_flags['flag_changes'] = False
+
+            local_progress[stage] = changes
 
         if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-success btn151 w-100'
@@ -366,14 +439,14 @@ def test_third():
 
     for i in range(int(len(local_progress[stage].keys())//2)):
         data.append((local_stages[stage][1].attr['info']['styles'][i], local_stages[stage][1].attr['info']['text'][i], local_stages[stage][1].attr['buttons']['left']['styles'][i], local_stages[stage][1].attr['buttons']['left']['text'][i], local_stages[stage][1].attr['buttons']['right']['styles'][i], local_stages[stage][1].attr['buttons']['right']['text'][i]))
-    
-    return render_template("test3.html", data=data, length=len(data), navigation=navigation)
+
+    return render_template("test3.html", data=data, navigation=navigation)
 
 
 @app.route("/test_fourth", methods = ['GET', 'POST'])
 def test_fourth():
 
-    global local_progress, local_stages, current_stage, stage
+    global local_progress, local_stages, stage, local_flags
     info, data, navigation = [], [], []
     navigation.append((local_stages[stage][1].attr['navigation']['styles'][0], local_stages[stage][1].attr['navigation']['text'][0], local_stages[stage][1].attr['navigation']['links'][0]))
 
@@ -382,14 +455,23 @@ def test_fourth():
         if request.is_json:
             button_number = request.args.get('button_number')
 
-            for i in local_progress[stage].keys():
-                if i == button_number:
-                    local_progress[stage][i] = True
-                else:
-                    local_progress[stage][i] = False
+            local_changes.append(local_progress[stage].copy())
+            changes = local_progress[stage].copy()
 
-            print(f'button_number {button_number}')
-            print(f'local progress {local_progress}')
+            for i in changes.keys():
+                if i == button_number:
+                    changes[i] = True
+                else:
+                    changes[i] = False
+
+            local_changes.append(changes)
+
+            if changes != local_changes[0]:
+                local_flags['flag_changes'] = True
+            else:
+                local_flags['flag_changes'] = False
+
+            local_progress[stage] = changes
 
         if local_progress[stage]['1'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn41 w-100'
@@ -438,14 +520,23 @@ def test_fourth():
         if request.is_json:
             button_number = request.args.get('button_number')
 
-            for i in local_progress[stage].keys():
-                if i == button_number:
-                    local_progress[stage][i] = True
-                else:
-                    local_progress[stage][i] = False
+            local_changes.append(local_progress[stage].copy())
+            changes = local_progress[stage].copy()
 
-            print(f'button_number {button_number}')
-            print(f'local progress {local_progress}')
+            for i in changes.keys():
+                if i == button_number:
+                    changes[i] = True
+                else:
+                    changes[i] = False
+
+            local_changes.append(changes)
+
+            if changes != local_changes[0]:
+                local_flags['flag_changes'] = True
+            else:
+                local_flags['flag_changes'] = False
+
+            local_progress[stage] = changes
 
         if local_progress[stage]['1'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-warning btn51 w-100'
@@ -479,14 +570,23 @@ def test_fourth():
         if request.is_json:
             button_number = request.args.get('button_number')
 
-            for i in local_progress[stage].keys():
-                if i == button_number:
-                    local_progress[stage][i] = True
-                else:
-                    local_progress[stage][i] = False
+            local_changes.append(local_progress[stage].copy())
+            changes = local_progress[stage].copy()
 
-            print(f'button_number {button_number}')
-            print(f'local progress {local_progress}')
+            for i in changes.keys():
+                if i == button_number:
+                    changes[i] = True
+                else:
+                    changes[i] = False
+
+            local_changes.append(changes)
+
+            if changes != local_changes[0]:
+                local_flags['flag_changes'] = True 
+            else:
+                local_flags['flag_changes'] = False
+
+            local_progress[stage] = changes
 
         if local_progress[stage]['1'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn61 w-100'
@@ -511,14 +611,23 @@ def test_fourth():
         if request.is_json:
             button_number = request.args.get('button_number')
 
-            for i in local_progress[stage].keys():
-                if i == button_number:
-                    local_progress[stage][i] = True
-                else:
-                    local_progress[stage][i] = False
+            local_changes.append(local_progress[stage].copy())
+            changes = local_progress[stage].copy()
 
-            print(f'button_number {button_number}')
-            print(f'local progress {local_progress}')
+            for i in changes.keys():
+                if i == button_number:
+                    changes[i] = True
+                else:
+                    changes[i] = False
+
+            local_changes.append(changes)
+
+            if changes != local_changes[0]:
+                local_flags['flag_changes'] = True  
+            else:
+                local_flags['flag_changes'] = False
+
+            local_progress[stage] = changes
 
         #local_stages[current_stage].attr['navigation']['styles'][1] = 'btn btn-lg btn-outline-danger w-100 btn-next'
         #local_stages[current_stage].attr['navigation']['text'][1] = 'Далее'
@@ -570,14 +679,23 @@ def test_fourth():
         if request.is_json:
             button_number = request.args.get('button_number')
 
-            for i in local_progress[stage].keys():
-                if i == button_number:
-                    local_progress[stage][i] = True
-                else:
-                    local_progress[stage][i] = False
+            local_changes.append(local_progress[stage].copy())
+            changes = local_progress[stage].copy()
 
-            print(f'button_number {button_number}')
-            print(f'local progress {local_progress}')
+            for i in changes.keys():
+                if i == button_number:
+                    changes[i] = True
+                else:
+                    changes[i] = False
+
+            local_changes.append(changes)
+
+            if changes != local_changes[0]:
+                local_flags['flag_changes'] = True
+            else:
+                local_flags['flag_changes'] = False
+
+            local_progress[stage] = changes
 
         if local_progress[stage]['1'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
@@ -603,21 +721,33 @@ def test_fourth():
         if request.is_json:
             button_number = request.args.get('button_number')
 
-            for i in local_progress[stage].keys():
-                if i == button_number:
-                    local_progress[stage][i] = True
-                else:
-                    local_progress[stage][i] = False
+            local_changes.append(local_progress[stage].copy())
+            changes = local_progress[stage].copy()
 
-            print(f'button_number {button_number}')
-            print(f'local progress {local_progress}')
+            for i in changes.keys():
+                if i == button_number:
+                    changes[i] = True
+                else:
+                    changes[i] = False
+
+            local_changes.append(changes)
+
+            if changes != local_changes[0]:
+                local_flags['flag_changes'] = True
+            else:
+                local_flags['flag_changes'] = False
+
+            local_progress[stage] = changes
 
         if local_progress[stage]['1'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn191 w-100'
             local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn192 w-100'
             local_stages[stage][1].attr['navigation']['styles'][1] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][1] = 'Далее'
-            local_stages[stage][1].next = '22'
+            if local_flags[3] == '3.3':
+                local_stages[stage][1].next = '22'
+            elif local_flags[3] == '3.2':
+                local_stages[stage][1].next = '10'
    
         elif local_progress[stage]['2'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn191 w-100'
@@ -638,14 +768,23 @@ def test_fourth():
         if request.is_json:
             button_number = request.args.get('button_number')
 
-            for i in local_progress[stage].keys():
-                if i == button_number:
-                    local_progress[stage][i] = True
-                else:
-                    local_progress[stage][i] = False
+            local_changes.append(local_progress[stage].copy())
+            changes = local_progress[stage].copy()
 
-            print(f'button_number {button_number}')
-            print(f'local progress {local_progress}')
+            for i in changes.keys():
+                if i == button_number:
+                    changes[i] = True
+                else:
+                    changes[i] = False
+
+            local_changes.append(changes)
+
+            if changes != local_changes[0]:
+                local_flags['flag_changes'] = True
+            else:
+                local_flags['flag_changes'] = False
+
+            local_progress[stage] = changes
 
         if local_progress[stage]['1'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn221 w-100'
@@ -666,7 +805,6 @@ def test_fourth():
         for i in local_progress[stage].keys():
             data.append((local_stages[stage][1].attr['buttons']['styles'][int(i) - 1], local_stages[stage][1].attr['buttons']['text'][int(i) - 1]))
         navigation.append((local_stages[stage][1].attr['navigation']['styles'][1], local_stages[stage][1].attr['navigation']['text'][1], local_stages[stage][1].attr['navigation']['links'][1]))
-
 
     return render_template("test4.html", info=info, data=data, navigation=navigation)
 
