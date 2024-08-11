@@ -14,7 +14,7 @@ local_changes = []
 def progress_output():
     global local_progress, local_stages, stage
     print(f'Current stage: {stage}')
-    for i in range(1, stage + 1):
+    for i in range(1, len(local_progress)):
         print(f'stage: {i}, template: {local_stages[i][0]}, Current progress {local_progress[i]}')
 
 def body_params():
@@ -55,7 +55,8 @@ def next_stage():
     global local_stages, local_progress, stage, local_flags, local_changes
 
     if stage + 1 == len(local_progress):
-        print(f'var1')
+        print("\n" + f'var1')
+
         local_stages.append((local_stages[stage][1].next, stages[local_stages[stage][1].next].copy()))
         local_progress.append(progress[local_stages[stage][1].next].copy())
         stage += 1
@@ -63,7 +64,7 @@ def next_stage():
         local_flags['flag_changes'] = False
 
     elif local_flags['flag_changes']:
-        print(f'var2')
+        print("\n" + f'var2')
 
         local_stages = local_stages[:stage + 1]
         local_progress = local_progress[:stage + 1]
@@ -76,7 +77,8 @@ def next_stage():
         print(stage)
 
     elif not local_flags['flag_changes'] and stage < len(local_progress):
-        print(f'var3')
+        print("\n" + f'var3')
+
         stage += 1
 
     progress_output()
@@ -95,14 +97,14 @@ def prev_stage():
     global stage, local_stages, local_progress, local_flags, local_changes
 
     if local_flags['flag_changes']:
-        local_stages = local_stages[:stage]
-        local_progress = local_progress[:stage]
+        local_stages = local_stages[:stage + 1]
+        local_progress = local_progress[:stage + 1]
+        local_flags['flag_changes'] = False
 
     stage -= 1
+    local_changes.clear()
 
     progress_output()
-
-    local_changes.clear()
 
     return redirect(local_stages[stage][1].attr['base_url'])
 
