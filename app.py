@@ -542,13 +542,6 @@ def test_fourth():
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Реанимация!!!'
             local_stages[stage][1].next = '7'
 
-        info.append((local_stages[stage][1].attr['info']['styles'][0], local_stages[stage][1].attr['info']['text'][0]))
-        for i in local_progress[stage].keys():
-            data.append((local_stages[stage][1].attr['buttons']['styles'][int(i) - 1], local_stages[stage][1].attr['buttons']['text'][int(i) - 1]))
-        navigation.append((local_stages[stage][1].attr['navigation']['styles'][1], local_stages[stage][1].attr['navigation']['text'][1], local_stages[stage][1].attr['navigation']['links'][1]))
-        navigation.append((local_stages[stage][1].attr['navigation']['styles'][2], local_stages[stage][1].attr['navigation']['text'][2], local_stages[stage][1].attr['navigation']['links'][2]))
-
-
     elif local_stages[stage][0] == '5':
 
         if request.is_json:
@@ -593,12 +586,6 @@ def test_fourth():
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Отёк лёгких'
 
-        info.append((local_stages[stage][1].attr['info']['styles'][0], local_stages[stage][1].attr['info']['text'][0]))
-        for i in local_progress[stage].keys():
-            data.append((local_stages[stage][1].attr['buttons']['styles'][int(i) - 1], local_stages[stage][1].attr['buttons']['text'][int(i) - 1]))
-        navigation.append((local_stages[stage][1].attr['navigation']['styles'][1], local_stages[stage][1].attr['navigation']['text'][1], local_stages[stage][1].attr['navigation']['links'][1]))
-        navigation.append((local_stages[stage][1].attr['navigation']['styles'][2], local_stages[stage][1].attr['navigation']['text'][2], local_stages[stage][1].attr['navigation']['links'][2]))
-
     elif local_stages[stage][0] == '6':
 
         if request.is_json:
@@ -633,13 +620,6 @@ def test_fourth():
             local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn62 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Реанимация!!!'
-
-
-        info.append((local_stages[stage][1].attr['info']['styles'][0], local_stages[stage][1].attr['info']['text'][0]))
-        for i in local_progress[stage].keys():
-            data.append((local_stages[stage][1].attr['buttons']['styles'][int(i) - 1], local_stages[stage][1].attr['buttons']['text'][int(i) - 1]))
-        navigation.append((local_stages[stage][1].attr['navigation']['styles'][1], local_stages[stage][1].attr['navigation']['text'][1], local_stages[stage][1].attr['navigation']['links'][1]))
-        navigation.append((local_stages[stage][1].attr['navigation']['styles'][2], local_stages[stage][1].attr['navigation']['text'][2], local_stages[stage][1].attr['navigation']['links'][2]))
 
     if local_stages[stage][0] == '8':
 
@@ -703,12 +683,6 @@ def test_fourth():
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Реанимация!!!'
             local_stages[stage][1].next = '9'
 
-        info.append((local_stages[stage][1].attr['info']['styles'][0], local_stages[stage][1].attr['info']['text'][0]))
-        for i in local_progress[stage].keys():
-            data.append((local_stages[stage][1].attr['buttons']['styles'][int(i) - 1], local_stages[stage][1].attr['buttons']['text'][int(i) - 1]))
-        navigation.append((local_stages[stage][1].attr['navigation']['styles'][1], local_stages[stage][1].attr['navigation']['text'][1], local_stages[stage][1].attr['navigation']['links'][1]))
-        navigation.append((local_stages[stage][1].attr['navigation']['styles'][2], local_stages[stage][1].attr['navigation']['text'][2], local_stages[stage][1].attr['navigation']['links'][2]))
-
     elif local_stages[stage][0] == '18.1':
 
         if request.is_json:
@@ -743,13 +717,6 @@ def test_fourth():
             local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-
-
-        info.append((local_stages[stage][1].attr['info']['styles'][0], local_stages[stage][1].attr['info']['text'][0]))
-        for i in local_progress[stage].keys():
-            data.append((local_stages[stage][1].attr['buttons']['styles'][int(i) - 1], local_stages[stage][1].attr['buttons']['text'][int(i) - 1]))
-        navigation.append((local_stages[stage][1].attr['navigation']['styles'][1], local_stages[stage][1].attr['navigation']['text'][1], local_stages[stage][1].attr['navigation']['links'][1]))
-        navigation.append((local_stages[stage][1].attr['navigation']['styles'][2], local_stages[stage][1].attr['navigation']['text'][2], local_stages[stage][1].attr['navigation']['links'][2]))
 
     elif local_stages[stage][0] == '19':
 
@@ -791,13 +758,6 @@ def test_fourth():
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
             local_stages[stage][1].next = '20'
 
-
-        info.append((local_stages[stage][1].attr['info']['styles'][0], local_stages[stage][1].attr['info']['text'][0]))
-        for i in local_progress[stage].keys():
-            data.append((local_stages[stage][1].attr['buttons']['styles'][int(i) - 1], local_stages[stage][1].attr['buttons']['text'][int(i) - 1]))
-        navigation.append((local_stages[stage][1].attr['navigation']['styles'][1], local_stages[stage][1].attr['navigation']['text'][1], local_stages[stage][1].attr['navigation']['links'][1]))
-        navigation.append((local_stages[stage][1].attr['navigation']['styles'][2], local_stages[stage][1].attr['navigation']['text'][2], local_stages[stage][1].attr['navigation']['links'][2]))
-
     elif local_stages[stage][0] == '22':
 
         if request.is_json:
@@ -835,12 +795,20 @@ def test_fourth():
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
             local_stages[stage][1].next = '21'
 
+    elif local_stages[stage][0] == '23':
+        pass
 
-        info.append((local_stages[stage][1].attr['info']['styles'][0], local_stages[stage][1].attr['info']['text'][0]))
-        for i in local_progress[stage].keys():
-            data.append((local_stages[stage][1].attr['buttons']['styles'][int(i) - 1], local_stages[stage][1].attr['buttons']['text'][int(i) - 1]))
-        navigation.append((local_stages[stage][1].attr['navigation']['styles'][1], local_stages[stage][1].attr['navigation']['text'][1], local_stages[stage][1].attr['navigation']['links'][1]))
-        navigation.append((local_stages[stage][1].attr['navigation']['styles'][2], local_stages[stage][1].attr['navigation']['text'][2], local_stages[stage][1].attr['navigation']['links'][2]))
+    elif local_stages[stage][0] == '24':
+        pass
+
+    elif local_stages[stage][0] == '25':
+        pass
+
+    info.append((local_stages[stage][1].attr['info']['styles'][0], local_stages[stage][1].attr['info']['text'][0]))
+    for i in local_progress[stage].keys():
+        data.append((local_stages[stage][1].attr['buttons']['styles'][int(i) - 1], local_stages[stage][1].attr['buttons']['text'][int(i) - 1]))
+    navigation.append((local_stages[stage][1].attr['navigation']['styles'][1], local_stages[stage][1].attr['navigation']['text'][1], local_stages[stage][1].attr['navigation']['links'][1]))
+    navigation.append((local_stages[stage][1].attr['navigation']['styles'][2], local_stages[stage][1].attr['navigation']['text'][2], local_stages[stage][1].attr['navigation']['links'][2]))
 
     return render_template("test4.html", info=info, data=data, navigation=navigation)
 

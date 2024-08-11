@@ -280,7 +280,7 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }),
 
-          '22': stage(prev='21', next = '1', attr={'base_url': 'test_fourth', 
+          '22': stage(prev='21', next = '23', attr={'base_url': 'test_fourth', 
                                                  'info': {'text': ['Судороги купированы?'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                  'buttons': {'text': ["Да", "Нет"], 
@@ -289,4 +289,85 @@ stages = {'0': stage(prev='', next = '1', attr={'base_url': '',
                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }),
+
+          '23': stage(prev='22', next = '24', attr={'base_url': 'test_fourth', 
+                                                 'info': {'text': ['Пациент может выполнять команды?'], 
+                                                          'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                 'buttons': {'text': ["Да", "Нет"], 
+                                                             'styles': ['btn btn-lg btn-outline-success btn231 w-100', 'btn btn-lg btn-outline-danger btn232 w-100']}, 
+                                                 'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                 }),
+
+          '24': stage(prev='23', next = '24.3', attr={'base_url': 'test_fourth', 
+                                                 'info': {'text': ['Небулайзер доступен?'], 
+                                                          'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                 'buttons': {'text': ["Да", "Нет"], 
+                                                             'styles': ['btn btn-lg btn-outline-success btn241 w-100', 'btn btn-lg btn-outline-danger btn242 w-100']}, 
+                                                 'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                 }),
+
+          '24.3': stage(prev='24', next = '24.4', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['Введите внутривенно или (при отсутствии сосудистого доступа – внутримышечно)' + '\n' + '1. Эпинефрин (адреналин)мл' + '\n' + '2. Дексаметазон мл или Преднизолон мл или Метилпреднизолон мл или Гидрокортизон мл'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
+          '24.4': stage(prev='24.3', next = '24.5', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['Введите ингаляционно через небулайзер' + '\n' + '1. Будесонид мг + NaCl 0,9% 3 мл' + '\n' + '2. Адреналин мл + NaCl 0,9% 3 мл'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
+          '24.5': stage(prev='24.4', next = '24.6', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['Введите ингаляционно' + '\n' + '1. Сальбутамол доз'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
+          '24.6': stage(prev='24.5', next = '24.7', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['Введите внутривенно или (при отсутствии сосудистого доступа – внутримышечно)' + '\n' + '1. Аминофиллин (эуфиллин) мл' + '\n' + '2. Дексаметазон мл или Преднизолон мл или Метилпреднизолон мл или Гидрокортизон мл'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
+          '24.7': stage(prev='24.6', next = '1', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['1. Введите внутривенно  Нитроглицерин 10 мг в/в капельно При отсутствии сосудистого доступа дайте пациенту Нитроглицерин 0,4 мг под язык' + '\n' + '2. Введите внутривенно или (при отсутствии сосудистого доступа – внутримышечно) Морфин 1 % - 1 мл (при наличии) Фуросемид 40 мг (4 мл)'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
+          '25': stage(prev='24.7', next = '1', attr={'base_url': 'test_fourth', 
+                                                 'info': {'text': ['Дыхание, SpO2 нормализовались?'], 
+                                                          'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                 'buttons': {'text': ["Да", "Нет"], 
+                                                             'styles': ['btn btn-lg btn-outline-success btn251 w-100', 'btn btn-lg btn-outline-danger btn252 w-100']}, 
+                                                 'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                 }),
+
           }
