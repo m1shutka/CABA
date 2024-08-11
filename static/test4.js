@@ -387,4 +387,118 @@
             }
         })
     })
+
+    $('.btn231').click(function () {
+
+        $.ajax({
+            url: '',
+            type: 'get',
+            contentType: 'application/json',
+            data: {
+                button_number: '1'
+            },
+            success: function (response) {
+
+                $('.btn231')['0'].className = 'btn btn-lg btn-success btn231 w-100'
+                $('.btn232')['0'].className = 'btn btn-lg btn-outline-danger btn232 w-100'
+                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+            }
+        })
+    })
+
+    $('.btn232').click(function () {
+
+        $.ajax({
+            url: '',
+            type: 'get',
+            contentType: 'application/json',
+            data: {
+                button_number: '2'
+            },
+            success: function (response) {
+
+                $('.btn231')['0'].className = 'btn btn-lg btn-outline-success btn231 w-100'
+                $('.btn232')['0'].className = 'btn btn-lg btn-danger btn232 w-100'
+                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+            }
+        })
+    })
+
+    $('.btn241').click(function () {
+
+        $.ajax({
+            url: '',
+            type: 'get',
+            contentType: 'application/json',
+            data: {
+                button_number: '1'
+            },
+            success: function (response) {
+
+                $('.btn241')['0'].className = 'btn btn-lg btn-success btn241 w-100'
+                $('.btn242')['0'].className = 'btn btn-lg btn-outline-danger btn242 w-100'
+                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+            }
+        })
+    })
+
+    $('.btn242').click(function () {
+
+        $.ajax({
+            url: '',
+            type: 'get',
+            contentType: 'application/json',
+            data: {
+                button_number: '2'
+            },
+            success: function (response) {
+
+                $('.btn241')['0'].className = 'btn btn-lg btn-outline-success btn241 w-100'
+                $('.btn242')['0'].className = 'btn btn-lg btn-danger btn242 w-100'
+                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+            }
+        })
+    })
+
+    $('.btn251').click(function () {
+
+        $.ajax({
+            url: '',
+            type: 'get',
+            contentType: 'application/json',
+            data: {
+                button_number: '1'
+            },
+            success: function (response) {
+
+                $('.btn251')['0'].className = 'btn btn-lg btn-success btn251 w-100'
+                $('.btn252')['0'].className = 'btn btn-lg btn-outline-danger btn252 w-100'
+                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+            }
+        })
+    })
+
+    $('.btn252').click(function () {
+
+        $.ajax({
+            url: '',
+            type: 'get',
+            contentType: 'application/json',
+            data: {
+                button_number: '2'
+            },
+            success: function (response) {
+
+                $('.btn251')['0'].className = 'btn btn-lg btn-outline-success btn251 w-100'
+                $('.btn252')['0'].className = 'btn btn-lg btn-danger btn252 w-100'
+                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+            }
+        })
+    })
 })
