@@ -166,10 +166,16 @@ def test_first():
         local_stages[stage][1].next = '2'
 
     elif local_stages[stage][0] == '7':
-        local_stages[stage][1].next = '8'
+        if local_flags[4] == '4.1':
+            local_stages[stage][1].next = '8'
+        if local_flags[4] == '4.2':
+            local_stages[stage][1].next = '15'
 
     elif local_stages[stage][0] == '9':
         local_stages[stage][1].next = '10'
+
+    elif local_stages[stage][0] == '9.1':
+        local_stages[stage][1].next = '14'
 
     elif local_stages[stage][0] == '10':
         local_stages[stage][1].next = '11'
@@ -180,15 +186,32 @@ def test_first():
     elif local_stages[stage][0] == '13.1':
         local_stages[stage][1].next = '4'
 
+    elif local_stages[stage][0] == '13.2':
+        local_stages[stage][1].next = '9.1'
+
+    elif local_stages[stage][0] == '14':
+        local_stages[stage][1].next = '7'
+
+    elif local_stages[stage][0] == '16':
+        if 15 in local_flags.keys():
+            if local_flags[15] == '15.2':
+                local_stages[stage][1].next = '4'
+            elif local_flags[15] == '15.4':
+                local_stages[stage][1].next = '4'
+
+    elif local_stages[stage][0] == '17':
+        local_stages[stage][1].attr['info']['text'] = [f'Установите воздуховод №test{body_params()} или ларингеальную маску №test{body_params()}']
+        #if 15 in local_flags.keys():
+        if local_flags[15] == '15.3':
+                local_stages[stage][1].next = '4'
+        elif local_flags[15] == '15.4':
+                local_stages[stage][1].next = '16'
+
     elif local_stages[stage][0] == '18':
         if local_flags[3] == '3.3':
             local_stages[stage][1].next = '21'
         elif local_flags[3] == '3.2':
             local_stages[stage][1].next = '19'
-        ################################
-
-    elif local_stages[stage][0] == '17':
-        local_stages[stage][1].attr['info']['text'] = [f'Установите воздуховод №test{body_params()} или ларингеальную маску №test{body_params()}']
 
     elif local_stages[stage][0] == '20':
         local_stages[stage][1].attr['info']['text'][0] = f'Поместите сахар/конфету за щёку пациента (не за зубы).При наличии доступа в вену – внутривенно test{body_params()} мл 20% раствора глюкозы (ампулы 40% глюкозы развести пополам 0,9 % раствором NaCl)'
@@ -434,7 +457,8 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-danger btn154 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = '16'
+            local_stages[stage][1].next = '12'###############
+            local_flags[15] = '15.1'
 
         elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-success btn151 w-100'
@@ -443,7 +467,8 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-danger btn154 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = '16'
+            local_stages[stage][1].next = '17'
+            local_flags[15] = '15.3'
 
         elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-success btn151 w-100'
@@ -453,6 +478,7 @@ def test_third():
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
             local_stages[stage][1].next = '16'
+            local_flags[15] = '15.2'
 
         elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-success btn151 w-100'
@@ -461,7 +487,8 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-danger btn154 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = '16'
+            local_stages[stage][1].next = '17'
+            local_flags[15] = '15.4'
 
     navigation.append((local_stages[stage][1].attr['navigation']['styles'][1], local_stages[stage][1].attr['navigation']['text'][1], local_stages[stage][1].attr['navigation']['links'][1]))
     navigation.append((local_stages[stage][1].attr['navigation']['styles'][2], local_stages[stage][1].attr['navigation']['text'][2], local_stages[stage][1].attr['navigation']['links'][2]))
@@ -514,6 +541,7 @@ def test_fourth():
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
             local_stages[stage][1].next = '7'
+            local_flags[4] = '4.1'
    
         elif local_progress[stage]['2'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn41 w-100'
@@ -522,7 +550,8 @@ def test_fourth():
             local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn44 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Обеспечение проходимости дыхательных путей'
-            local_stages[stage][1].next = '7'
+            local_stages[stage][1].next = '13.2'
+            local_flags[4] = '4.2'
 
         elif local_progress[stage]['3'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn41 w-100'
@@ -532,6 +561,7 @@ def test_fourth():
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Дыхательная недостаточность'
             local_stages[stage][1].next = '7'
+            local_flags[4] = '4.3'
 
         elif local_progress[stage]['4'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn41 w-100'
@@ -541,6 +571,7 @@ def test_fourth():
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Реанимация!!!'
             local_stages[stage][1].next = '7'
+            local_flags[4] = '4.4'
 
     elif local_stages[stage][0] == '5':
 
