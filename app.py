@@ -14,6 +14,7 @@ local_changes = []
 def progress_output():
     global local_progress, local_stages, stage
     print(f'Current stage: {stage}')
+    print(f'Current flags: {local_flags}')
     for i in range(1, len(local_progress)):
         print(f'stage: {i}, template: {local_stages[i][0]}, Current progress {local_progress[i]}')
 
@@ -40,11 +41,12 @@ def sign_in():
 @app.route("/")
 def main():
 
-    global local_stages, local_progress, stage
+    global local_stages, local_progress, stage, local_flags
 
     stage = 0
     local_stages = [('0', stages['0'])]
     local_progress = [{'1': False}]
+    local_flags = {'flag_changes': False}
     print(request.user_agent_class)
     
     return render_template("index.html")
@@ -109,10 +111,11 @@ def prev_stage():
 
 @app.route("/to_beginning")
 def to_beginning():
-    global local_stages, local_progress, stage
+    global local_stages, local_progress, stage, local_flags
     stage = 0
     local_stages = [('0', stages['0'])]
     local_progress = [{'1': False}]
+    local_flags = {'flag_changes': False}
 
     return redirect('/next_stage')
 
@@ -170,6 +173,8 @@ def test_first():
             local_stages[stage][1].next = '8'
         if local_flags[4] == '4.2':
             local_stages[stage][1].next = '15'
+        if local_flags[4] == '4.3':
+            local_stages[stage][1].next = '8'
 
     elif local_stages[stage][0] == '9':
         local_stages[stage][1].next = '10'
@@ -184,10 +189,25 @@ def test_first():
         local_stages[stage][1].next = '4'
 
     elif local_stages[stage][0] == '13.1':
-        local_stages[stage][1].next = '4'
+        if local_flags[3] == '3.2':
+            local_stages[stage][1].next = '4'
+        if 23 in local_flags.keys():
+            if local_flags[23] == '23.1' and local_flags[5] != '5.3':
+                local_stages[stage][1].next = '18'
+            elif local_flags[23] == '23.1' and local_flags[5] == '5.3':
+                local_stages[stage][1].next = '16'#######
+            elif local_flags[23] == '23.2':
+                local_stages[stage][1].next = '7'
 
     elif local_stages[stage][0] == '13.2':
         local_stages[stage][1].next = '9.1'
+
+    elif local_stages[stage][0] == '13.3':
+        if 5 in local_flags.keys():
+            if local_flags[5] != '5.3':
+                local_stages[stage][1].next = '24'
+            elif local_flags[5] == '5.3':
+                local_stages[stage][1].next = '18'
 
     elif local_stages[stage][0] == '14':
         local_stages[stage][1].next = '7'
@@ -199,19 +219,45 @@ def test_first():
             elif local_flags[15] == '15.4':
                 local_stages[stage][1].next = '4'
 
+        if 24 in local_flags.keys():
+            if local_flags[24] == '24.3':
+                local_stages[stage][1].next = '24.3'
+            elif local_flags[24] == '24.4':
+                local_stages[stage][1].next = '18'
+            elif local_flags[24] == '24.5':
+                local_stages[stage][1].next = '18'
+            elif local_flags[24] == '24.6':
+                local_stages[stage][1].next = '24.6'
+
+        if 5 in local_flags.keys():
+            if local_flags[5] == '5.3':
+                local_stages[stage][1].next = '24.7'
+        
+
     elif local_stages[stage][0] == '17':
         local_stages[stage][1].attr['info']['text'] = [f'Установите воздуховод №test{body_params()} или ларингеальную маску №test{body_params()}']
-        #if 15 in local_flags.keys():
-        if local_flags[15] == '15.3':
+        if 15 in local_flags.keys():
+            if local_flags[15] == '15.3':
                 local_stages[stage][1].next = '4'
-        elif local_flags[15] == '15.4':
+            elif local_flags[15] == '15.4':
                 local_stages[stage][1].next = '16'
 
     elif local_stages[stage][0] == '18':
-        if local_flags[3] == '3.3':
-            local_stages[stage][1].next = '21'
-        elif local_flags[3] == '3.2':
-            local_stages[stage][1].next = '19'
+        if 3 in local_flags.keys():
+            if local_flags[3] == '3.3':
+                local_stages[stage][1].next = '21'
+            elif local_flags[3] == '3.2':
+                local_stages[stage][1].next = '19'
+        if 4 in local_flags.keys():
+            if local_flags[4] == '4.3' and local_flags[5] == '5.1':
+                local_stages[stage][1].next = '24.3'
+            elif local_flags[4] == '4.3' and local_flags[5] == '5.2':
+                local_stages[stage][1].next = '24.6'
+            elif local_flags[4] == '4.3' and local_flags[5] == '5.3':
+                local_stages[stage][1].next = '16'
+        
+            
+
 
     elif local_stages[stage][0] == '20':
         local_stages[stage][1].attr['info']['text'][0] = f'Поместите сахар/конфету за щёку пациента (не за зубы).При наличии доступа в вену – внутривенно test{body_params()} мл 20% раствора глюкозы (ампулы 40% глюкозы развести пополам 0,9 % раствором NaCl)'
@@ -221,6 +267,26 @@ def test_first():
         local_stages[stage][1].attr['info']['text'][0] = f'При наличии сосудистого доступа – введите внутривенно вальпроевую кислоту test{body_params()} мл (15 мг/кг), либо мидазолам test{body_params()} мл (0,3 мг/кг), либо диазепам test{body_params()} мл (0,3-0,5 мг/кг)'
         local_stages[stage][1].attr['info']['text'][1] = f'При отсутствии сосудистого доступа внутримышечно ввести мидазолам test{body_params()} мл (0,3 мг/кг), либо диазепам test{body_params()} мл (0,3-0,5 мг/кг)'
         local_stages[stage][1].next = '19'
+
+    elif local_stages[stage][0] == '24.3':
+        local_stages[stage][1].next = '25'
+        local_flags[24] = '24.3'
+
+    elif local_stages[stage][0] == '24.4':
+        local_stages[stage][1].next = '25'
+        local_flags[24] = '24.4'
+
+    elif local_stages[stage][0] == '24.5':
+        local_stages[stage][1].next = '25'
+        local_flags[24] = '24.5'
+
+    elif local_stages[stage][0] == '24.6':
+        local_stages[stage][1].next = '25'
+        local_flags[24] = '24.6'
+
+    elif local_stages[stage][0] == '24.7':
+        local_stages[stage][1].next = '10'
+        local_flags[24] = '24.7'
 
     data = []
     for i in zip(local_stages[stage][1].attr['buttons']['text'], local_stages[stage][1].attr['buttons']['styles'], local_stages[stage][1].attr['info']['text'], local_stages[stage][1].attr['info']['styles']):
@@ -391,7 +457,11 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn114 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = '18'
+
+            if 5 not in local_flags.keys():
+                local_stages[stage][1].next = '18'
+            else:
+                local_stages[stage][1].next = '12'
 
         elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-danger btn111 w-100'
@@ -400,7 +470,11 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn114 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = '18'
+
+            if 5 not in local_flags.keys():
+                local_stages[stage][1].next = '18'
+            else:
+                local_stages[stage][1].next = '12'
 
         elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-danger btn111 w-100'
@@ -409,7 +483,11 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn114 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = '18'
+
+            if 5 not in local_flags.keys():
+                local_stages[stage][1].next = '18'
+            else:
+                local_stages[stage][1].next = '4'
 
         elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-danger btn111 w-100'
@@ -418,7 +496,11 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn114 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = '12'
+
+            if 5 not in local_flags.keys():
+                local_stages[stage][1].next = '12'
+            else:
+                local_stages[stage][1].next = '12'
 
     if local_stages[stage][0] == '15':
 
@@ -560,7 +642,7 @@ def test_fourth():
             local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn44 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Дыхательная недостаточность'
-            local_stages[stage][1].next = '7'
+            local_stages[stage][1].next = '5'
             local_flags[4] = '4.3'
 
         elif local_progress[stage]['4'] == True:
@@ -602,6 +684,8 @@ def test_fourth():
             local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn53 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Отёк гортани'
+            local_stages[stage][1].next = '23'
+            local_flags[5] = '5.1'
    
         elif local_progress[stage]['2'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-warning btn51 w-100'
@@ -609,6 +693,8 @@ def test_fourth():
             local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn53 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Бронхообструкция'
+            local_stages[stage][1].next = '23'
+            local_flags[5] = '5.2'
 
         elif local_progress[stage]['3'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-warning btn51 w-100'
@@ -616,6 +702,8 @@ def test_fourth():
             local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-warning btn53 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Отёк лёгких'
+            local_stages[stage][1].next = '23'
+            local_flags[5] = '5.3'
 
     elif local_stages[stage][0] == '6':
 
@@ -685,7 +773,14 @@ def test_fourth():
             local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = '9'
+
+            if 23 not in local_flags.keys():
+                local_stages[stage][1].next = '9'
+            else:
+                if local_flags[23] == '23.1':
+                    local_stages[stage][1].next = '13.3'
+                elif local_flags[23] == '23.2':
+                    local_stages[stage][1].next = '18'
    
         elif local_progress[stage]['2'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
@@ -696,6 +791,18 @@ def test_fourth():
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Гипертонический криз'
             local_stages[stage][1].next = '9'
 
+            if 23 not in local_flags.keys():
+                local_stages[stage][1].next = '9'
+            else:
+                if local_flags[23] == '23.1' and local_flags[5] != '5.3':
+                    local_stages[stage][1].next = '13.3'##############
+                elif local_flags[23] == '23.2' and local_flags[5] != '5.3':
+                    local_stages[stage][1].next = '18'#############
+                elif local_flags[23] == '23.1' and local_flags[5] == '5.3':
+                    local_stages[stage][1].next = '13.3'
+                elif local_flags[23] == '23.2' and local_flags[5] == '5.3':
+                    local_stages[stage][1].next = '18'
+
         elif local_progress[stage]['3'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
             local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
@@ -705,6 +812,17 @@ def test_fourth():
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Артериальная гипотония'
             local_stages[stage][1].next = '9'
 
+            if 23 not in local_flags.keys():
+                local_stages[stage][1].next = '9'
+            else:
+                if local_flags[23] == '23.1':
+                    local_stages[stage][1].next = '13.1'
+                elif local_flags[23] == '23.2' and local_flags[5] != '5.3':
+                    local_stages[stage][1].next = '18'
+                elif local_flags[23] == '23.2' and local_flags[5] == '5.3':
+                    local_stages[stage][1].next = '16'#####
+
+
         elif local_progress[stage]['4'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
             local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
@@ -713,6 +831,14 @@ def test_fourth():
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Реанимация!!!'
             local_stages[stage][1].next = '9'
+
+            if 23 not in local_flags.keys():
+                local_stages[stage][1].next = '9'
+            else:
+                if local_flags[23] == '23.1':
+                    local_stages[stage][1].next = '13.1'
+                elif local_flags[23] == '23.2':
+                    local_stages[stage][1].next = '18'
 
     elif local_stages[stage][0] == '18.1':
 
@@ -827,13 +953,131 @@ def test_fourth():
             local_stages[stage][1].next = '21'
 
     elif local_stages[stage][0] == '23':
-        pass
+
+        if request.is_json:
+            button_number = request.args.get('button_number')
+
+            local_changes.append(local_progress[stage].copy())
+            changes = local_progress[stage].copy()
+
+            for i in changes.keys():
+                if i == button_number:
+                    changes[i] = True
+                else:
+                    changes[i] = False
+
+            local_changes.append(changes)
+
+            if changes != local_changes[0]:
+                local_flags['flag_changes'] = True
+            else:
+                local_flags['flag_changes'] = False
+
+            local_progress[stage] = changes
+
+        if local_progress[stage]['1'] == True:
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn231 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn232 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
+            local_stages[stage][1].next = '7'
+            local_flags[23] = '23.1'
+   
+        elif local_progress[stage]['2'] == True:
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn231 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn232 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
+            local_stages[stage][1].next = '13.1'
+            local_flags[23] = '23.2'
 
     elif local_stages[stage][0] == '24':
-        pass
+
+        if request.is_json:
+            button_number = request.args.get('button_number')
+
+            local_changes.append(local_progress[stage].copy())
+            changes = local_progress[stage].copy()
+
+            for i in changes.keys():
+                if i == button_number:
+                    changes[i] = True
+                else:
+                    changes[i] = False
+
+            local_changes.append(changes)
+
+            if changes != local_changes[0]:
+                local_flags['flag_changes'] = True
+            else:
+                local_flags['flag_changes'] = False
+
+            local_progress[stage] = changes
+
+        if local_progress[stage]['1'] == True:
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn241 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn242 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
+
+            if 5 in local_flags.keys():
+                if local_flags[5] == '5.1':
+                    local_stages[stage][1].next = '24.4'
+                    local_flags[24] = '24.1'
+                elif local_flags[5] == '5.2':
+                    local_stages[stage][1].next = '24.5'
+                    local_flags[24] = '24.1'
+   
+        elif local_progress[stage]['2'] == True:
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn241 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn242 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
+
+            if 5 in local_flags.keys():
+                if local_flags[5] == '5.1':
+                    local_stages[stage][1].next = '18'
+                    local_flags[24] = '24.2'
+                elif local_flags[5] == '5.2':
+                    local_stages[stage][1].next = '18'
+                    local_flags[24] = '24.2'
 
     elif local_stages[stage][0] == '25':
-        pass
+
+        if request.is_json:
+            button_number = request.args.get('button_number')
+
+            local_changes.append(local_progress[stage].copy())
+            changes = local_progress[stage].copy()
+
+            for i in changes.keys():
+                if i == button_number:
+                    changes[i] = True
+                else:
+                    changes[i] = False
+
+            local_changes.append(changes)
+
+            if changes != local_changes[0]:
+                local_flags['flag_changes'] = True
+            else:
+                local_flags['flag_changes'] = False
+
+            local_progress[stage] = changes
+
+        if local_progress[stage]['1'] == True:
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn251 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn252 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
+            local_stages[stage][1].next = '10'
+   
+        elif local_progress[stage]['2'] == True:
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn251 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn252 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
+            local_stages[stage][1].next = '16'
 
     info.append((local_stages[stage][1].attr['info']['styles'][0], local_stages[stage][1].attr['info']['text'][0]))
     for i in local_progress[stage].keys():
