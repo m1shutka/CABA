@@ -426,6 +426,44 @@
         })
     })
 
+    $('.btn2321').click(function () {
+
+        $.ajax({
+            url: '',
+            type: 'get',
+            contentType: 'application/json',
+            data: {
+                button_number: '1'
+            },
+            success: function (response) {
+
+                $('.btn2321')['0'].className = 'btn btn-lg btn-success btn2321 w-100'
+                $('.btn2322')['0'].className = 'btn btn-lg btn-outline-danger btn2322 w-100'
+                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+            }
+        })
+    })
+
+    $('.btn2322').click(function () {
+
+        $.ajax({
+            url: '',
+            type: 'get',
+            contentType: 'application/json',
+            data: {
+                button_number: '2'
+            },
+            success: function (response) {
+
+                $('.btn2321')['0'].className = 'btn btn-lg btn-outline-success btn2321 w-100'
+                $('.btn2322')['0'].className = 'btn btn-lg btn-danger btn2322 w-100'
+                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+            }
+        })
+    })
+
     $('.btn241').click(function () {
 
         $.ajax({
@@ -496,6 +534,196 @@
 
                 $('.btn251')['0'].className = 'btn btn-lg btn-outline-success btn251 w-100'
                 $('.btn252')['0'].className = 'btn btn-lg btn-danger btn252 w-100'
+                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+            }
+        })
+    })
+
+    $('.btn3321').click(function () {
+        console.log('p')
+        $.ajax({
+            url: '',
+            type: 'get',
+            contentType: 'application/json',
+            data: {
+                button_number: '1'
+            },
+            success: function (response) {
+
+                $('.btn3321')['0'].className = 'btn btn-lg btn-danger btn3321 w-100'
+                $('.btn3322')['0'].className = 'btn btn-lg btn-outline-success btn3322 w-100'
+                $('.btn-next')['0'].className = 'btn btn-lg btn-danger w-100 btn-next'
+                $('.btn-next')['0'].innerHTML = "<h2>SOS. Оценить дыхание!</h2>"
+            }
+        })
+    })
+
+    $('.btn3322').click(function () {
+
+        $.ajax({
+            url: '',
+            type: 'get',
+            contentType: 'application/json',
+            data: {
+                button_number: '2'
+            },
+            success: function (response) {
+
+                $('.btn3321')['0'].className = 'btn btn-lg btn-outline-danger btn3321 w-100'
+                $('.btn3322')['0'].className = 'btn btn-lg btn-success btn3322 w-100'
+                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+            }
+        })
+    })
+
+    $('.btn261').click(function () {
+
+        $.ajax({
+            url: '',
+            type: 'get',
+            contentType: 'application/json',
+            data: {
+                button_number: '1'
+            },
+            success: function (response) {
+
+                $('.btn261')['0'].className = 'btn btn-lg btn-success btn261 w-100'
+                $('.btn262')['0'].className = 'btn btn-lg btn-outline-danger btn262 w-100'
+                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+            }
+        })
+    })
+
+    $('.btn262').click(function () {
+
+        $.ajax({
+            url: '',
+            type: 'get',
+            contentType: 'application/json',
+            data: {
+                button_number: '2'
+            },
+            success: function (response) {
+
+                $('.btn261')['0'].className = 'btn btn-lg btn-outline-success btn261 w-100'
+                $('.btn262')['0'].className = 'btn btn-lg btn-danger btn262 w-100'
+                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+            }
+        })
+    })
+
+    $('.btn2621').click(function () {
+
+        $.ajax({
+            url: '',
+            type: 'get',
+            contentType: 'application/json',
+            data: {
+                button_number: '1'
+            },
+            success: function (response) {
+
+                $('.btn2621')['0'].className = 'btn btn-lg btn-success btn2621 w-100'
+                $('.btn2622')['0'].className = 'btn btn-lg btn-outline-danger btn2622 w-100'
+                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+            }
+        })
+    })
+
+    $('.btn2622').click(function () {
+
+        $.ajax({
+            url: '',
+            type: 'get',
+            contentType: 'application/json',
+            data: {
+                button_number: '2'
+            },
+            success: function (response) {
+
+                $('.btn2621')['0'].className = 'btn btn-lg btn-outline-success btn2621 w-100'
+                $('.btn2622')['0'].className = 'btn btn-lg btn-danger btn2622 w-100'
+                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+            }
+        })
+    })
+
+    $('.btn2631').click(function () {
+
+        $.ajax({
+            url: '',
+            type: 'get',
+            contentType: 'application/json',
+            data: {
+                button_number: '1'
+            },
+            success: function (response) {
+
+                $('.btn2631')['0'].className = 'btn btn-lg btn-success btn2631 w-100'
+                $('.btn2632')['0'].className = 'btn btn-lg btn-outline-danger btn2632 w-100'
+                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+            }
+        })
+    })
+
+    $('.btn2632').click(function () {
+
+        $.ajax({
+            url: '',
+            type: 'get',
+            contentType: 'application/json',
+            data: {
+                button_number: '2'
+            },
+            success: function (response) {
+
+                $('.btn2631')['0'].className = 'btn btn-lg btn-outline-success btn2631 w-100'
+                $('.btn2632')['0'].className = 'btn btn-lg btn-danger btn2632 w-100'
+                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+            }
+        })
+    })
+
+    $('.btn2641').click(function () {
+
+        $.ajax({
+            url: '',
+            type: 'get',
+            contentType: 'application/json',
+            data: {
+                button_number: '1'
+            },
+            success: function (response) {
+
+                $('.btn2641')['0'].className = 'btn btn-lg btn-success btn2641 w-100'
+                $('.btn2642')['0'].className = 'btn btn-lg btn-outline-danger btn2642 w-100'
+                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+            }
+        })
+    })
+
+    $('.btn2642').click(function () {
+
+        $.ajax({
+            url: '',
+            type: 'get',
+            contentType: 'application/json',
+            data: {
+                button_number: '2'
+            },
+            success: function (response) {
+
+                $('.btn2641')['0'].className = 'btn btn-lg btn-outline-success btn2641 w-100'
+                $('.btn2642')['0'].className = 'btn btn-lg btn-danger btn2642 w-100'
                 $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
                 $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
             }

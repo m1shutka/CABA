@@ -219,7 +219,6 @@
 
     $('.btn113').click(function () {
 
-        console.log('.btn33')
         $.ajax({
             url: '',
             type: 'get',
@@ -426,6 +425,150 @@
                 }
                 else if ($('.btn152')['0'].className == 'btn btn-lg btn-danger btn152 w-100' && $('.btn154')['0'].className == 'btn btn-lg btn-danger btn154 w-100') {
                     $('.btn-next')['0'].className = 'btn btn-lg btn-warning w-100 btn-next'
+                    $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+                }
+                else
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-outline-warning w-100 btn-next disabled'
+            }
+        })
+    })
+
+    $('.btn2321').click(function () {
+
+        $.ajax({
+            url: '',
+            type: 'get',
+            contentType: 'application/json',
+            data: {
+                button_number: '1'
+            },
+            success: function (response) {
+
+                $('.btn2321')['0'].className = 'btn btn-lg btn-danger btn2321 w-100'
+                $('.btn2322')['0'].className = 'btn btn-lg btn-outline-success btn2322 w-100'
+
+                if ($('.btn2321')['0'].className == 'btn btn-lg btn-danger btn2321 w-100' && $('.btn2324')['0'].className == 'btn btn-lg btn-success btn2324 w-100') {
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                    $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+                }
+                else if ($('.btn2321')['0'].className == 'btn btn-lg btn-danger btn2321 w-100' && $('.btn2323')['0'].className == 'btn btn-lg btn-danger btn2323 w-100') {
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                    $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+                }
+                else if ($('.btn2322')['0'].className == 'btn btn-lg btn-success btn2322 w-100' && $('.btn2323')['0'].className == 'btn btn-lg btn-danger btn2323 w-100') {
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                    $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+                }
+                else if ($('.btn2322')['0'].className == 'btn btn-lg btn-success btn2322 w-100' && $('.btn2324')['0'].className == 'btn btn-lg btn-success btn2324 w-100') {
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                    $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+                }
+                else
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-outline-warning w-100 btn-next disabled'
+            }
+        })
+    })
+
+    $('.btn2322').click(function () {
+
+        $.ajax({
+            url: '',
+            type: 'get',
+            contentType: 'application/json',
+            data: {
+                button_number: '2'
+            },
+            success: function (response) {
+
+                $('.btn2322')['0'].className = 'btn btn-lg btn-success btn2322 w-100'
+                $('.btn2321')['0'].className = 'btn btn-lg btn-outline-danger btn2321 w-100'
+
+                if ($('.btn2321')['0'].className == 'btn btn-lg btn-danger btn2321 w-100' && $('.btn2324')['0'].className == 'btn btn-lg btn-success btn2324 w-100') {
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                    $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+                }
+                else if ($('.btn2321')['0'].className == 'btn btn-lg btn-danger btn2321 w-100' && $('.btn2323')['0'].className == 'btn btn-lg btn-danger btn2323 w-100') {
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                    $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+                }
+                else if ($('.btn2322')['0'].className == 'btn btn-lg btn-success btn2322 w-100' && $('.btn2323')['0'].className == 'btn btn-lg btn-danger btn2323 w-100') {
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                    $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+                }
+                else if ($('.btn2322')['0'].className == 'btn btn-lg btn-success btn2322 w-100' && $('.btn2324')['0'].className == 'btn btn-lg btn-success btn2324 w-100') {
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                    $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+                }
+                else
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-outline-warning w-100 btn-next disabled'
+            }
+        })
+    })
+
+    $('.btn2323').click(function () {
+
+        $.ajax({
+            url: '',
+            type: 'get',
+            contentType: 'application/json',
+            data: {
+                button_number: '3'
+            },
+            success: function (response) {
+
+                $('.btn2323')['0'].className = 'btn btn-lg btn-danger btn2323 w-100'
+                $('.btn2324')['0'].className = 'btn btn-lg btn-outline-success btn2324 w-100'
+
+                if ($('.btn2321')['0'].className == 'btn btn-lg btn-danger btn2321 w-100' && $('.btn2324')['0'].className == 'btn btn-lg btn-success btn2324 w-100') {
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                    $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+                }
+                else if ($('.btn2321')['0'].className == 'btn btn-lg btn-danger btn2321 w-100' && $('.btn2323')['0'].className == 'btn btn-lg btn-danger btn2323 w-100') {
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                    $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+                }
+                else if ($('.btn2322')['0'].className == 'btn btn-lg btn-success btn2322 w-100' && $('.btn2323')['0'].className == 'btn btn-lg btn-danger btn2323 w-100') {
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                    $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+                }
+                else if ($('.btn2322')['0'].className == 'btn btn-lg btn-success btn2322 w-100' && $('.btn2324')['0'].className == 'btn btn-lg btn-success btn2324 w-100') {
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                    $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+                }
+                else
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-outline-warning w-100 btn-next disabled'
+            }
+        })
+    })
+
+    $('.btn2324').click(function () {
+
+        $.ajax({
+            url: '',
+            type: 'get',
+            contentType: 'application/json',
+            data: {
+                button_number: '4'
+            },
+            success: function (response) {
+
+                $('.btn2324')['0'].className = 'btn btn-lg btn-success btn2324 w-100'
+                $('.btn2323')['0'].className = 'btn btn-lg btn-outline-danger btn2323 w-100'
+
+                if ($('.btn2321')['0'].className == 'btn btn-lg btn-danger btn2321 w-100' && $('.btn2324')['0'].className == 'btn btn-lg btn-success btn2324 w-100') {
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                    $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+                }
+                else if ($('.btn2321')['0'].className == 'btn btn-lg btn-danger btn2321 w-100' && $('.btn2323')['0'].className == 'btn btn-lg btn-danger btn2323 w-100') {
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                    $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+                }
+                else if ($('.btn2322')['0'].className == 'btn btn-lg btn-success btn2322 w-100' && $('.btn2323')['0'].className == 'btn btn-lg btn-danger btn2323 w-100') {
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                    $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
+                }
+                else if ($('.btn2322')['0'].className == 'btn btn-lg btn-success btn2322 w-100' && $('.btn2324')['0'].className == 'btn btn-lg btn-success btn2324 w-100') {
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
                     $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
                 }
                 else
