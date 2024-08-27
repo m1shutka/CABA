@@ -297,7 +297,7 @@ def test_third():
             local_stages[stage][1].next = 'a13.1'
             local_flags[stage] = '3.2'
 
-    if local_stages[stage][0] == 'a11':
+    elif local_stages[stage][0] == 'a11':
 
         if request.is_json:
             button_number = request.args.get('button_number')
@@ -372,7 +372,7 @@ def test_third():
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
             local_stages[stage][1].next = 'd10.1'
 
-    if local_stages[stage][0] == 'b11':
+    elif local_stages[stage][0] == 'b11':
 
         if request.is_json:
             button_number = request.args.get('button_number')
@@ -447,7 +447,82 @@ def test_third():
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
             local_stages[stage][1].next = 'e10.1'
 
-    if local_stages[stage][0] == 'a15':
+    elif local_stages[stage][0] == 'c11':
+
+        if request.is_json:
+            button_number = request.args.get('button_number')
+
+            local_changes.append(local_progress[stage].copy())
+            changes = local_progress[stage].copy()
+            
+            if button_number == '1':
+                changes[button_number] = True
+                changes['2'] = False
+            elif button_number == '2':
+                changes[button_number] = True
+                changes['1'] = False
+            elif button_number == '3':
+                changes[button_number] = True
+                changes['4'] = False
+            else:
+                changes[button_number] = True
+                changes['3'] = False
+
+            local_changes.append(changes)
+
+            if changes != local_changes[0]:
+                local_flags['flag_changes'] = True
+            else:
+                local_flags['flag_changes'] = False
+
+            local_progress[stage] = changes
+
+        if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
+            local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-danger btn111 w-100'
+            local_stages[stage][1].attr['buttons']['left']['styles'][1] = f'btn btn-lg btn-danger btn113 w-100'
+            local_stages[stage][1].attr['buttons']['right']['styles'][0] = f'btn btn-lg btn-outline-success btn112 w-100'
+            local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn114 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
+
+            if local_flags[3] == '3.2':
+                local_stages[stage][1].next = 'a9'
+            elif local_flags[3] == '3.3':
+                local_stages[stage][1].next = 'a9.1'
+
+        elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
+            local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-danger btn111 w-100'
+            local_stages[stage][1].attr['buttons']['left']['styles'][1] = f'btn btn-lg btn-danger btn113 w-100'
+            local_stages[stage][1].attr['buttons']['right']['styles'][0] = f'btn btn-lg btn-success btn112 w-100'
+            local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn114 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
+
+            if local_flags[3] == '3.2':
+                local_stages[stage][1].next = 'a9'
+            elif local_flags[3] == '3.3':
+                local_stages[stage][1].next = 'a9.1'            
+
+
+        elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
+            local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-danger btn111 w-100'
+            local_stages[stage][1].attr['buttons']['left']['styles'][1] = f'btn btn-lg btn-outline-danger btn113 w-100'
+            local_stages[stage][1].attr['buttons']['right']['styles'][0] = f'btn btn-lg btn-outline-success btn112 w-100'
+            local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn114 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
+            local_stages[stage][1].next = 'a3.2'
+
+        elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
+            local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-danger btn111 w-100'
+            local_stages[stage][1].attr['buttons']['left']['styles'][1] = f'btn btn-lg btn-outline-danger btn113 w-100'
+            local_stages[stage][1].attr['buttons']['right']['styles'][0] = f'btn btn-lg btn-success btn112 w-100'
+            local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn114 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
+            local_stages[stage][1].next = 'f10.1'
+
+    elif local_stages[stage][0] == 'a15':
 
         if request.is_json:
             button_number = request.args.get('button_number')
@@ -893,7 +968,7 @@ def test_fourth():
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Реанимация!!!'
 
-    if local_stages[stage][0] == 'a8':
+    elif local_stages[stage][0] == 'a8':
 
         if request.is_json:
             button_number = request.args.get('button_number')
@@ -962,7 +1037,7 @@ def test_fourth():
             local_stages[stage][1].next = 'c13.1'###
 
 
-    if local_stages[stage][0] == 'b8':
+    elif local_stages[stage][0] == 'b8':
 
         if request.is_json:
             button_number = request.args.get('button_number')
@@ -1030,7 +1105,7 @@ def test_fourth():
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Реанимация!!!'
             local_stages[stage][1].next = 'a24.3'###
 
-    if local_stages[stage][0] == 'c8':
+    elif local_stages[stage][0] == 'c8':
 
         if request.is_json:
             button_number = request.args.get('button_number')
@@ -1098,7 +1173,7 @@ def test_fourth():
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Реанимация!!!'
             local_stages[stage][1].next = 'e13.1'###
 
-    if local_stages[stage][0] == 'd8':
+    elif local_stages[stage][0] == 'd8':
 
         if request.is_json:
             button_number = request.args.get('button_number')
@@ -1166,6 +1241,141 @@ def test_fourth():
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Реанимация!!!'
             local_stages[stage][1].next = 'a24.6'###
 
+    elif local_stages[stage][0] == 'e8':
+
+        if request.is_json:
+            button_number = request.args.get('button_number')
+
+            local_changes.append(local_progress[stage].copy())
+            changes = local_progress[stage].copy()
+
+            for i in changes.keys():
+                if i == button_number:
+                    changes[i] = True
+                else:
+                    changes[i] = False
+
+            local_changes.append(changes)
+
+            if changes != local_changes[0]:
+                local_flags['flag_changes'] = True  
+            else:
+                local_flags['flag_changes'] = False
+
+            local_progress[stage] = changes
+
+        #local_stages[current_stage].attr['navigation']['styles'][1] = 'btn btn-lg btn-outline-danger w-100 btn-next'
+        #local_stages[current_stage].attr['navigation']['text'][1] = 'Далее'
+
+        for i in range(len(local_stages[stage][1].attr['buttons']['text'])):
+            local_stages[stage][1].attr['buttons']['text'][i] += f'test {body_params()}'
+
+        if local_progress[stage]['1'] == True:
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn81 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
+            local_stages[stage][1].next = 'c13.3'
+ 
+   
+        elif local_progress[stage]['2'] == True:
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-warning btn82 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Гипертонический криз'
+            local_stages[stage][1].next = 'c13.3'
+            
+
+        elif local_progress[stage]['3'] == True:
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-warning btn83 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Артериальная гипотония'
+            local_stages[stage][1].next = 'g13.1'
+
+
+        elif local_progress[stage]['4'] == True:
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-danger btn84 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Реанимация!!!'
+            local_stages[stage][1].next = 'g13.1'###
+
+    elif local_stages[stage][0] == 'f8':
+
+        if request.is_json:
+            button_number = request.args.get('button_number')
+
+            local_changes.append(local_progress[stage].copy())
+            changes = local_progress[stage].copy()
+
+            for i in changes.keys():
+                if i == button_number:
+                    changes[i] = True
+                else:
+                    changes[i] = False
+
+            local_changes.append(changes)
+
+            if changes != local_changes[0]:
+                local_flags['flag_changes'] = True  
+            else:
+                local_flags['flag_changes'] = False
+
+            local_progress[stage] = changes
+
+        #local_stages[current_stage].attr['navigation']['styles'][1] = 'btn btn-lg btn-outline-danger w-100 btn-next'
+        #local_stages[current_stage].attr['navigation']['text'][1] = 'Далее'
+
+        for i in range(len(local_stages[stage][1].attr['buttons']['text'])):
+            local_stages[stage][1].attr['buttons']['text'][i] += f'test {body_params()}'
+
+        if local_progress[stage]['1'] == True:
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn81 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
+            local_stages[stage][1].next = 'e18'
+ 
+   
+        elif local_progress[stage]['2'] == True:
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-warning btn82 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Гипертонический криз'
+            local_stages[stage][1].next = 'e18'
+            
+
+        elif local_progress[stage]['3'] == True:
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-warning btn83 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Артериальная гипотония'
+            local_stages[stage][1].next = 'g16'###
+
+
+        elif local_progress[stage]['4'] == True:
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-danger btn84 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Реанимация!!!'
+            local_stages[stage][1].next = 'g16'###
 
     elif local_stages[stage][0] == '18.1':
 
@@ -1538,7 +1748,7 @@ def test_fourth():
             local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn232 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'c13.1'
+            local_stages[stage][1].next = 'f13.1'
             local_flags[23] = '23.2'
 
     elif local_stages[stage][0] == 'a24':
