@@ -426,7 +426,7 @@
         })
     })
 
-    $('.btn2321').click(function () {
+    $('.btn2311').click(function () {
 
         $.ajax({
             url: '',
@@ -437,8 +437,8 @@
             },
             success: function (response) {
 
-                $('.btn2321')['0'].className = 'btn btn-lg btn-success btn2321 w-100'
-                $('.btn2322')['0'].className = 'btn btn-lg btn-outline-danger btn2322 w-100'
+                $('.btn2311')['0'].className = 'btn btn-lg btn-success btn2311 w-100'
+                $('.btn2312')['0'].className = 'btn btn-lg btn-outline-danger btn2312 w-100'
                 $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
                 $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
             }
