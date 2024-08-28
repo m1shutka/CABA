@@ -112,6 +112,16 @@ stages = {'a0': stage(prev='', next = 'a1', attr={'base_url': '',
                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }),
+
+          'b3.2': stage(prev='g8', next = None, attr={'base_url': 'test_fourth', 
+                                                 'info': {'text': ['Генерализированные судороги'], 
+                                                          'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                 'buttons': {'text': ["Да", "Нет"], 
+                                                             'styles': ['btn btn-lg btn-outline-danger btn3321 w-100', 'btn btn-lg btn-outline-success btn3322 w-100']}, 
+                                                 'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                 }),
           
           'a4': stage(prev='a3', next = None, attr={'base_url': 'test_fourth', 
                                                  'info': {'text': ['Характер дыхания'], 
@@ -153,7 +163,7 @@ stages = {'a0': stage(prev='', next = 'a1', attr={'base_url': '',
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }),
 
-          '6': stage(prev='5', next = None, attr={'base_url': 'test_fourth', 
+          'a6': stage(prev=None, next = None, attr={'base_url': 'test_fourth', 
                                                  'info': {'text': ['Пульс на сонной артерии'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                  'buttons': {'text': ["Отчетливый", "Резко ослаблен или отсутствует"], 
@@ -233,6 +243,16 @@ stages = {'a0': stage(prev='', next = 'a1', attr={'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }),
 
+          'h7': stage(prev='a6', next = 'g8', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['Подключите к пациенту пульсоксиметр', 'Подсоедините тонометр, измерьте артериальное давление'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить', 'Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
           'a8': stage(prev='b7', next = None, attr={'base_url': 'test_fourth', 
                                                  'info': {'text': ['Артериальное давление'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -284,6 +304,16 @@ stages = {'a0': stage(prev='', next = 'a1', attr={'base_url': '',
                                                  }),
 
           'f8': stage(prev='f7', next = None, attr={'base_url': 'test_fourth', 
+                                                 'info': {'text': ['Артериальное давление'], 
+                                                          'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                 'buttons': {'text': ["Нормальное", "Выше 180/120 мм.рт.ст", "Ниже 90/60 мм.рт.ст. у взрослого", "Не определяется"], 
+                                                             'styles': ['btn btn-lg btn-outline-success btn81 w-100', 'btn btn-lg btn-outline-warning btn82 w-100', 'btn btn-lg btn-outline-warning btn83 w-100', 'btn btn-lg btn-outline-danger btn84 w-100']}, 
+                                                 'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                 }),
+
+          'g8': stage(prev='h7', next = None, attr={'base_url': 'test_fourth', 
                                                  'info': {'text': ['Артериальное давление'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                  'buttons': {'text': ["Нормальное", "Выше 180/120 мм.рт.ст", "Ниже 90/60 мм.рт.ст. у взрослого", "Не определяется"], 
@@ -352,6 +382,16 @@ stages = {'a0': stage(prev='', next = 'a1', attr={'base_url': '',
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }),
+
+          'd10': stage(prev='b24.7', next = 'c11', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['Оценивайте дыхание, пульс и SpO2 непрерывно, измеряйте АД не реже раза в 5 минут'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
             
           'a10.1': stage(prev='b20', next = 'a12', attr={'base_url': 'test_first', 
                                                   'info': {'text': ['Оценивайте дыхание, пульс и SpO2 непрерывно, измеряйте АД не реже раза в 5 минут). При нарушениях, развитии судорог нажмите «В начало»'], 
@@ -404,6 +444,46 @@ stages = {'a0': stage(prev='', next = 'a1', attr={'base_url': '',
                                                   }),
 
           'f10.1': stage(prev='c11', next = 'd12', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['Оценивайте дыхание, пульс и SpO2 непрерывно, измеряйте АД не реже раза в 5 минут). При нарушениях, развитии судорог нажмите «В начало»'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
+          'g10.1': stage(prev='g8', next = 'e12', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['Оценивайте дыхание, пульс и SpO2 непрерывно, измеряйте АД не реже раза в 5 минут). При нарушениях, развитии судорог нажмите «В начало»'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
+          'h10.1': stage(prev='b26.1', next = 'f12', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['Оценивайте дыхание, пульс и SpO2 непрерывно, измеряйте АД не реже раза в 5 минут). При нарушениях, развитии судорог нажмите «В начало»'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
+          'i10.1': stage(prev='b26.2', next = 'h12', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['Оценивайте дыхание, пульс и SpO2 непрерывно, измеряйте АД не реже раза в 5 минут). При нарушениях, развитии судорог нажмите «В начало»'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
+          'j10.1': stage(prev='a24.11', next = 'g12', attr={'base_url': 'test_first', 
                                                   'info': {'text': ['Оценивайте дыхание, пульс и SpO2 непрерывно, измеряйте АД не реже раза в 5 минут). При нарушениях, развитии судорог нажмите «В начало»'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить'], 
@@ -480,6 +560,46 @@ stages = {'a0': stage(prev='', next = 'a1', attr={'base_url': '',
                                                   }),
 
           'd12': stage(prev='f10.1', next = 'a13', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['Откройте пути для эвакуации пациента. Передайте пациента бригаде скорой медицинской помощи, опишите детали произошедшего', 'Заполните медицинскую документацию'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить', 'Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
+          'e12': stage(prev='g10.1', next = 'a13', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['Откройте пути для эвакуации пациента. Передайте пациента бригаде скорой медицинской помощи, опишите детали произошедшего', 'Заполните медицинскую документацию'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить', 'Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
+          'f12': stage(prev='h10.1', next = 'a13', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['Откройте пути для эвакуации пациента. Передайте пациента бригаде скорой медицинской помощи, опишите детали произошедшего', 'Заполните медицинскую документацию'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить', 'Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
+          'g12': stage(prev='j10.1', next = 'a13', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['Откройте пути для эвакуации пациента. Передайте пациента бригаде скорой медицинской помощи, опишите детали произошедшего', 'Заполните медицинскую документацию'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить', 'Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
+          'h12': stage(prev='i10.1', next = 'a13', attr={'base_url': 'test_first', 
                                                   'info': {'text': ['Откройте пути для эвакуации пациента. Передайте пациента бригаде скорой медицинской помощи, опишите детали произошедшего', 'Заполните медицинскую документацию'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить', 'Выполнить'], 
@@ -609,7 +729,37 @@ stages = {'a0': stage(prev='', next = 'a1', attr={'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }),
 
-          '13.4': stage(prev='13.3', next = '14', attr={'base_url': 'test_first', 
+          'd13.3': stage(prev='a23.2', next = 'h16', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['Усадите пациента'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
+          'a13.4': stage(prev='d23', next = 'a26.6', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['Уложите пациента на кушетку'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
+          'b13.4': stage(prev='a23.2', next = 'f18', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['Уложите пациента на кушетку'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
+          'c13.4': stage(prev='d23', next = 'g18', attr={'base_url': 'test_first', 
                                                   'info': {'text': ['Уложите пациента на кушетку'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить'], 
@@ -711,6 +861,16 @@ stages = {'a0': stage(prev='', next = 'a1', attr={'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }),
 
+          'h16': stage(prev='d13.3' , next = 'h18', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['Подключите к пациенту кислород'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
           'a17': stage(prev='a15', next = 'c4', attr={'base_url': 'test_first', 
                                                   'info': {'text': ['Установите воздуховод № или ларингеальную маску № '], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -772,6 +932,36 @@ stages = {'a0': stage(prev='', next = 'a1', attr={'base_url': '',
                                                   }),
 
           'e18': stage(prev=None, next = 'g16', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['Обеспечьте внутривенный/внутрикостный сосудистый доступ'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
+          'f18': stage(prev='b13.4', next = 'a24.10', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['Обеспечьте внутривенный/внутрикостный сосудистый доступ'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
+          'g18': stage(prev='c13.4', next = 'a24.9', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['Обеспечьте внутривенный/внутрикостный сосудистый доступ'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
+          'h18': stage(prev='h16', next = 'b24.7', attr={'base_url': 'test_first', 
                                                   'info': {'text': ['Обеспечьте внутривенный/внутрикостный сосудистый доступ'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить'], 
@@ -951,7 +1141,17 @@ stages = {'a0': stage(prev='', next = 'a1', attr={'base_url': '',
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }),
 
-          '23.1': stage(prev='23', next = None, attr={'base_url': 'test_third', 
+          'd23': stage(prev='b3.2', next = None, attr={'base_url': 'test_fourth', 
+                                                 'info': {'text': ['Пациент может выполнять команды?'], 
+                                                          'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                 'buttons': {'text': ["Да", "Нет"], 
+                                                             'styles': ['btn btn-lg btn-outline-success btn231 w-100', 'btn btn-lg btn-outline-danger btn232 w-100']}, 
+                                                 'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                 }),
+
+          'a23.1': stage(prev='d23', next = None, attr={'base_url': 'test_third', 
                                                  'info': {'text': ['Рвота, расстройства зрения, речи, параличи есть?', 'Боли в груди/«жжение» за грудиной, нехватка воздуха, цианоз есть ?'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
                                                  'buttons':{'left': {'text': ['Да', 'Да'], 
@@ -963,7 +1163,7 @@ stages = {'a0': stage(prev='', next = 'a1', attr={'base_url': '',
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }),
 
-          '23.2': stage(prev='23.1', next = None, attr={'base_url': 'test_fourth', 
+          'a23.2': stage(prev='a23.1', next = None, attr={'base_url': 'test_fourth', 
                                                  'info': {'text': ['Нехватка воздуха, хрипы, цианоз есть?'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                  'buttons': {'text': ["Да", "Нет"], 
@@ -1063,7 +1263,27 @@ stages = {'a0': stage(prev='', next = 'a1', attr={'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }),
 
-          '24.8': stage(prev='24.7', next = '24.8.1', attr={'base_url': 'test_first', 
+          'b24.7': stage(prev='h18', next = 'd10', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['1. Введите внутривенно  Нитроглицерин 10 мг в/в капельно При отсутствии сосудистого доступа дайте пациенту Нитроглицерин 0,4 мг под язык' + '\n' + '2. Введите внутривенно или (при отсутствии сосудистого доступа – внутримышечно) Морфин 1 % - 1 мл (при наличии) Фуросемид 40 мг (4 мл)'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
+          'a24.8': stage(prev='b3.2', next = 'a26.1', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['Введите внутривенно/внутрикостно Урапидил 25 мг в/в медленно, далее капельно (у пациентов старше 18 лет) или Сульфат магнезии 25% мл (25-50 мг\кг) в/в медленно Фуросемид мл (1-2 мг/кг) внутривенно'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
+          'b24.8': stage(prev='a26.1', next = 'b26.1', attr={'base_url': 'test_first', 
                                                   'info': {'text': ['Введите внутривенно/внутрикостно Урапидил 25 мг в/в медленно, далее капельно (у пациентов старше 18 лет) или Сульфат магнезии 25% мл (25-50 мг\кг) в/в медленно Фуросемид мл (1-2 мг/кг) внутривенно'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить'], 
@@ -1083,7 +1303,7 @@ stages = {'a0': stage(prev='', next = 'a1', attr={'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }),
 
-          '24.9': stage(prev='24.8.1', next = '24.10', attr={'base_url': 'test_first', 
+          'a24.9': stage(prev='g18', next = 'a26.2', attr={'base_url': 'test_first', 
                                                   'info': {'text': ['Важно! Только при ДаД выше 120 мм.рт.ст. АД снижать на 10-15% Введите внутривенно/внутрикостно Урапидил 12, 5 мг в/в медленно, далее капельно (у пациентов старше 18 лет) или Сульфат магнезии 25% мл (25-50 мг\кг) в/в медленно'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить'], 
@@ -1093,7 +1313,17 @@ stages = {'a0': stage(prev='', next = 'a1', attr={'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }),
 
-          '24.10': stage(prev='24.9', next = '24.10', attr={'base_url': 'test_first', 
+          'b24.9': stage(prev='g18', next = 'b26.2', attr={'base_url': 'test_first', 
+                                                  'info': {'text': ['Важно! Только при ДаД выше 120 мм.рт.ст. АД снижать на 10-15% Введите внутривенно/внутрикостно Урапидил 12, 5 мг в/в медленно, далее капельно (у пациентов старше 18 лет) или Сульфат магнезии 25% мл (25-50 мг\кг) в/в медленно'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }),
+
+          'a24.10': stage(prev='f18', next = 'a26.3', attr={'base_url': 'test_first', 
                                                   'info': {'text': ['1. Введите внутривенно Нитроглицерин 10 мг в/в капельно. При отсутствии сосудистого доступа дайте пациенту Нитроглицерин 0,4 мг под язык (если прием возможен) 2. Ацетилсалициловая кислоту внутрь 150-300 мг (если прием возможен) 3. Введите внутривенно или (при отсутствии сосудистого доступа – внутримышечно) Морфин 1% - 1 мл (при наличии) или Кетопрофен - 2 мл'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить'], 
@@ -1103,7 +1333,7 @@ stages = {'a0': stage(prev='', next = 'a1', attr={'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }),
 
-          '24.11': stage(prev='24.10', next = '24.12', attr={'base_url': 'test_first', 
+          'a24.11': stage(prev='a26.3', next = 'j10.1', attr={'base_url': 'test_first', 
                                                   'info': {'text': ['1. Введите внутривенно  Нитроглицерин 10 мг в/в капельно. При отсутствии сосудистого доступа дайте пациенту Нитроглицерин 0,4 мг под язык (если прием возможен)'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить'], 
@@ -1113,7 +1343,7 @@ stages = {'a0': stage(prev='', next = 'a1', attr={'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }),
 
-          '24.12': stage(prev='24.11', next = '24.13', attr={'base_url': 'test_first', 
+          'a24.12': stage(prev='a26.4', next = '24.13', attr={'base_url': 'test_first', 
                                                   'info': {'text': ['Пациентам старше 18 лет: 1. моксонидин 0,4 мг внутрь или под язык 2. нифедипин 10 мг внутрь или под язык 3. фуросемид 20 мг (2 мл) внутримышечно (внутривенно при наличии венозного доступа)'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить'], 
@@ -1173,7 +1403,7 @@ stages = {'a0': stage(prev='', next = 'a1', attr={'base_url': '',
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }),
 
-          '26.1': stage(prev='25', next = None, attr={'base_url': 'test_fourth', 
+          'a26.1': stage(prev='a24.8', next = None, attr={'base_url': 'test_fourth', 
                                                  'info': {'text': ['Артериальное давление снизилось на 25% от исходных величин?'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                  'buttons': {'text': ["Да", "Нет"], 
@@ -1183,7 +1413,17 @@ stages = {'a0': stage(prev='', next = 'a1', attr={'base_url': '',
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }),
 
-          '26.2': stage(prev='26.1', next = None, attr={'base_url': 'test_fourth', 
+          'b26.1': stage(prev='b24.8', next = None, attr={'base_url': 'test_fourth', 
+                                                 'info': {'text': ['Артериальное давление снизилось на 25% от исходных величин?'], 
+                                                          'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                 'buttons': {'text': ["Да", "Нет"], 
+                                                             'styles': ['btn btn-lg btn-outline-success btn261 w-100', 'btn btn-lg btn-outline-danger btn262 w-100']}, 
+                                                 'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                 }),
+
+          'a26.2': stage(prev='a24.9', next = None, attr={'base_url': 'test_fourth', 
                                                  'info': {'text': ['Артериальное давление снизилось на 15% от исходных величин?'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                  'buttons': {'text': ["Да", "Нет"], 
@@ -1193,7 +1433,17 @@ stages = {'a0': stage(prev='', next = 'a1', attr={'base_url': '',
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }),
 
-          '26.3': stage(prev='26.2', next = None, attr={'base_url': 'test_fourth', 
+          'b26.2': stage(prev='b24.9', next = None, attr={'base_url': 'test_fourth', 
+                                                 'info': {'text': ['Артериальное давление снизилось на 15% от исходных величин?'], 
+                                                          'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                 'buttons': {'text': ["Да", "Нет"], 
+                                                             'styles': ['btn btn-lg btn-outline-success btn2621 w-100', 'btn btn-lg btn-outline-danger btn2622 w-100']}, 
+                                                 'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                 }),
+
+          'a26.3': stage(prev='a24.10', next = None, attr={'base_url': 'test_fourth', 
                                                  'info': {'text': ['Артериальное давление снизилось на 25% от исходных величин, болевой синдром купирован?'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                  'buttons': {'text': ["Да", "Нет"], 
@@ -1203,7 +1453,7 @@ stages = {'a0': stage(prev='', next = 'a1', attr={'base_url': '',
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }),
 
-          '26.4': stage(prev='26.3', next = None, attr={'base_url': 'test_fourth', 
+          'a26.4': stage(prev='a13.4', next = 'a24.12', attr={'base_url': 'test_fourth', 
                                                  'info': {'text': ['ЧСС выше в мин?'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                  'buttons': {'text': ["Да", "Нет"], 
