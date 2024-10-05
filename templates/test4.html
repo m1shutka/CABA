@@ -32,28 +32,27 @@
 
                     <br>
 
-                    <div class="row g-5">
-
-                        {% for i in info %}
-                        <div class="col-xxl-12">
-                            <div class="{{ i[0] }}"><h2>{{ i[1] }}</h2></div>
-                        </div>
-                        {% endfor %}
-                            
-                        <div class="d-grid gap-4 d-sm-flex w-100 justify-content-sm-center">
-                            {% for i in data %}
-                            <button class="{{ i[0] }}"><h2>{{ i[1] }}</h2></button>
-                            {% endfor %}
-                        </div>
-                            
-                        <br>
-                        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                            {% for i in navigation %}
-                            <a class="{{ i[0] }}" href="{{ i[2] }}"><h2>{{ i[1] }}</h2></a>
-                            {% endfor %}
-                        </div>
-
+                    {% for i in info %}
+                    <div class="col-xxl-12">
+                        <div class="{{ i[0] }}"><h2>{{ i[1] }}</h2></div>
                     </div>
+                    {% endfor %}
+
+                    <div class="d-grid gap-4 d-sm-flex justify-content-sm-center">
+                        {% for i in data %}
+                        <button class="{{ i[0] }}"><h2>{{ i[1] }}</h2></button>
+                        {% endfor %}
+                    </div>
+
+                    <br>
+                    <br><!---->
+
+                    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                        {% for i in navigation %}
+                        <a class="{{ i[0] }}" href="{{ i[2] }}"><h2>{{ i[1] }}</h2></a>
+                        {% endfor %}
+                    </div>
+
 
                 </main>
 
@@ -61,8 +60,8 @@
                     <p>Интеллектуальная собственность <a href="https://getbootstrap.com/" class="text-black">NSTU</a></p>
                 </footer>
 
+                </div>
             </div>
-        </div>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    </body>
-</html>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+        </body>
+    </html>
