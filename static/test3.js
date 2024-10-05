@@ -459,7 +459,7 @@
                     $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
                     $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
                 }
-                else if ($('.btn2312')['0'].className == 'btn btn-lg btn-success btn2312 w-100' && $('.btn2324')['0'].className == 'btn btn-lg btn-success btn2314 w-100') {
+                else if ($('.btn2312')['0'].className == 'btn btn-lg btn-success btn2312 w-100' && $('.btn2314')['0'].className == 'btn btn-lg btn-success btn2314 w-100') {
                     $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
                     $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
                 }
@@ -495,7 +495,7 @@
                     $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
                     $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
                 }
-                else if ($('.btn2312')['0'].className == 'btn btn-lg btn-success btn2312 w-100' && $('.btn2324')['0'].className == 'btn btn-lg btn-success btn2314 w-100') {
+                else if ($('.btn2312')['0'].className == 'btn btn-lg btn-success btn2312 w-100' && $('.btn2314')['0'].className == 'btn btn-lg btn-success btn2314 w-100') {
                     $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
                     $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
                 }
@@ -531,7 +531,7 @@
                     $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
                     $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
                 }
-                else if ($('.btn2312')['0'].className == 'btn btn-lg btn-success btn2312 w-100' && $('.btn2324')['0'].className == 'btn btn-lg btn-success btn2314 w-100') {
+                else if ($('.btn2312')['0'].className == 'btn btn-lg btn-success btn2312 w-100' && $('.btn2314')['0'].className == 'btn btn-lg btn-success btn2314 w-100') {
                     $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
                     $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
                 }
@@ -567,7 +567,7 @@
                     $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
                     $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
                 }
-                else if ($('.btn2312')['0'].className == 'btn btn-lg btn-success btn2312 w-100' && $('.btn2324')['0'].className == 'btn btn-lg btn-success btn2314 w-100') {
+                else if ($('.btn2312')['0'].className == 'btn btn-lg btn-success btn2312 w-100' && $('.btn2314')['0'].className == 'btn btn-lg btn-success btn2314 w-100') {
                     $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
                     $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
                 }

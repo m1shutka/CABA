@@ -312,7 +312,7 @@
         })
     })
 
-    $('.btn191').click(function () {
+    $('.btn2321').click(function () {
 
         $.ajax({
             url: '',
@@ -323,122 +323,8 @@
             },
             success: function (response) {
 
-                $('.btn191')['0'].className = 'btn btn-lg btn-success btn191 w-100'
-                $('.btn192')['0'].className = 'btn btn-lg btn-outline-danger btn192 w-100'
-                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
-                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
-            }
-        })
-    })
-
-    $('.btn192').click(function () {
-
-        $.ajax({
-            url: '',
-            type: 'get',
-            contentType: 'application/json',
-            data: {
-                button_number: '2'
-            },
-            success: function (response) {
-
-                $('.btn191')['0'].className = 'btn btn-lg btn-outline-success btn191 w-100'
-                $('.btn192')['0'].className = 'btn btn-lg btn-danger btn192 w-100'
-                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
-                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
-            }
-        })
-    })
-
-    $('.btn221').click(function () {
-
-        $.ajax({
-            url: '',
-            type: 'get',
-            contentType: 'application/json',
-            data: {
-                button_number: '1'
-            },
-            success: function (response) {
-
-                $('.btn221')['0'].className = 'btn btn-lg btn-success btn221 w-100'
-                $('.btn222')['0'].className = 'btn btn-lg btn-outline-danger btn222 w-100'
-                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
-                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
-            }
-        })
-    })
-
-    $('.btn222').click(function () {
-
-        $.ajax({
-            url: '',
-            type: 'get',
-            contentType: 'application/json',
-            data: {
-                button_number: '2'
-            },
-            success: function (response) {
-
-                $('.btn221')['0'].className = 'btn btn-lg btn-outline-success btn221 w-100'
-                $('.btn222')['0'].className = 'btn btn-lg btn-danger btn222 w-100'
-                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
-                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
-            }
-        })
-    })
-
-    $('.btn231').click(function () {
-
-        $.ajax({
-            url: '',
-            type: 'get',
-            contentType: 'application/json',
-            data: {
-                button_number: '1'
-            },
-            success: function (response) {
-
-                $('.btn231')['0'].className = 'btn btn-lg btn-success btn231 w-100'
-                $('.btn232')['0'].className = 'btn btn-lg btn-outline-danger btn232 w-100'
-                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
-                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
-            }
-        })
-    })
-
-    $('.btn232').click(function () {
-
-        $.ajax({
-            url: '',
-            type: 'get',
-            contentType: 'application/json',
-            data: {
-                button_number: '2'
-            },
-            success: function (response) {
-
-                $('.btn231')['0'].className = 'btn btn-lg btn-outline-success btn231 w-100'
-                $('.btn232')['0'].className = 'btn btn-lg btn-danger btn232 w-100'
-                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
-                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
-            }
-        })
-    })
-
-    $('.btn2311').click(function () {
-
-        $.ajax({
-            url: '',
-            type: 'get',
-            contentType: 'application/json',
-            data: {
-                button_number: '1'
-            },
-            success: function (response) {
-
-                $('.btn2311')['0'].className = 'btn btn-lg btn-success btn2311 w-100'
-                $('.btn2312')['0'].className = 'btn btn-lg btn-outline-danger btn2312 w-100'
+                $('.btn2321')['0'].className = 'btn btn-lg btn-success btn2321 w-100'
+                $('.btn2322')['0'].className = 'btn btn-lg btn-outline-danger btn2322 w-100'
                 $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
                 $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
             }
@@ -458,82 +344,6 @@
 
                 $('.btn2321')['0'].className = 'btn btn-lg btn-outline-success btn2321 w-100'
                 $('.btn2322')['0'].className = 'btn btn-lg btn-danger btn2322 w-100'
-                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
-                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
-            }
-        })
-    })
-
-    $('.btn241').click(function () {
-
-        $.ajax({
-            url: '',
-            type: 'get',
-            contentType: 'application/json',
-            data: {
-                button_number: '1'
-            },
-            success: function (response) {
-
-                $('.btn241')['0'].className = 'btn btn-lg btn-success btn241 w-100'
-                $('.btn242')['0'].className = 'btn btn-lg btn-outline-danger btn242 w-100'
-                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
-                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
-            }
-        })
-    })
-
-    $('.btn242').click(function () {
-
-        $.ajax({
-            url: '',
-            type: 'get',
-            contentType: 'application/json',
-            data: {
-                button_number: '2'
-            },
-            success: function (response) {
-
-                $('.btn241')['0'].className = 'btn btn-lg btn-outline-success btn241 w-100'
-                $('.btn242')['0'].className = 'btn btn-lg btn-danger btn242 w-100'
-                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
-                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
-            }
-        })
-    })
-
-    $('.btn251').click(function () {
-
-        $.ajax({
-            url: '',
-            type: 'get',
-            contentType: 'application/json',
-            data: {
-                button_number: '1'
-            },
-            success: function (response) {
-
-                $('.btn251')['0'].className = 'btn btn-lg btn-success btn251 w-100'
-                $('.btn252')['0'].className = 'btn btn-lg btn-outline-danger btn252 w-100'
-                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
-                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
-            }
-        })
-    })
-
-    $('.btn252').click(function () {
-
-        $.ajax({
-            url: '',
-            type: 'get',
-            contentType: 'application/json',
-            data: {
-                button_number: '2'
-            },
-            success: function (response) {
-
-                $('.btn251')['0'].className = 'btn btn-lg btn-outline-success btn251 w-100'
-                $('.btn252')['0'].className = 'btn btn-lg btn-danger btn252 w-100'
                 $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
                 $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
             }
@@ -578,7 +388,7 @@
         })
     })
 
-    $('.btn261').click(function () {
+    $('.btn191').click(function () {
 
         $.ajax({
             url: '',
@@ -589,15 +399,15 @@
             },
             success: function (response) {
 
-                $('.btn261')['0'].className = 'btn btn-lg btn-success btn261 w-100'
-                $('.btn262')['0'].className = 'btn btn-lg btn-outline-danger btn262 w-100'
+                $('.btn191')['0'].className = 'btn btn-lg btn-danger btn191 w-100'
+                $('.btn192')['0'].className = 'btn btn-lg btn-outline-success btn192 w-100'
                 $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
                 $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
             }
         })
     })
 
-    $('.btn262').click(function () {
+    $('.btn192').click(function () {
 
         $.ajax({
             url: '',
@@ -608,84 +418,8 @@
             },
             success: function (response) {
 
-                $('.btn261')['0'].className = 'btn btn-lg btn-outline-success btn261 w-100'
-                $('.btn262')['0'].className = 'btn btn-lg btn-danger btn262 w-100'
-                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
-                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
-            }
-        })
-    })
-
-    $('.btn2621').click(function () {
-
-        $.ajax({
-            url: '',
-            type: 'get',
-            contentType: 'application/json',
-            data: {
-                button_number: '1'
-            },
-            success: function (response) {
-
-                $('.btn2621')['0'].className = 'btn btn-lg btn-success btn2621 w-100'
-                $('.btn2622')['0'].className = 'btn btn-lg btn-outline-danger btn2622 w-100'
-                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
-                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
-            }
-        })
-    })
-
-    $('.btn2622').click(function () {
-
-        $.ajax({
-            url: '',
-            type: 'get',
-            contentType: 'application/json',
-            data: {
-                button_number: '2'
-            },
-            success: function (response) {
-
-                $('.btn2621')['0'].className = 'btn btn-lg btn-outline-success btn2621 w-100'
-                $('.btn2622')['0'].className = 'btn btn-lg btn-danger btn2622 w-100'
-                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
-                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
-            }
-        })
-    })
-
-    $('.btn2631').click(function () {
-
-        $.ajax({
-            url: '',
-            type: 'get',
-            contentType: 'application/json',
-            data: {
-                button_number: '1'
-            },
-            success: function (response) {
-
-                $('.btn2631')['0'].className = 'btn btn-lg btn-success btn2631 w-100'
-                $('.btn2632')['0'].className = 'btn btn-lg btn-outline-danger btn2632 w-100'
-                $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
-                $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
-            }
-        })
-    })
-
-    $('.btn2632').click(function () {
-
-        $.ajax({
-            url: '',
-            type: 'get',
-            contentType: 'application/json',
-            data: {
-                button_number: '2'
-            },
-            success: function (response) {
-
-                $('.btn2631')['0'].className = 'btn btn-lg btn-outline-success btn2631 w-100'
-                $('.btn2632')['0'].className = 'btn btn-lg btn-danger btn2632 w-100'
+                $('.btn191')['0'].className = 'btn btn-lg btn-outline-danger btn191 w-100'
+                $('.btn192')['0'].className = 'btn btn-lg btn-success btn192 w-100'
                 $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
                 $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
             }
@@ -704,7 +438,7 @@
             success: function (response) {
 
                 $('.btn2641')['0'].className = 'btn btn-lg btn-success btn2641 w-100'
-                $('.btn2642')['0'].className = 'btn btn-lg btn-outline-danger btn2642 w-100'
+                $('.btn2642')['0'].className = 'btn btn-lg btn-outline-success btn2642 w-100'
                 $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
                 $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
             }
@@ -723,7 +457,7 @@
             success: function (response) {
 
                 $('.btn2641')['0'].className = 'btn btn-lg btn-outline-success btn2641 w-100'
-                $('.btn2642')['0'].className = 'btn btn-lg btn-danger btn2642 w-100'
+                $('.btn2642')['0'].className = 'btn btn-lg btn-success btn2642 w-100'
                 $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
                 $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
             }
