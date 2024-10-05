@@ -1,14 +1,15 @@
 ﻿from flask import Flask
 from flask import render_template, request, redirect, session
 from stages import stages, progress
+from stack import Stack
 
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '9bf43c3a13544daaff33ffa122e8c8a54275d280'
 
 stage = 0
-local_stages = [('a0', stages['a0'])]
-local_progress = [{'a1': False}]
+local_stages = [('aa0', stages['aa0'])]
+local_progress = [{'1': False}]
 local_flags = {'flag_changes': False}
 local_changes = []
 
@@ -45,8 +46,8 @@ def main():
     global local_stages, local_progress, stage, local_flags
 
     stage = 0
-    local_stages = [('a0', stages['a0'])]
-    local_progress = [{'a1': False}]
+    local_stages = [('aa0', stages['aa0'])]
+    local_progress = [{'1': False}]
     local_flags = {'flag_changes': False}
     print(request.user_agent_class)
     
@@ -61,7 +62,7 @@ def next_stage():
     if stage + 1 == len(local_progress):
         print("\n" + f'var1')
         local_stages.append((local_stages[stage][1].next, stages[local_stages[stage][1].next].copy()))
-        local_progress.append(progress[local_stages[stage][1].next[1:]].copy())
+        local_progress.append(progress[local_stages[stage][1].next[2:]].copy())
         stage += 1
         local_stages[stage][1].prev = local_stages[stage - 1][0]
         local_flags['flag_changes'] = False
@@ -71,7 +72,7 @@ def next_stage():
         local_stages = local_stages[:stage + 1]
         local_progress = local_progress[:stage + 1]
         local_stages.append((local_stages[stage][1].next, stages[local_stages[stage][1].next].copy()))
-        local_progress.append(progress[local_stages[stage][1].next[1:]].copy())
+        local_progress.append(progress[local_stages[stage][1].next[2:]].copy())
         stage += 1
         local_stages[stage][1].prev = local_stages[stage - 1][0]
         local_flags['flag_changes'] = False
@@ -84,7 +85,7 @@ def next_stage():
 
     local_changes.clear()
 
-    if local_stages[stage][1].prev[1:] == '12':
+    if local_stages[stage][1].prev[2:] == '12':
         return redirect('/main')
     else:
         return redirect(local_stages[stage][1].attr['base_url'])
@@ -114,7 +115,7 @@ def prev_stage():
 def to_beginning():
     global local_stages, local_progress, stage, local_flags
     stage = 0
-    local_stages = [('a0', stages['a0'])]
+    local_stages = [('aa0', stages['aa0'])]
     local_progress = [{'1': False}]
     local_flags = {'flag_changes': False}
 
@@ -148,7 +149,7 @@ def test_first():
     navigation = []
 
     if true_count == len(local_progress[stage].keys()):
-        if local_stages[stage][0] == 'a1':
+        if local_stages[stage][0] == 'aa1':
             local_stages[stage][1].attr['navigation']['styles'][0] = 'btn btn-lg btn-success w-100 btn-next'
             navigation.append((local_stages[stage][1].attr['navigation']['styles'][0], local_stages[stage][1].attr['navigation']['text'][0], local_stages[stage][1].attr['navigation']['links'][0]))
         else: 
@@ -157,7 +158,7 @@ def test_first():
             navigation.append((local_stages[stage][1].attr['navigation']['styles'][1], local_stages[stage][1].attr['navigation']['text'][1], local_stages[stage][1].attr['navigation']['links'][1]))
             navigation.append((local_stages[stage][1].attr['navigation']['styles'][2], local_stages[stage][1].attr['navigation']['text'][2], local_stages[stage][1].attr['navigation']['links'][2]))
     else:
-        if local_stages[stage][0] == 'a1':
+        if local_stages[stage][0] == 'aa1':
             local_stages[stage][1].attr['navigation']['styles'][0] = 'btn btn-lg btn-outline-danger w-100 btn-next disabled'
             navigation.append((local_stages[stage][1].attr['navigation']['styles'][0], local_stages[stage][1].attr['navigation']['text'][0], local_stages[stage][1].attr['navigation']['links'][0]))
         else:
@@ -226,35 +227,37 @@ def test_third():
     data, navigation = [], []
     navigation.append((local_stages[stage][1].attr['navigation']['styles'][0], local_stages[stage][1].attr['navigation']['text'][0], local_stages[stage][1].attr['navigation']['links'][0]))
 
-    if local_stages[stage][0] == 'a3':
+    button_number = None
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
+    if request.is_json:
+        button_number = request.args.get('button_number')
 
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
+        local_changes.append(local_progress[stage].copy())
+        changes = local_progress[stage].copy()
             
-            if button_number == '1':
-                changes[button_number] = True
-                changes['2'] = False
-            elif button_number == '2':
-                changes[button_number] = True
-                changes['1'] = False
-            elif button_number == '3':
-                changes[button_number] = True
-                changes['4'] = False
-            else:
-                changes[button_number] = True
-                changes['3'] = False
+        if button_number == '1':
+            changes[button_number] = True
+            changes['2'] = False
+        elif button_number == '2':
+            changes[button_number] = True
+            changes['1'] = False
+        elif button_number == '3':
+            changes[button_number] = True
+            changes['4'] = False
+        else:
+            changes[button_number] = True
+            changes['3'] = False
 
-            local_changes.append(changes)
+        local_changes.append(changes)
 
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
+        if changes != local_changes[0]:
+            local_flags['flag_changes'] = True
+        else:
+            local_flags['flag_changes'] = False
 
-            local_progress[stage] = changes
+        local_progress[stage] = changes
+
+    if local_stages[stage][0][2:] == '3':
 
         if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-success btn31 w-100'
@@ -263,9 +266,6 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn34 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Судороги'
-            local_stages[stage][1].next = 'a3.2'
-            local_flags[stage] = '3.1'
-
 
         elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-success btn31 w-100'
@@ -274,8 +274,6 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn34 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Оценить дыхание!'
-            local_stages[stage][1].next = 'a13'
-            local_flags[stage] = '3.3'
 
         elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-success btn31 w-100'
@@ -284,8 +282,6 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn34 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a3.2'
-            local_flags[stage] = '3.1'
 
         elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-success btn31 w-100'
@@ -294,38 +290,22 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn34 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Оценить дыхание!'
-            local_stages[stage][1].next = 'a13.1'
-            local_flags[stage] = '3.2'
 
-    elif local_stages[stage][0] == 'a11':
+        if local_stages[stage][0] == 'aa3':
+            if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'aa13'
+                local_flags[stage] = '3.1'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'aa13'
+                local_flags[stage] = '3.3'
+            elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ja30'
+                local_flags[stage] = '3.1'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'aa13.1'
+                local_flags[stage] = '3.2'
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-            
-            if button_number == '1':
-                changes[button_number] = True
-                changes['2'] = False
-            elif button_number == '2':
-                changes[button_number] = True
-                changes['1'] = False
-            elif button_number == '3':
-                changes[button_number] = True
-                changes['4'] = False
-            else:
-                changes[button_number] = True
-                changes['3'] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
+    elif local_stages[stage][0][2:] == '3.3':
 
         if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-danger btn111 w-100'
@@ -334,7 +314,6 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn114 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a6'
 
         elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-danger btn111 w-100'
@@ -342,8 +321,7 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][0] = f'btn btn-lg btn-success btn112 w-100'
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn114 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a6'           
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'           
 
         elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-danger btn111 w-100'
@@ -352,7 +330,6 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn114 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a3.2'
 
         elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-danger btn111 w-100'
@@ -361,37 +338,18 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn114 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'd10.1'
 
-    elif local_stages[stage][0] == 'b11':
+        if local_stages[stage][0] == 'ga3.3':
+            if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'gb24.3'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'gb24.3'           
+            elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ga24.3'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ga23.3'
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-            
-            if button_number == '1':
-                changes[button_number] = True
-                changes['2'] = False
-            elif button_number == '2':
-                changes[button_number] = True
-                changes['1'] = False
-            elif button_number == '3':
-                changes[button_number] = True
-                changes['4'] = False
-            else:
-                changes[button_number] = True
-                changes['3'] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
+    elif local_stages[stage][0][2:] == '8.2':
 
         if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-danger btn111 w-100'
@@ -400,7 +358,6 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn114 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a6' 
 
         elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-danger btn111 w-100'
@@ -408,8 +365,7 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][0] = f'btn btn-lg btn-success btn112 w-100'
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn114 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a6' 
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'       
 
         elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-danger btn111 w-100'
@@ -418,7 +374,6 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn114 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a3.2'
 
         elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-danger btn111 w-100'
@@ -427,37 +382,28 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn114 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'e10.1'
 
-    elif local_stages[stage][0] == 'c11':
+        if local_stages[stage][0] == 'ga8.2':
+            if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'ga7.1'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'ga24.3.2'           
+            elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ga7.1'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ga24.3.1'
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
+        elif local_stages[stage][0] == 'ia8.2':
+            if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'ia7.1'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'ia24.3.2'          
+            elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ia7.1'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ia24.3.1'
 
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-            
-            if button_number == '1':
-                changes[button_number] = True
-                changes['2'] = False
-            elif button_number == '2':
-                changes[button_number] = True
-                changes['1'] = False
-            elif button_number == '3':
-                changes[button_number] = True
-                changes['4'] = False
-            else:
-                changes[button_number] = True
-                changes['3'] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
+    elif local_stages[stage][0][2:] == '11':
 
         if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-danger btn111 w-100'
@@ -466,7 +412,6 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn114 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a6'
 
         elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-danger btn111 w-100'
@@ -475,7 +420,6 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn114 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a6'
 
         elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-danger btn111 w-100'
@@ -484,7 +428,6 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn114 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a3.2'
 
         elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-danger btn111 w-100'
@@ -493,37 +436,68 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn114 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'f10.1'
 
-    elif local_stages[stage][0] == 'a15':
+        if local_stages[stage][0] == 'ca11':
+            if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'fa6'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'fa6'           
+            elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ba3.2'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'cb23'
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
+        elif local_stages[stage][0] == 'da11':
+            if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'fa6'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'fa6'           
+            elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ba3.2'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'db23'
 
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-            
-            if button_number == '1':
-                changes[button_number] = True
-                changes['2'] = False
-            elif button_number == '2':
-                changes[button_number] = True
-                changes['1'] = False
-            elif button_number == '3':
-                changes[button_number] = True
-                changes['4'] = False
-            else:
-                changes[button_number] = True
-                changes['3'] = False
+        elif local_stages[stage][0] == 'ea11':
+            if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'fa6'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'fa6'           
+            elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ba3.2'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'eb23'
 
-            local_changes.append(changes)
+        elif local_stages[stage][0] == 'fa11':
+            if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'fa6'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'fa6'           
+            elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ba3.2'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'fe10.1'
 
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
+        elif local_stages[stage][0] == 'ia11':
+            if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'fa6'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'fa6'           
+            elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ba3.2'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ib10.1'
 
-            local_progress[stage] = changes
+        elif local_stages[stage][0] == 'ib11':
+            if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'fa6'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'fa6'           
+            elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ba3.2'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'id10.1'
+
+    elif local_stages[stage][0][2:] == '15':
 
         if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-success btn151 w-100'
@@ -533,15 +507,6 @@ def test_third():
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
 
-            ###
-            if local_flags[3] == '3.2':
-                local_stages[stage][1].next = 'a9'
-            elif local_flags[3] == '3.3':
-                local_stages[stage][1].next = 'a9.1'
-            ###
-
-            local_flags[15] = '15.1'
-
         elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-success btn151 w-100'
             local_stages[stage][1].attr['buttons']['left']['styles'][1] = f'btn btn-lg btn-success btn153 w-100'
@@ -549,8 +514,6 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-danger btn154 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a16'
-            local_flags[15] = '15.3'
 
         elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-success btn151 w-100'
@@ -559,8 +522,6 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-danger btn154 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a17'
-            local_flags[15] = '15.2'
 
         elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-success btn151 w-100'
@@ -569,38 +530,64 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-danger btn154 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'b17'
-            local_flags[15] = '15.4'
 
-    elif local_stages[stage][0] == 'a23.1':
+        if local_stages[stage][0] == 'ba15':
+            if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'fa6'
+                local_flags[15] = '15.1'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'bb17'
+                local_flags[15] = '15.3'
+            elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'bb16'
+                local_flags[15] = '15.2'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ba17'
+                local_flags[15] = '15.4'
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
+        elif local_stages[stage][0] == 'fa15':
+            if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'fb18'
+                local_flags[15] = '15.1'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'fa14'
+                local_flags[15] = '15.3'
+            elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'fa16'
+                local_flags[15] = '15.2'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'fa14'
+                local_flags[15] = '15.4'
 
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-            
-            if button_number == '1':
-                changes[button_number] = True
-                changes['2'] = False
-            elif button_number == '2':
-                changes[button_number] = True
-                changes['1'] = False
-            elif button_number == '3':
-                changes[button_number] = True
-                changes['4'] = False
-            else:
-                changes[button_number] = True
-                changes['3'] = False
+        elif local_stages[stage][0] == 'fb15':
+            if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'fd18'
+                local_flags[15] = '15.1'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'fa17'
+                local_flags[15] = '15.3'
+            elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'fc16'
+                local_flags[15] = '15.2'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'fb17'
+                local_flags[15] = '15.4'
 
-            local_changes.append(changes)
+        elif local_stages[stage][0] == 'ga15':
+            if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'ga18'
+                local_flags[15] = '15.1'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'gb17'
+                local_flags[15] = '15.3'
+            elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'gb16'
+                local_flags[15] = '15.2'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ga17'
+                local_flags[15] = '15.4'
 
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
+    elif local_stages[stage][0][2:] == '23.1':
 
         if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-danger btn2311 w-100'
@@ -609,34 +596,40 @@ def test_third():
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn2314 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'c13.4'
 
         elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
-            local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-success btn2311 w-100'
-            local_stages[stage][1].attr['buttons']['left']['styles'][1] = f'btn btn-lg btn-success btn2313 w-100'
-            local_stages[stage][1].attr['buttons']['right']['styles'][0] = f'btn btn-lg btn-danger btn2312 w-100'
-            local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-danger btn2314 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a23.2'
-
-        elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
-            local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-success btn2311 w-100'
-            local_stages[stage][1].attr['buttons']['left']['styles'][1] = f'btn btn-lg btn-outline-success btn2313 w-100'
-            local_stages[stage][1].attr['buttons']['right']['styles'][0] = f'btn btn-lg btn-outline-danger btn2312 w-100'
-            local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-danger btn2314 w-100'
+            local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-danger btn2311 w-100'
+            local_stages[stage][1].attr['buttons']['left']['styles'][1] = f'btn btn-lg btn-danger btn2313 w-100'
+            local_stages[stage][1].attr['buttons']['right']['styles'][0] = f'btn btn-lg btn-success btn2312 w-100'
+            local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn2314 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'c13.4'
+
+        elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
+            local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-danger btn2311 w-100'
+            local_stages[stage][1].attr['buttons']['left']['styles'][1] = f'btn btn-lg btn-outline-danger btn2313 w-100'
+            local_stages[stage][1].attr['buttons']['right']['styles'][0] = f'btn btn-lg btn-outline-success btn2312 w-100'
+            local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn2314 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
 
         elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
-            local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-success btn2311 w-100'
-            local_stages[stage][1].attr['buttons']['left']['styles'][1] = f'btn btn-lg btn-outline-success btn2313 w-100'
-            local_stages[stage][1].attr['buttons']['right']['styles'][0] = f'btn btn-lg btn-danger btn2312 w-100'
-            local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-danger btn2314 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
+            local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-danger btn2311 w-100'
+            local_stages[stage][1].attr['buttons']['left']['styles'][1] = f'btn btn-lg btn-outline-danger btn2313 w-100'
+            local_stages[stage][1].attr['buttons']['right']['styles'][0] = f'btn btn-lg btn-success btn2312 w-100'
+            local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn2314 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a13.4'
+
+        if local_stages[stage][0] == 'fa23.1':
+            if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'fb13.4'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'fa23.2'
+            elif local_progress[stage]['1'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'fb13.4'
+            elif local_progress[stage]['2'] == True and local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'fc13.4'
 
     navigation.append((local_stages[stage][1].attr['navigation']['styles'][1], local_stages[stage][1].attr['navigation']['text'][1], local_stages[stage][1].attr['navigation']['links'][1]))
     navigation.append((local_stages[stage][1].attr['navigation']['styles'][2], local_stages[stage][1].attr['navigation']['text'][2], local_stages[stage][1].attr['navigation']['links'][2]))
@@ -658,35 +651,36 @@ def test_fourth():
     info, data, navigation = [], [], []
     navigation.append((local_stages[stage][1].attr['navigation']['styles'][0], local_stages[stage][1].attr['navigation']['text'][0], local_stages[stage][1].attr['navigation']['links'][0]))
 
-    if local_stages[stage][0] == 'a3.2':
+    button_number = None
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
+    if request.is_json:
+        button_number = request.args.get('button_number')
 
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
+        local_changes.append(local_progress[stage].copy())
+        changes = local_progress[stage].copy()
 
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
+        for i in changes.keys():
+            if i == button_number:
+                changes[i] = True
             else:
-                local_flags['flag_changes'] = False
+                changes[i] = False
+        
+        local_changes.append(changes)
 
-            local_progress[stage] = changes
+        if changes != local_changes[0]:
+            local_flags['flag_changes'] = True
+        else:
+            local_flags['flag_changes'] = False
+
+        local_progress[stage] = changes
+
+    if local_stages[stage][0][2:] == '3.2':
 
         if local_progress[stage]['1'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-danger btn3321 w-100'
             local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-success btn3322 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Оценить дыхание!'
-            local_stages[stage][1].next = 'a4'
             local_flags[3.2] = '3.4'
    
         elif local_progress[stage]['2'] == True:
@@ -694,70 +688,34 @@ def test_fourth():
             local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-success btn3322 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a4'
             local_flags[3.2] = '3.5'
 
-    if local_stages[stage][0] == 'b3.2':
+        if local_stages[stage][0] == 'ba3.2':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ba4'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'bb4'
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
+        elif local_stages[stage][0] == 'fa3.2':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'fa13'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
+                local_stages[stage][1].next = 'ba3.2'
 
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
+        elif local_stages[stage][0] == 'fb3.2':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'fb13'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'fa23'
 
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
+        elif local_stages[stage][0] == 'ga3.2':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ga13'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ga13.4'
 
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
-
-        if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-danger btn3321 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-success btn3322 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Оценить дыхание!'
-            local_stages[stage][1].next = 'a24.8'
-            local_flags[3.2] = '3.4'
-   
-        elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-danger btn3321 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-success btn3322 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'd23'
-            local_flags[3.2] = '3.5'
-
-    elif local_stages[stage][0] == 'a4':
-
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
+    elif local_stages[stage][0][2:] == '4':
 
         if local_progress[stage]['1'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn41 w-100'
@@ -766,7 +724,6 @@ def test_fourth():
             local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn44 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a6'
             local_flags[4] = '4.1'
    
         elif local_progress[stage]['2'] == True:
@@ -776,7 +733,6 @@ def test_fourth():
             local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn44 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Обеспечение проходимости дыхательных путей'
-            local_stages[stage][1].next = 'a13.2'
             local_flags[4] = '4.2'
 
         elif local_progress[stage]['3'] == True:
@@ -786,7 +742,6 @@ def test_fourth():
             local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn44 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Дыхательная недостаточность'
-            local_stages[stage][1].next = 'a5'
             local_flags[4] = '4.3'
 
         elif local_progress[stage]['4'] == True:
@@ -796,173 +751,59 @@ def test_fourth():
             local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-danger btn44 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Реанимация!!!'
-
-            ###
-            local_stages[stage][1].next = 'a12'
-            ###
-
             local_flags[4] = '4.4'
 
-    elif local_stages[stage][0] == 'b4':
+        if local_stages[stage][0] == 'ba4':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'fa6'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ba13.2'
+            elif local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'ca5'
+            elif local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ha13.2'
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
+        elif local_stages[stage][0] == 'bb4':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'fa6'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ba13.2'
+            elif local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'ca5'
+            elif local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ha13.2'
 
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
+        elif local_stages[stage][0] == 'bc4':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'fa6'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ba13.2'
+            elif local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'ca5'
+            elif local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ha13.2'
 
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
+        elif local_stages[stage][0] == 'fa4':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'fd18'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ba13.2'
+            elif local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'ca5'
+            elif local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ha13.2'
 
-            local_changes.append(changes)
+        elif local_stages[stage][0] == 'ga4':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ga18'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ba13.2'
+            elif local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'ca5'
+            elif local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ha13.2'
 
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
-
-        if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn41 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn42 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn43 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn44 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a6'
-            local_flags[4] = '4.1'
-   
-        elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn41 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-warning btn42 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn43 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn44 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Обеспечение проходимости дыхательных путей'
-            local_stages[stage][1].next = 'a13.2'
-            local_flags[4] = '4.2'
-
-        elif local_progress[stage]['3'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn41 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn42 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-warning btn43 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn44 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Дыхательная недостаточность'
-            local_stages[stage][1].next = 'a6'
-            local_flags[4] = '4.3'
-
-        elif local_progress[stage]['4'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn41 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn42 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn43 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-danger btn44 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Реанимация!!!'
-
-            ###
-            local_stages[stage][1].next = 'a12'
-            ###
-
-            local_flags[4] = '4.4'
-
-    elif local_stages[stage][0] == 'c4':
-
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
-
-        if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn41 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn42 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn43 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn44 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a6'
-            local_flags[4] = '4.1'
-   
-        elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn41 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-warning btn42 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn43 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn44 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Обеспечение проходимости дыхательных путей'
-
-            ###
-            local_stages[stage][1].next = 'a13.2'
-            ###
-
-            local_flags[4] = '4.2'
-
-        elif local_progress[stage]['3'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn41 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn42 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-warning btn43 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn44 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Дыхательная недостаточность'
-            local_stages[stage][1].next = 'a5'
-            local_flags[4] = '4.3'
-
-        elif local_progress[stage]['4'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn41 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn42 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn43 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-danger btn44 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Реанимация!!!'
-
-            ###
-            local_stages[stage][1].next = 'a12'
-            ###
-
-            local_flags[4] = '4.4'
-
-    elif local_stages[stage][0] == 'a5':
-
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
+    elif local_stages[stage][0][2:] == '5':
 
         if local_progress[stage]['1'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-warning btn51 w-100'
@@ -970,7 +811,6 @@ def test_fourth():
             local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn53 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Отёк гортани'
-            local_stages[stage][1].next = 'a23'
             local_flags[5] = '5.1'
    
         elif local_progress[stage]['2'] == True:
@@ -979,7 +819,6 @@ def test_fourth():
             local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn53 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Бронхообструкция'
-            local_stages[stage][1].next = 'b23'
             local_flags[5] = '5.2'
 
         elif local_progress[stage]['3'] == True:
@@ -988,38 +827,23 @@ def test_fourth():
             local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-warning btn53 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Отёк лёгких'
-            local_stages[stage][1].next = 'c23'
             local_flags[5] = '5.3'
 
-    elif local_stages[stage][0] == 'a6':
+        if local_stages[stage][0] == 'ca5':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ca23'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'da23'
+            elif local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'ea23'
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True 
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
+    elif local_stages[stage][0][2:] == '6':
 
         if local_progress[stage]['1'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn61 w-100'
             local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn62 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'h7'
             local_flags[6] = '6.1'
    
         elif local_progress[stage]['2'] == True:
@@ -1027,41 +851,15 @@ def test_fourth():
             local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn62 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Реанимация!!!'
-            
-            ###
-            if local_flags[3] == '3.2':
-                local_stages[stage][1].next = 'a9'
-            elif local_flags[3] == '3.3':
-                local_stages[stage][1].next = 'a9.1'
-            ###
-
             local_flags[6] = '6.2'
 
-    elif local_stages[stage][0] == 'a8':
+        if local_stages[stage][0] == 'fa6':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'fa7'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ha13.2'
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True  
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
-
-        #local_stages[current_stage].attr['navigation']['styles'][1] = 'btn btn-lg btn-outline-danger w-100 btn-next'
-        #local_stages[current_stage].attr['navigation']['text'][1] = 'Далее'
+    elif local_stages[stage][0][2:] == '8':
 
         for i in range(len(local_stages[stage][1].attr['buttons']['text'])):
             local_stages[stage][1].attr['buttons']['text'][i] += f'test {body_params()}'
@@ -1073,18 +871,14 @@ def test_fourth():
             local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a13.3'
- 
-   
+
         elif local_progress[stage]['2'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
             local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-warning btn82 w-100'
             local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
             local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Гипертонический криз'
-            local_stages[stage][1].next = 'a13.3'###
-            
+            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Гипертонический криз'   
 
         elif local_progress[stage]['3'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
@@ -1093,8 +887,6 @@ def test_fourth():
             local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Артериальная гипотония'
-            local_stages[stage][1].next = 'c13.1'
-
 
         elif local_progress[stage]['4'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
@@ -1103,450 +895,98 @@ def test_fourth():
             local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-danger btn84 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Реанимация!!!'
-            local_stages[stage][1].next = 'c13.1'###
 
-
-    elif local_stages[stage][0] == 'b8':
-
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True  
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
-
-        #local_stages[current_stage].attr['navigation']['styles'][1] = 'btn btn-lg btn-outline-danger w-100 btn-next'
-        #local_stages[current_stage].attr['navigation']['text'][1] = 'Далее'
-
-        for i in range(len(local_stages[stage][1].attr['buttons']['text'])):
-            local_stages[stage][1].attr['buttons']['text'][i] += f'test {body_params()}'
-
-        if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'c18'
- 
-   
-        elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Гипертонический криз'
-            local_stages[stage][1].next = 'a24.3'###
-            
-
-        elif local_progress[stage]['3'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Артериальная гипотония'
-            local_stages[stage][1].next = 'c18'
-
-
-        elif local_progress[stage]['4'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Реанимация!!!'
-            local_stages[stage][1].next = 'a24.3'###
-
-    elif local_stages[stage][0] == 'c8':
-
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True  
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
-
-        #local_stages[current_stage].attr['navigation']['styles'][1] = 'btn btn-lg btn-outline-danger w-100 btn-next'
-        #local_stages[current_stage].attr['navigation']['text'][1] = 'Далее'
-
-        for i in range(len(local_stages[stage][1].attr['buttons']['text'])):
-            local_stages[stage][1].attr['buttons']['text'][i] += f'test {body_params()}'
-
-        if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'b13.3'
- 
-   
-        elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Гипертонический криз'
-            local_stages[stage][1].next = 'b13.3'###
-            
-
-        elif local_progress[stage]['3'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Артериальная гипотония'
-            local_stages[stage][1].next = 'e13.1'
-
-
-        elif local_progress[stage]['4'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Реанимация!!!'
-            local_stages[stage][1].next = 'e13.1'###
-
-    elif local_stages[stage][0] == 'd8':
-
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True  
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
-
-        #local_stages[current_stage].attr['navigation']['styles'][1] = 'btn btn-lg btn-outline-danger w-100 btn-next'
-        #local_stages[current_stage].attr['navigation']['text'][1] = 'Далее'
-
-        for i in range(len(local_stages[stage][1].attr['buttons']['text'])):
-            local_stages[stage][1].attr['buttons']['text'][i] += f'test {body_params()}'
-
-        if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'd18'
- 
-   
-        elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Гипертонический криз'
-            local_stages[stage][1].next = 'a24.6'###
-            
-
-        elif local_progress[stage]['3'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Артериальная гипотония'
-            local_stages[stage][1].next = 'd18'
-
-
-        elif local_progress[stage]['4'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Реанимация!!!'
-            local_stages[stage][1].next = 'a24.6'###
-
-    elif local_stages[stage][0] == 'e8':
-
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True  
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
-
-        #local_stages[current_stage].attr['navigation']['styles'][1] = 'btn btn-lg btn-outline-danger w-100 btn-next'
-        #local_stages[current_stage].attr['navigation']['text'][1] = 'Далее'
-
-        for i in range(len(local_stages[stage][1].attr['buttons']['text'])):
-            local_stages[stage][1].attr['buttons']['text'][i] += f'test {body_params()}'
-
-        if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'c13.3'
- 
-   
-        elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Гипертонический криз'
-            local_stages[stage][1].next = 'c13.3'
-            
-
-        elif local_progress[stage]['3'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Артериальная гипотония'
-            local_stages[stage][1].next = 'g13.1'
-
-
-        elif local_progress[stage]['4'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Реанимация!!!'
-            local_stages[stage][1].next = 'g13.1'###
-
-    elif local_stages[stage][0] == 'f8':
-
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True  
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
-
-        #local_stages[current_stage].attr['navigation']['styles'][1] = 'btn btn-lg btn-outline-danger w-100 btn-next'
-        #local_stages[current_stage].attr['navigation']['text'][1] = 'Далее'
-
-        for i in range(len(local_stages[stage][1].attr['buttons']['text'])):
-            local_stages[stage][1].attr['buttons']['text'][i] += f'test {body_params()}'
-
-        if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'e18'
- 
-   
-        elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Гипертонический криз'
-            local_stages[stage][1].next = 'e18'
-            
-
-        elif local_progress[stage]['3'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Артериальная гипотония'
-            local_stages[stage][1].next = 'g16'###
-
-
-        elif local_progress[stage]['4'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Реанимация!!!'
-            local_stages[stage][1].next = 'g16'###
-
-    elif local_stages[stage][0] == 'g8':
-
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True  
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
-
-        #local_stages[current_stage].attr['navigation']['styles'][1] = 'btn btn-lg btn-outline-danger w-100 btn-next'
-        #local_stages[current_stage].attr['navigation']['text'][1] = 'Далее'
-
-        for i in range(len(local_stages[stage][1].attr['buttons']['text'])):
-            local_stages[stage][1].attr['buttons']['text'][i] += f'test {body_params()}'
-
-        if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'g10.1'
- 
-   
-        elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Гипертонический криз'
-            local_stages[stage][1].next = 'b3.2'
-            
-
-        elif local_progress[stage]['3'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Артериальная гипотония'
-            
-            ###
-            if local_flags[3] == '3.2':
-                local_stages[stage][1].next = 'a9'
-            elif local_flags[3] == '3.3':
-                local_stages[stage][1].next = 'a9.1'
-            ###
-
-        elif local_progress[stage]['4'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][3] = f'btn btn-lg btn-danger btn84 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Реанимация!!!'
-            
-            ###
-            if local_flags[3] == '3.2':
-                local_stages[stage][1].next = 'a9'
-            elif local_flags[3] == '3.3':
-                local_stages[stage][1].next = 'a9.1'
-            ###
-
-    elif local_stages[stage][0] == '18.1':
-
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
+        if local_stages[stage][0] == 'ca8':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ca18'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'fb3.2'
+            elif local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'ca18'
+            elif local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ha13.2'
+
+        elif local_stages[stage][0] == 'cb8':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ca13.3'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'fb3.2'
+            elif local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'cb13.1'
+            elif local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ha13.2'
+
+        elif local_stages[stage][0] == 'da8':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'da13.3'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'fb3.2'
+            elif local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'db13.1'
+            elif local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ha13.2'
+
+        elif local_stages[stage][0] == 'db8':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'da18'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'fb3.2'
+            elif local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'da18'
+            elif local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ha13.2'
+
+        elif local_stages[stage][0] == 'ea8':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ea13.3'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ea13.3'
+            elif local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'eb13.1'
+            elif local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ha13.2'
+
+        elif local_stages[stage][0] == 'eb8':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ea18'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ea18'
+            elif local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'ga3.2'
+            elif local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ha13.2'
+
+        elif local_stages[stage][0] == 'fa8':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'fa3.2'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'fb3.2'
+            elif local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'ga3.2'
+            elif local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ha13.2'
+
+        elif local_stages[stage][0] == 'ga8':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ga10.1'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'fb3.2'
+            elif local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'gb24.3.1'
+            elif local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ha13.2'
+
+        elif local_stages[stage][0] == 'ia8':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ia23.2'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'fb3.2'
+            elif local_progress[stage]['3'] == True:
+                local_stages[stage][1].next = 'ia13.4'
+            elif local_progress[stage]['4'] == True:
+                local_stages[stage][1].next = 'ha13.2'
+
+    elif local_stages[stage][0][2:] == '18.1':
 
         if local_progress[stage]['1'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
@@ -1560,883 +1000,551 @@ def test_fourth():
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
 
-    elif local_stages[stage][0] == 'a19':
+        if local_stages[stage][0] == 'fa18.1':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'fa24.8.1'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'fa24.13'
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
+    elif local_stages[stage][0][2:] == '19':
 
         if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn191 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn192 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a10.1'
    
         elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn191 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn192 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a18'
 
-    elif local_stages[stage][0] == 'b19':
+        if local_stages[stage][0] == 'aa19':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'aa10.1'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'aa18'
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
+        elif local_stages[stage][0] == 'ab19':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'aa10.1'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ad20'
 
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
+        elif local_stages[stage][0] == 'ac19':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'aa22'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ab20'
 
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
+        elif local_stages[stage][0] == 'ad19':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'aa22'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ac20'
 
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
+    elif local_stages[stage][0][2:] == '22':
 
         if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn191 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn192 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a10.1'
    
         elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn191 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn192 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'b20'
 
-    elif local_stages[stage][0] == 'c19':
+        if local_stages[stage][0] == 'aa22':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ba3.2'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ab21'
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
+    elif local_stages[stage][0][2:] == '23':
 
         if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn191 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn192 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a22'
-   
-        elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn191 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn192 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'c20'
-
-    elif local_stages[stage][0] == 'd19':
-
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
-
-        if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn191 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn192 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a22'
-   
-        elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn191 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn192 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'd20'
-
-    elif local_stages[stage][0] == 'a22':
-
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
-
-        if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn221 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn222 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'b10.1'
-   
-        elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn221 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn222 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'b21'
-
-    elif local_stages[stage][0] == 'b22':
-
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
-
-        if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn221 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn222 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'b10.1'
-   
-        elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn221 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn222 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'b21'
-
-    elif local_stages[stage][0] == 'a23':
-
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
-
-        if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn231 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn232 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'b7'
             local_flags[23] = '23.1'
    
         elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn231 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn232 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'b13.1'
             local_flags[23] = '23.2'
 
-    elif local_stages[stage][0] == 'b23':
+        if local_stages[stage][0] == 'ca23':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'cb7'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ca13.1'
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
+        elif local_stages[stage][0] == 'da23':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'da7'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'da13.1'
 
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
+        elif local_stages[stage][0] == 'ea23':
+            if local_progress[stage]['1'] == True:   
+                local_stages[stage][1].next = 'ea7'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ea13.1'
 
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
+        elif local_stages[stage][0] == 'db23':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'da10.1'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'da9'
 
-            local_changes.append(changes)
+        elif local_stages[stage][0] == 'eb23':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ea10.1'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ea9'
 
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
+        elif local_stages[stage][0] == 'cb23':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ca10.1'
+            elif local_progress[stage]['2'] == True:  
+                local_stages[stage][1].next = 'ca9'
 
-            local_progress[stage] = changes
+        elif local_stages[stage][0] == 'fa23':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'fa23.1'
+            elif local_progress[stage]['2'] == True:   
+                local_stages[stage][1].next = 'fa13.4'
+
+        elif local_stages[stage][0] == 'fb23':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'fa12' 
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'fa9'
+
+        elif local_stages[stage][0] == 'fc23':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'fb12'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'fb9'
+
+        elif local_stages[stage][0] == 'fd23':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'fc12'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'fc9'
+
+        elif local_stages[stage][0] == 'fe23':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'fe12'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'fd9'
+
+        elif local_stages[stage][0] == 'ff23':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ff12'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'fe9'
+
+        elif local_stages[stage][0] == 'ga23':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ga18'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ga9.1'
+
+        elif local_stages[stage][0] == 'gb23':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ga12'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ga9'
+
+    elif local_stages[stage][0][2:] == '23.2':
 
         if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn231 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn232 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn2321 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn2322 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'd7'
-            local_flags[23] = '23.1'
    
         elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn231 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn232 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn2321 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn2322 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'd13.1'
-            local_flags[23] = '23.2'
 
-    elif local_stages[stage][0] == 'c23':
+        if local_stages[stage][0] == 'fa23.2':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'fa13.3'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'fa13.4'
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
+        elif local_stages[stage][0] == 'ia23.2':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ia13.3'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ib13.4'
 
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
+        elif local_stages[stage][0] == 'ib23.2':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ib16'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ic24.10'
 
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
+    elif local_stages[stage][0][2:] == '23.3':
 
         if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn231 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn232 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-danger btn2321 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-success btn2322 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'f7'
-            local_flags[23] = '23.1'
    
         elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn231 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn232 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-danger btn2321 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-success btn2322 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'f13.1'
-            local_flags[23] = '23.2'
 
-    elif local_stages[stage][0] == 'd23':
+        if local_stages[stage][0] == 'ga23.3':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ia7'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ga8.2'
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
+    elif local_stages[stage][0][2:] == '24':
 
         if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn231 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn232 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a23.1'
-            local_flags[23] = '23.1'
-   
-        elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn231 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn232 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            
-            ###
-            if local_flags[3] == '3.2':
-                local_stages[stage][1].next = 'a9'
-            elif local_flags[3] == '3.3':
-                local_stages[stage][1].next = 'a9.1'
-            ###
-
-            local_flags[23] = '23.2'
-
-    elif local_stages[stage][0] == 'a23.2':
-
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
-
-        if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn231 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn232 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'd13.3'
-   
-        elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn231 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn232 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'b13.4'
-
-    elif local_stages[stage][0] == 'a24':
-
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
-
-        if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn241 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn242 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a24.4' 
             local_flags[24] = '24.1'
    
         elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn241 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn242 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'c18'    
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее' 
             local_flags[24] = '24.2'
 
-    elif local_stages[stage][0] == 'b24':
+        if local_stages[stage][0] == 'ca24':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ca24.4' 
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ca18'    
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
+        elif local_stages[stage][0] == 'da24':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'da24.5' 
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'da18'    
 
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
+    elif local_stages[stage][0][2:] == '25':
 
         if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn241 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn242 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a24.5' 
-            local_flags[24] = '24.1'
-   
-        elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn241 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn242 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'd18'    
-            local_flags[24] = '24.2'
-
-    elif local_stages[stage][0] == 'a25':
-
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
-
-        if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn251 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn252 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a10'
             local_flags[25] = '25.1'
    
         elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn251 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn252 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'c16'
             local_flags[25] = '25.2'
 
-    elif local_stages[stage][0] == 'b25':
+        if local_stages[stage][0] == 'ca25':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ca10'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ca16'
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
+        elif local_stages[stage][0] == 'cb25':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ca10'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'cb16'
 
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
+        elif local_stages[stage][0] == 'da25':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'da10'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'da16'
 
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
+        elif local_stages[stage][0] == 'db25':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'da10'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'db16'
 
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
-
-        if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn251 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn252 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a10'
-            local_flags[25] = '25.1'
-   
-        elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn251 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn252 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'd16'
-            local_flags[25] = '25.2'
-
-    elif local_stages[stage][0] == 'c25':
-
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
+    elif local_stages[stage][0][2:] == '26.1':
 
         if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn251 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn252 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'b10'
-            local_flags[25] = '25.1'
    
         elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn251 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn252 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'e16'
-            local_flags[25] = '25.2'
 
-    elif local_stages[stage][0] == 'd25':
+        if local_stages[stage][0] == 'fa26.1':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'fc10.1'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'fa18.2'
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
+        elif local_stages[stage][0] == 'fb26.1':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'fz10.1'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'fa18.2'
 
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
+    elif local_stages[stage][0][2:] == '26.2':
 
         if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn251 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn252 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'b10'
-            local_flags[25] = '25.1'
    
         elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn251 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn252 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'f16'
-            local_flags[25] = '25.2'
 
-    elif local_stages[stage][0] == 'a26.1':
+        if local_stages[stage][0] == 'fa26.2':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'fa10.1'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'fa24.9'
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
+        elif local_stages[stage][0] == 'fb26.2':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ff10.1'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'fb24.9'
 
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
+    elif local_stages[stage][0][2:] == '26.3':
 
         if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn251 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn252 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'h10.1'
    
         elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn251 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn252 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'b24.8'
 
-    elif local_stages[stage][0] == 'b26.1':
+        if local_stages[stage][0] == 'fa26.3':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'fb10.1'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'fa24.11'
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
+    elif local_stages[stage][0][2:] == '26.4':
 
         if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn251 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn252 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn2641 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-success btn2642 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'h10.1'
    
         elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn251 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn252 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn2641 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-success btn2642 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'h10.1'
 
-    elif local_stages[stage][0] == 'a26.2':
+        if local_stages[stage][0] == 'fa26.4':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'fa24.12'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'fa24.12.1'
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
+    elif local_stages[stage][0][2:] == '26.5':
 
         if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn251 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn252 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'i10.1'
    
         elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn251 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn252 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'b24.9'
 
-    elif local_stages[stage][0] == 'b26.2':
+        if local_stages[stage][0] == 'ia26.5':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ia10.1'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ib18'
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
+    elif local_stages[stage][0][2:] == '27.4':
 
         if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn251 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn252 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'i10.1'
    
         elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn251 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn252 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'i10.1'
 
-    elif local_stages[stage][0] == 'a26.3':
+        if local_stages[stage][0] == 'ha27.4':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ha27.6'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ha27.2.1'
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
+        elif local_stages[stage][0] == 'hb27.4':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'hb27.6'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ha27.2.2'
 
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
+        elif local_stages[stage][0] == 'hc27.4':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ha7'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ha28.7'
 
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
+        elif local_stages[stage][0] == 'hd27.4':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'hb7'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'hc28.6'
 
-            local_changes.append(changes)
+        elif local_stages[stage][0] == 'he27.4':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'hb7'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'hb27.2.2'
 
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
+    elif local_stages[stage][0][2:] == '28.1':
 
         if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn251 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn252 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'j10.1'
    
         elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn251 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn252 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a24.11'
 
-    elif local_stages[stage][0] == 'a26.4':
+        if local_stages[stage][0] == 'ha28.1':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ha28.4'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ha27.2'
 
-        if request.is_json:
-            button_number = request.args.get('button_number')
-
-            local_changes.append(local_progress[stage].copy())
-            changes = local_progress[stage].copy()
-
-            for i in changes.keys():
-                if i == button_number:
-                    changes[i] = True
-                else:
-                    changes[i] = False
-
-            local_changes.append(changes)
-
-            if changes != local_changes[0]:
-                local_flags['flag_changes'] = True
-            else:
-                local_flags['flag_changes'] = False
-
-            local_progress[stage] = changes
+    elif local_stages[stage][0][2:] == '28.2':
 
         if local_progress[stage]['1'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn251 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn252 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a24.12'
    
         elif local_progress[stage]['2'] == True:
-            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn251 w-100'
-            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn252 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
             local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
             local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-            local_stages[stage][1].next = 'a24.12'
+
+        if local_stages[stage][0] == 'ha28.2':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ha14'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'hb27.2'
+
+    elif local_stages[stage][0][2:] == '29':
+
+        if local_progress[stage]['1'] == True:
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-danger btn191 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-success btn192 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
+   
+        elif local_progress[stage]['2'] == True:
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-danger btn191 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-success btn192 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
+
+        if local_stages[stage][0] == 'ja29':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ia7'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ja31'
+
+        elif local_stages[stage][0] == 'jb29':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ia7'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ja31'
+
+    elif local_stages[stage][0][2:] == '30':
+
+        if local_progress[stage]['1'] == True:
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-danger btn191 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-success btn192 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
+   
+        elif local_progress[stage]['2'] == True:
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-danger btn191 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-success btn192 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
+
+        if local_stages[stage][0] == 'ja30':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ja29'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'jb29'
+
+    elif local_stages[stage][0][2:] == '31':
+
+        if local_progress[stage]['1'] == True:
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-danger btn191 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-success btn192 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
+   
+        elif local_progress[stage]['2'] == True:
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-danger btn191 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-success btn192 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
+
+        if local_stages[stage][0] == 'ja31':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ja9.2'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'ba3.2'
 
     info.append((local_stages[stage][1].attr['info']['styles'][0], local_stages[stage][1].attr['info']['text'][0]))
     for i in local_progress[stage].keys():
