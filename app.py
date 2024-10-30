@@ -1,24 +1,30 @@
 ﻿from flask import Flask
 from flask import render_template, request, redirect, session
 from stages import stages, progress
+from farm import farm
 from stack import Stack
+#from dotenv import load_dotenv
+import os
 
-
+#load_dotenv()
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '9bf43c3a13544daaff33ffa122e8c8a54275d280'
+#app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 
 stage = 0
 local_stages = [('aa0', stages['aa0'])]
 local_progress = [{'1': False}]
 local_flags = {'flag_changes': False}
 local_changes = []
+stk = Stack()
 
 def progress_output():
     global local_progress, local_stages, stage
     print(f'Current stage: {stage}')
     print(f'Current flags: {local_flags}')
+    print(f'Current stack: {stk.get_elems()}')
     for i in range(1, len(local_progress)):
         print(f'stage: {i}, template: {local_stages[i][0]}, Current progress {local_progress[i]}')
+
 
 def body_params():
     global local_progress
@@ -59,10 +65,22 @@ def next_stage():
     
     global local_stages, local_progress, stage, local_flags, local_changes
 
+    next_atr = local_stages[stage][1].next
+
+    if local_stages[stage][0] == 'fb13':
+        stk.push('fa23')
+    elif local_stages[stage][0] == 'ga13':
+        stk.push('ga23')
+
+    if next_atr == 'ba3.2' and stk.get() == 'fa23':
+        next_atr = stk.pop()
+    elif next_atr == 'ba3.2' and stk.get() == 'ga23':
+        next_atr = stk.pop()
+
     if stage + 1 == len(local_progress):
         print("\n" + f'var1')
-        local_stages.append((local_stages[stage][1].next, stages[local_stages[stage][1].next].copy()))
-        local_progress.append(progress[local_stages[stage][1].next[2:]].copy())
+        local_stages.append((next_atr, stages[next_atr].copy()))
+        local_progress.append(progress[next_atr[2:]].copy())
         stage += 1
         local_stages[stage][1].prev = local_stages[stage - 1][0]
         local_flags['flag_changes'] = False
@@ -71,8 +89,8 @@ def next_stage():
         print("\n" + f'var2')
         local_stages = local_stages[:stage + 1]
         local_progress = local_progress[:stage + 1]
-        local_stages.append((local_stages[stage][1].next, stages[local_stages[stage][1].next].copy()))
-        local_progress.append(progress[local_stages[stage][1].next[2:]].copy())
+        local_stages.append((next_atr, stages[next_atr].copy()))
+        local_progress.append(progress[next_atr[2:]].copy())
         stage += 1
         local_stages[stage][1].prev = local_stages[stage - 1][0]
         local_flags['flag_changes'] = False
@@ -96,6 +114,13 @@ def prev_stage():
 
     global stage, local_stages, local_progress, local_flags, local_changes
 
+    if local_stages[stage][0] == 'fa23':
+        stk.push('fa23')
+    elif local_stages[stage][0] == 'ga23':
+        stk.push('ga23')
+    if (local_stages[stage][0] == 'aa9.1' and stk.get() == 'fa23') or (local_stages[stage][0] == 'aa9.1' and stk.get() == 'ga23'):
+        stk.pop()
+
     if local_flags['flag_changes']:
         local_stages = local_stages[:stage + 1]
         local_progress = local_progress[:stage + 1]
@@ -114,9 +139,9 @@ def prev_stage():
 @app.route("/to_beginning")
 def to_beginning():
     global local_stages, local_progress, stage, local_flags
-    stage = 0
-    local_stages = [('aa0', stages['aa0'])]
-    local_progress = [{'1': False}]
+    stage = 2
+    local_stages = local_stages[:3]
+    local_progress = local_progress[:3]
     local_flags = {'flag_changes': False}
 
     return redirect('/next_stage')
@@ -132,10 +157,61 @@ def test_first():
 
     if request.is_json:
         #print(request.path)
-
         button_number = request.args.get('button_number')
         local_progress[stage][button_number] = not local_progress[stage][button_number]
-       
+
+    if local_stages[stage][0] != 'aa1':
+        body_p = body_params()
+
+        if body_p == None:
+            return redirect('/to_beginning')
+
+    if local_stages[stage][0][2:] == '10.1':
+        local_stages[stage][1].attr['info']['text'][1] = f'Оценивайте дыхание, пульс и SpO2 непрерывно, измеряйте АД не реже раза в 5 минут). При нарушениях дыхания, снижения SpO2 ниже 92% При АД выше {farm["ads"][body_p][1]} или ниже {farm["ads"][body_p][0]} мм.рт.ст., развитии судорог нажмите «В начало»'
+    elif local_stages[stage][0][2:] == '17':
+        local_stages[stage][1].attr['info']['text'][0] = f'Установите воздуховод #{farm["air_duct"][body_p]} или ларингеальную маску #{farm["i-gel"][body_p]}'
+    elif local_stages[stage][0][2:] == '20':
+        local_stages[stage][1].attr['info']['text'][0] = f'Поместите сахар/конфету за щёку пациента (не за зубы). При наличии доступа в вену – внутривенно {farm["glucose"][body_p]} мл 20% раствора глюкозы (ампулы 40% глюкозы развести пополам 0,9% раствором NaCl)'
+    elif local_stages[stage][0][2:] == '21':
+        local_stages[stage][1].attr['info']['text'][0] = f'При наличии сосудистого доступа – введите внутривенно вальпроевую кислоту (детям старше 3 лет) {farm["valpro"][body_p]} мл за 5 минут либо мидазолам {farm["midazolam"][body_p]} мл, либо диазепам {farm["diazepam"][body_p]} мл'
+        local_stages[stage][1].attr['info']['text'][1] = f'При отсутствии сосудистого доступа внутримышечно ввести мидазолам {farm["midazolam"][body_p]} мл, либо диазепам {farm["diazepam"][body_p]} мл'
+    elif local_stages[stage][0][2:] == '24.3':
+        local_stages[stage][1].attr['info']['text'][0] = f'Введите внутривенно/внутрикостно или (при отсутствии сосудистого доступа – внутримышечно) 1. Эпинефрин (адреналин) {farm["adrenalin_v"][body_p]} мл'
+        local_stages[stage][1].attr['info']['text'][1] = f'2. Дексаметазон {farm["dexamethasone"][body_p]} мл или Преднизолон {farm["prednisolone"][body_p]} мл или Метилпреднизолон {farm["methylprednisolone"][body_p]} мг или Гидрокортизон {farm["hydrocortisone"][body_p]} мл (только внутримышечно)'
+    elif local_stages[stage][0][2:] == '24.3.2':
+        local_stages[stage][1].attr['info']['text'][0] = f'Вводите внутривенно капельно или (при отсутствии сосудистого доступа – внутримышечно) Атропин {farm["atropin"][body_p]} мл в 10 мл (5 мл при внутримышечном введении) 0,9% раствора NaCl. Максимальное количество введений - два. Целевое ЧСС не менее {farm["css"][body_p][0]} в мин (при внутримышечном введении интервал 1 раз в 5 минут)'
+    elif local_stages[stage][0][2:] == '24.3.3':
+        local_stages[stage][1].attr['info']['text'][0] = f'Вводите внутривенно капельно Допамин (дофамин) 100 мг в 200 мл 5 % раствора глюкозы или 0,9 % раствора NaCl. До достижения артериального давления не менее 90/60 мм.рт.ст., ЧСС не менее {farm["css"][body_p][0]} в мин'
+    elif local_stages[stage][0][2:] == '24.3.4':
+        local_stages[stage][1].attr['info']['text'][0] = f'Введите внутривенно болюс интралипида 20% {farm["intralipid_b"][body_p]} мл (1,5 мл/кг) в течение 1 минуты. Немедленно начните инфузию со скоростью {farm["intralipid_k"][body_p]} кап/мин (15 мл/кг/час) (взрослому пациенту - 1 л/час, 300 капель в минуту)'
+    elif local_stages[stage][0][2:] == '24.3.5':
+        local_stages[stage][1].attr['info']['text'][0] = f'Введите струйно внутривенно/внутрикостно или (при отсутствии сосудистого доступа – внутримышечно под язык) Эпинефрин (адреналин) {farm["adrenalin_v"][body_p]} мл'
+    elif local_stages[stage][0][2:] == '24.4':
+        local_stages[stage][1].attr['info']['text'][0] = f'Введите ингаляционно через небулайзер 1. Будесонид {farm["budesonid"][body_p]} мл + NaCl 0,9% 3,0 мл'
+        local_stages[stage][1].attr['info']['text'][1] = f'2. Адреналин {farm["adrenalin_n"][body_p]} мл + NaCl 0,9% 5,0 мл'
+    elif local_stages[stage][0][2:] == '24.5':
+        local_stages[stage][1].attr['info']['text'][0] = f'Введите ингаляционно через небулайзер 1. Сальбутамол {farm["salbutamol"][body_p]} доз'
+    elif local_stages[stage][0][2:] == '24.6':
+        local_stages[stage][1].attr['info']['text'][0] = f'Введите внутривенно/внутрикостно или (при отсутствии сосудистого доступа – внутримышечно) 1.Аминофиллин (эуфиллин) {farm["eufillin"][body_p]} мл'
+        local_stages[stage][1].attr['info']['text'][1] = f'2. Дексаметазон {farm["dexamethasone"][body_p]} мл или Преднизолон {farm["prednisolone"][body_p]} мл или Метилпреднизолон {farm["methylprednisolone"][body_p]} мг или Гидрокортизон {farm["hydrocortisone"][body_p]} мл (только внутримышечно)'
+    elif local_stages[stage][0][2:] == '24.7.1':
+        local_stages[stage][1].attr['info']['text'][0] = f'Введите внутривенно или (при отсутствии сосудистого доступа – внутримышечно) Фуросемид {farm["furosemide"][body_p]} мл'
+    elif local_stages[stage][0][2:] == '24.8':
+        local_stages[stage][1].attr['info']['text'][0] = f'Введите внутривенно/внутрикостно Урапидил 25 мг в/в медленно, далее капельно (у пациентов старше 18 лет)'
+        local_stages[stage][1].attr['info']['text'][1] = f'Сульфат магнезии 25% {farm["magnesia_sulfate"][body_p]} мл в/в медленно'
+        local_stages[stage][1].attr['info']['text'][2] = f'Фуросемид {farm["furosemide"][body_p]} мл внутривенно'
+    elif local_stages[stage][0][2:] == '24.8.1':
+        local_stages[stage][1].attr['info']['text'][0] = f'Введите внутривенно Урапидил 25 мг в/в медленно, далее капельно (у пациентов старше 18 лет)'
+        local_stages[stage][1].attr['info']['text'][1] = f'Сульфат магнезии 25% {farm["magnesia_sulfate"][body_p]} мл в/в медленно'
+        local_stages[stage][1].attr['info']['text'][2] = f'Фуросемид {farm["furosemide"][body_p]} мл внутривенно'
+    elif local_stages[stage][0][2:] == '24.9':
+        local_stages[stage][1].attr['info']['text'][0] = f'Важно! Только при ДаД выше 120 мм.рт.ст. АД снижать на 10-15% Введите внутривенно/внутрикостно Урапидил 12, 5 мг в/в медленно, далее капельно (у пациентов старше 18 лет)'
+        local_stages[stage][1].attr['info']['text'][1] = f'Сульфат магнезии 25% {farm["magnesia_sulfate"][body_p]} мл в/в медленно'
+    elif local_stages[stage][0][2:] == '28.5':
+        local_stages[stage][1].attr['info']['text'][0] = f'1. Присоедините к лицевой маске (размер #{farm["face_mask"][body_p]}) или установленной ларингеальной маске ( размер #{farm["i-gel"][body_p]}) дыхательный мешок'
+    elif local_stages[stage][0][2:] == '28.7':
+        local_stages[stage][1].attr['info']['text'][2] = f'С третьего разряда дефибрилляции введите амиодарон {farm["amiodaron"][body_p]} мг при отсутствии – лидокаин {farm["lidocaine"][body_p]} мг (пациентам старше 1 года)'
+
     true_count = 0
     for i in local_progress[stage].keys():
         if local_progress[stage][i] == True:
@@ -288,8 +364,8 @@ def test_third():
             local_stages[stage][1].attr['buttons']['left']['styles'][1] = f'btn btn-lg btn-outline-danger btn33 w-100'
             local_stages[stage][1].attr['buttons']['right']['styles'][0] = f'btn btn-lg btn-danger btn32 w-100'
             local_stages[stage][1].attr['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn34 w-100'
-            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
-            local_stages[stage][1].attr['navigation']['text'][2] = 'SOS. Оценить дыхание!'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
 
         if local_stages[stage][0] == 'aa3':
             if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
@@ -350,6 +426,14 @@ def test_third():
                 local_stages[stage][1].next = 'ga23.3'
 
     elif local_stages[stage][0][2:] == '8.2':
+
+        body_p = body_params()
+
+        if body_p == None:
+            return redirect('/to_beginning')
+
+        local_stages[stage][1].attr['info']['text'][0] = f'ЧСС более {farm["css"][body_p][1]} в мин'
+        local_stages[stage][1].attr['info']['text'][1] = f'ЧСС менее {farm["css"][body_p][0]} в мин'
 
         if  local_progress[stage]['1'] == True and local_progress[stage]['3'] == True:
             local_stages[stage][1].attr['buttons']['left']['styles'][0] = f'btn btn-lg btn-danger btn111 w-100'
@@ -701,7 +785,7 @@ def test_fourth():
                 local_stages[stage][1].next = 'fa13'
             elif local_progress[stage]['2'] == True:
                 local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
-                local_stages[stage][1].next = 'ba3.2'
+                local_stages[stage][1].next = 'aa9'
 
         elif local_stages[stage][0] == 'fb3.2':
             if local_progress[stage]['1'] == True:
@@ -759,7 +843,7 @@ def test_fourth():
             elif local_progress[stage]['2'] == True:
                 local_stages[stage][1].next = 'ba13.2'
             elif local_progress[stage]['3'] == True:
-                local_stages[stage][1].next = 'ca5'
+                local_stages[stage][1].next = 'fa6'
             elif local_progress[stage]['4'] == True:
                 local_stages[stage][1].next = 'ha13.2'
 
@@ -861,8 +945,15 @@ def test_fourth():
 
     elif local_stages[stage][0][2:] == '8':
 
-        for i in range(len(local_stages[stage][1].attr['buttons']['text'])):
-            local_stages[stage][1].attr['buttons']['text'][i] += f'test {body_params()}'
+        body_p = body_params()
+
+        if body_p == None:
+            return redirect('/to_beginning')
+
+        local_stages[stage][1].attr['buttons']['text'][0] = f'Систолическое {farm["ads"][body_p][0]}-{farm["ads"][body_p][1]} Диастолическое {farm["add"][body_p][0]}-{farm["add"][body_p][1]} мм.рт.ст.'
+        local_stages[stage][1].attr['buttons']['text'][1] = f'Выше 180/120 мм.рт.ст.'
+        local_stages[stage][1].attr['buttons']['text'][2] = f'Ниже {farm["ads"][body_p][0]}/{farm["add"][body_p][0]} мм.рт.ст.'
+        local_stages[stage][1].attr['buttons']['text'][3] = f'Не определяется'
 
         if local_progress[stage]['1'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn81 w-100'
@@ -1182,7 +1273,7 @@ def test_fourth():
             if local_progress[stage]['1'] == True:
                 local_stages[stage][1].next = 'fa13.3'
             elif local_progress[stage]['2'] == True:
-                local_stages[stage][1].next = 'fa13.4'
+                local_stages[stage][1].next = 'fd13.4'
 
         elif local_stages[stage][0] == 'ia23.2':
             if local_progress[stage]['1'] == True:
@@ -1357,6 +1448,13 @@ def test_fourth():
                 local_stages[stage][1].next = 'fa24.11'
 
     elif local_stages[stage][0][2:] == '26.4':
+
+        body_p = body_params()
+
+        if body_p == None:
+            return redirect('/to_beginning')
+
+        local_stages[stage][1].attr['info']['text'][0] = f'ЧСС выше {farm["css"][body_p][1]} в мин?'
 
         if local_progress[stage]['1'] == True:
             local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn2641 w-100'
