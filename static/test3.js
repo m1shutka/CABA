@@ -27,8 +27,8 @@
                     $('.btn-next')['0'].innerHTML = "<h2>SOS. Оценить дыхание!</h2>"
                 }
                 else if ($('.btn32')['0'].className == 'btn btn-lg btn-danger btn32 w-100' && $('.btn34')['0'].className == 'btn btn-lg btn-success btn34 w-100') {
-                    $('.btn-next')['0'].className = 'btn btn-lg btn-danger w-100 btn-next'
-                    $('.btn-next')['0'].innerHTML = "<h2>SOS. Оценить дыхание!</h2>"
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                    $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
                 }
                 else
                     $('.btn-next')['0'].className = 'btn btn-lg btn-outline-danger w-100 btn-next disabled'
@@ -63,8 +63,8 @@
                     $('.btn-next')['0'].innerHTML = "<h2>SOS. Оценить дыхание!</h2>"
                 }
                 else if ($('.btn32')['0'].className == 'btn btn-lg btn-danger btn32 w-100' && $('.btn34')['0'].className == 'btn btn-lg btn-success btn34 w-100') {
-                    $('.btn-next')['0'].className = 'btn btn-lg btn-danger w-100 btn-next'
-                    $('.btn-next')['0'].innerHTML = "<h2>SOS. Оценить дыхание!</h2>"
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                    $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
                 }
                 else
                     $('.btn-next')['0'].className = 'btn btn-lg btn-outline-danger w-100 btn-next disabled'
@@ -100,8 +100,8 @@
                     $('.btn-next')['0'].innerHTML = "<h2>SOS. Оценить дыхание!</h2>"
                 }
                 else if ($('.btn32')['0'].className == 'btn btn-lg btn-danger btn32 w-100' && $('.btn34')['0'].className == 'btn btn-lg btn-success btn34 w-100') {
-                    $('.btn-next')['0'].className = 'btn btn-lg btn-danger w-100 btn-next'
-                    $('.btn-next')['0'].innerHTML = "<h2>SOS. Оценить дыхание!</h2>"
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                    $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
                 }
                 else
                     $('.btn-next')['0'].className = 'btn btn-lg btn-outline-danger w-100 btn-next disabled'
@@ -136,8 +136,8 @@
                     $('.btn-next')['0'].innerHTML = "<h2>SOS. Оценить дыхание!</h2>"
                 }
                 else if ($('.btn32')['0'].className == 'btn btn-lg btn-danger btn32 w-100' && $('.btn34')['0'].className == 'btn btn-lg btn-success btn34 w-100') {
-                    $('.btn-next')['0'].className = 'btn btn-lg btn-danger w-100 btn-next'
-                    $('.btn-next')['0'].innerHTML = "<h2>SOS. Оценить дыхание!</h2>"
+                    $('.btn-next')['0'].className = 'btn btn-lg btn-success w-100 btn-next'
+                    $('.btn-next')['0'].innerHTML = "<h2>Далее</h2>"
                 }
                 else
                     $('.btn-next')['0'].className = 'btn btn-lg btn-outline-danger w-100 btn-next disabled'
