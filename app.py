@@ -1,14 +1,21 @@
 ﻿from flask import Flask
-from flask import render_template, request, redirect, session
+from flask import render_template, request, redirect, session, flash
 from stages import stages, progress
 from farm import farm
 from stack import Stack
-#from dotenv import load_dotenv
+from dotenv import load_dotenv
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from UserLogin import UserLogin
+from db_api import DBApi
 import os
 
-#load_dotenv()
+load_dotenv()
 app = Flask(__name__)
-#app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
+app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
+login_manager.login_message = 'Необходимо авторизоваться'
+login_manager.login_message_category = "alert alert-danger alert-dismissible fade show text-center"
 
 stage = 0
 local_stages = [('aa0', stages['aa0'])]
@@ -16,6 +23,13 @@ local_progress = [{'1': False}]
 local_flags = {'flag_changes': False}
 local_changes = []
 stk = Stack()
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    user = UserLogin().fromDB(user_id)
+    return user
+
 
 def progress_output():
     global local_progress, local_stages, stage
@@ -36,13 +50,48 @@ def body_params():
 @app.route("/registration")
 def registration():
 
-    return render_template("registration.html")
+    if request.method == "POST":
+        pass
+
+    if current_user.is_authenticated:
+        menu = DBApi().getMenu(True, current_user.is_admin())
+    else:
+        menu = DBApi().getMenu(False, False)
+
+    for i in menu:
+        i.append('nav-link active') if i[0] == 'Регистрация' else i.append('nav-link')
+         
+    return render_template("registration.html", menu=menu)
 
 
-@app.route("/sign_in", methods = ['GET', 'POST'])
-def sign_in():
+@app.route("/login", methods = ['GET', 'POST'])
+def login():
 
-    return render_template("sign_in.html")
+    if request.method == "POST":
+        user = DBApi().user_autorization(request.form['login'], request.form['password'])
+
+        if user != None:
+            userlogin = UserLogin().create(user)
+            login_user(userlogin, remember=False)
+            return redirect('/main')
+        else:
+            flash("Неверный логин или пароль", "alert alert-danger alert-dismissible fade show text-center")
+
+    if current_user.is_authenticated:
+        menu = DBApi().getMenu(True, current_user.is_admin())
+    else:
+        menu = DBApi().getMenu(False, False)
+
+    for i in menu:
+        i.append('nav-link active') if i[0] == 'Войти' else i.append('nav-link')
+
+    return render_template('sign_in.html', menu=menu)
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect('/login')
 
 
 @app.route("/main")
@@ -56,11 +105,23 @@ def main():
     local_progress = [{'1': False}]
     local_flags = {'flag_changes': False}
     print(request.user_agent_class)
-    
-    return render_template("index.html")
+
+    #print(current_user)
+
+    if current_user.is_authenticated:
+        menu = DBApi().getMenu(True, current_user.is_admin())
+    else:
+        menu = DBApi().getMenu(False, False)
+
+    for i in menu:
+        i.append('nav-link active') if i[0] == 'Главная' else i.append('nav-link')
+          
+    #return redirect('/logout')
+    return render_template("index.html", menu=menu)
 
 
 @app.route("/next_stage")
+@login_required
 def next_stage():
     
     global local_stages, local_progress, stage, local_flags, local_changes
@@ -110,6 +171,7 @@ def next_stage():
 
 
 @app.route("/prev_stage")
+@login_required
 def prev_stage():
 
     global stage, local_stages, local_progress, local_flags, local_changes
@@ -137,6 +199,7 @@ def prev_stage():
     return redirect(local_stages[stage][1].attr['base_url'])
 
 @app.route("/to_beginning")
+@login_required
 def to_beginning():
     global local_stages, local_progress, stage, local_flags
     stage = 2
@@ -148,6 +211,7 @@ def to_beginning():
 
 
 @app.route("/test_first", methods = ['GET', 'POST'])
+@login_required
 def test_first():
 
     global local_progress, local_stages, stage, local_flags
@@ -246,11 +310,20 @@ def test_first():
     data = []
     for i in zip(local_stages[stage][1].attr['buttons']['text'], local_stages[stage][1].attr['buttons']['styles'], local_stages[stage][1].attr['info']['text'], local_stages[stage][1].attr['info']['styles']):
         data.append(i)
+
+    if current_user.is_authenticated:
+        menu = DBApi().getMenu(True, current_user.is_admin())
+    else:
+        menu = DBApi().getMenu(False, False)
+
+    for i in menu:
+        i.append('nav-link active') if i[0] == 'Главная' else i.append('nav-link')
     
-    return render_template("test1.html", data=data, navigation=navigation, len=len, str=str)
+    return render_template("test1.html", data=data, navigation=navigation, len=len, str=str, menu=menu)
 
 
 @app.route("/test_second", methods = ['GET', 'POST'])
+@login_required
 def test_second():
 
     global local_progress, local_stages, stage
@@ -289,10 +362,19 @@ def test_second():
     navigation.append((local_stages[stage][1].attr['navigation']['styles'][1], local_stages[stage][1].attr['navigation']['text'][1], local_stages[stage][1].attr['navigation']['links'][1]))
     navigation.append((local_stages[stage][1].attr['navigation']['styles'][2], local_stages[stage][1].attr['navigation']['text'][2], local_stages[stage][1].attr['navigation']['links'][2]))
 
-    return render_template("test2.html", data=data, navigation=navigation)
+    if current_user.is_authenticated:
+        menu = DBApi().getMenu(True, current_user.is_admin())
+    else:
+        menu = DBApi().getMenu(False, False)
+
+    for i in menu:
+        i.append('nav-link active') if i[0] == 'Главная' else i.append('nav-link')
+
+    return render_template("test2.html", data=data, navigation=navigation, menu=menu)
    
 
 @app.route("/test_third", methods = ['GET', 'POST'])
+@login_required
 def test_third():
 
     global local_progress, local_stages, stage, local_flags, local_changes
@@ -721,10 +803,19 @@ def test_third():
     for i in range(int(len(local_progress[stage].keys())//2)):
         data.append((local_stages[stage][1].attr['info']['styles'][i], local_stages[stage][1].attr['info']['text'][i], local_stages[stage][1].attr['buttons']['left']['styles'][i], local_stages[stage][1].attr['buttons']['left']['text'][i], local_stages[stage][1].attr['buttons']['right']['styles'][i], local_stages[stage][1].attr['buttons']['right']['text'][i]))
 
-    return render_template("test3.html", data=data, navigation=navigation)
+    if current_user.is_authenticated:
+        menu = DBApi().getMenu(True, current_user.is_admin())
+    else:
+        menu = DBApi().getMenu(False, False)
+
+    for i in menu:
+        i.append('nav-link active') if i[0] == 'Главная' else i.append('nav-link')
+
+    return render_template("test3.html", data=data, navigation=navigation, menu=menu)
 
 
 @app.route("/test_fourth", methods = ['GET', 'POST'])
+@login_required
 def test_fourth():
 
     global local_progress, local_stages, stage, local_flags
@@ -1650,7 +1741,15 @@ def test_fourth():
     navigation.append((local_stages[stage][1].attr['navigation']['styles'][1], local_stages[stage][1].attr['navigation']['text'][1], local_stages[stage][1].attr['navigation']['links'][1]))
     navigation.append((local_stages[stage][1].attr['navigation']['styles'][2], local_stages[stage][1].attr['navigation']['text'][2], local_stages[stage][1].attr['navigation']['links'][2]))
 
-    return render_template("test4.html", info=info, data=data, navigation=navigation)
+    if current_user.is_authenticated:
+        menu = DBApi().getMenu(True, current_user.is_admin())
+    else:
+        menu = DBApi().getMenu(False, False)
+
+    for i in menu:
+        i.append('nav-link active') if i[0] == 'Главная' else i.append('nav-link')
+
+    return render_template("test4.html", info=info, data=data, navigation=navigation, menu=menu)
 
 
 def run_app():

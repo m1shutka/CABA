@@ -1,5 +1,5 @@
-from dotenv import load_dotenv
-from models import User
+п»їfrom dotenv import load_dotenv
+from models import User, App
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 import os
@@ -19,31 +19,24 @@ class DBApi():
             exist_user = db.query(User).filter(User.login==user_login_reg).first()
             if exist_user == None:
 
-                #validate_key = db.query(Keys).filter(Keys.key==product_key).first()
-                #if validate_key != None and validate_key.isActivated != True:
 
-                    #validate_key.isActivated = True
+                cipher = Salsa20.new(key=b'\x9eKY\xaaT\xf10u7\xf8\xaf\x19\x8b7\x132E\x86\xb5V\xb3\xd1\x8b\nE\xac\x90\xa7/U\xa6\x81')
+                solt = cipher.nonce + cipher.encrypt(bytes(user_login_reg, 'utf-8'))
+                h = SHA256.new()
+                h.update(solt + bytes(user_pass_reg, 'utf-8'))
 
-                    cipher = Salsa20.new(key=b'\x9eKY\xaaT\xf10u7\xf8\xaf\x19\x8b7\x132E\x86\xb5V\xb3\xd1\x8b\nE\xac\x90\xa7/U\xa6\x81')
-                    solt = cipher.nonce + cipher.encrypt(bytes(user_login_reg, 'utf-8'))
-                    h = SHA256.new()
-                    h.update(solt + bytes(user_pass_reg, 'utf-8'))
+                db.add(User(login=user_login_reg, solt=solt, password=h.hexdigest(), isAdmin=False))
+                db.commit()
 
-                    db.add(User(login=user_login_reg, solt=solt, password=h.hexdigest(), isAdmin=False))
-                    db.commit()
-
-                    return 'Зарегестрировано'
-
-                #else:
-                    #return 'Неверный ключ продукта!'
+                return 'Р—Р°СЂРµРіРµСЃС‚СЂРёСЂРѕРІР°РЅРѕ'
                     
             else:      
-                return 'Пользователь с таким логином уже существует!'
+                return 'РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ СЃ С‚Р°РєРёРј Р»РѕРіРёРЅРѕРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!'
 
 
     def user_autorization(self, user_login_auto: str, user_pass_auto:str) -> str:
 
-        with Session(autoflush=False, bind=create_engine(f"postgresql://postgres:postgres@localhost:5432/crypto")) as db:
+        with Session(autoflush=False, bind=create_engine(f'mysql://{os.getenv("ADMIN_NAME")}:{os.getenv("ADMIN_PASSWORD")}@{os.getenv("HOST")}/{os.getenv("DB_NAME")}')) as db:
 
             user = db.query(User).filter(User.login==user_login_auto).first()
             if user != None:
@@ -52,21 +45,30 @@ class DBApi():
                 h.update(user.solt + bytes(user_pass_auto, 'utf-8'))
 
                 if user.password == h.hexdigest():
-                    
-                    self.__user_login = user.login
-
-                    if user.isAdmin:
-                        self.__isAdmin = True
-
-                    else:
-                        self.__isAdmin = False
-
-                    return 'Вход успешен'
+                    return {'id':user.record_id, 'login':user.login, 'is_admin':user.isAdmin}
                 else:
-                    return 'Неверный логин или пароль!'
+                    return None
                     
             else:
-                return 'Пользователя с таким логином не существует!'
+                return None
+
+    def getUserInfo(self, user_id):
+        with Session(autoflush=False, bind=create_engine(f'mysql://{os.getenv("ADMIN_NAME")}:{os.getenv("ADMIN_PASSWORD")}@{os.getenv("HOST")}/{os.getenv("DB_NAME")}')) as db:
+
+            user = db.query(User).filter(User.record_id==user_id).first()
+            if user != None:
+                return {'id':user.record_id, 'login':user.login, 'is_admin':user.isAdmin}
+            else:
+                return None
+
+    def getMenu(self, login, root):
+        print(login, root)
+        menu_list = []
+        with Session(autoflush=False, bind=create_engine(f'mysql://{os.getenv("ADMIN_NAME")}:{os.getenv("ADMIN_PASSWORD")}@{os.getenv("HOST")}/{os.getenv("DB_NAME")}')) as db:
+            menu = db.query(App).filter(App.login==login, App.root==root).all()
+            for i in menu:
+                menu_list.append([i.frame_name, i.frame_url])
+            return menu_list
 
 
 
@@ -83,5 +85,18 @@ if __name__ == '__main__':
     print(host)
     print(db)
 
-    
-    engine = create_engine(f'mysql://{name}:{password}@{host}/{db}')
+
+    with Session(autoflush=False, bind=create_engine(f'mysql://{name}:{password}@{host}/{db}')) as db:
+
+        exist_user = db.query(User).filter(User.login=='test_user1').first()
+        if exist_user == None:
+
+            cipher = Salsa20.new(key=b'\x9eKY\xaaT\xf10u7\xf8\xaf\x19\x8b7\x132E\x86\xb5V\xb3\xd1\x8b\nE\xac\x90\xa7/U\xa6\x81')
+            solt = cipher.nonce + cipher.encrypt(bytes('m_admin', 'utf-8'))
+            h = SHA256.new()
+            h.update(solt + bytes('password12345', 'utf-8'))
+
+            db.add(User(login='test_user1', solt=solt, password=h.hexdigest(), isAdmin=False, isPrime=True, fdevice='all', sdevice='all'))
+            db.commit()
+                       
+               
