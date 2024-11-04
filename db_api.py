@@ -5,36 +5,53 @@ from sqlalchemy import create_engine
 import os
 from Crypto.Cipher import Salsa20
 from Crypto.Hash import SHA256
+from datetime import datetime, timedelta
+from math import ceil
+import string
+import random
 
 
 class DBApi():
 
-    def init(self):
-        pass
+    def generate_password(self, n = 12):
+        characters = string.ascii_letters + string.digits + string.punctuation
+        password = ''.join(random.choice(characters) for _ in range(n))
+        return password
 
-    def user_registration(self, user_login_reg: str, user_pass_reg: str, product_key: str) -> str:
+    def user_registration(self, user_name_reg: str, user_email_reg: str, user_phone_reg: str, months: str):
 
-        with Session(autoflush=False, bind=create_engine(f"postgresql://postgres:postgres@localhost:5432/crypto")) as db:
+        with Session(autoflush=False, bind=create_engine(f'mysql://{os.getenv("ADMIN_NAME")}:{os.getenv("ADMIN_PASSWORD")}@{os.getenv("HOST")}/{os.getenv("DB_NAME")}')) as db:
 
-            exist_user = db.query(User).filter(User.login==user_login_reg).first()
+            exist_user = db.query(User).filter(User.email==user_email_reg).first()
             if exist_user == None:
+                
+                login = user_email_reg[:user_email_reg.index('@')]
+                password = self.generate_password()
 
-
-                cipher = Salsa20.new(key=b'\x9eKY\xaaT\xf10u7\xf8\xaf\x19\x8b7\x132E\x86\xb5V\xb3\xd1\x8b\nE\xac\x90\xa7/U\xa6\x81')
-                solt = cipher.nonce + cipher.encrypt(bytes(user_login_reg, 'utf-8'))
+                cipher = Salsa20.new(key=os.getenv("PSWRD_KEY").encode("utf-8"))
+                solt = cipher.nonce + cipher.encrypt(bytes(login, 'utf-8'))
                 h = SHA256.new()
-                h.update(solt + bytes(user_pass_reg, 'utf-8'))
+                h.update(solt + bytes(password, 'utf-8'))
 
-                db.add(User(login=user_login_reg, solt=solt, password=h.hexdigest(), isAdmin=False))
+                date = datetime.now()
+                total_date=(date + timedelta(days=ceil(365/12*int(months))))
+
+                db.add(User(name=user_name_reg, phone_number=user_phone_reg, email=user_email_reg, login=login, solt=solt, password=h.hexdigest(), isAdmin=False, device='', registration_time=date.strftime('%Y-%m-%d %H:%M:%S'), subscribe_time=total_date.strftime('%Y-%m-%d %H:%M:%S')))
                 db.commit()
 
-                return 'Зарегестрировано'
+                return f'Зарегестрировано, login: {login}, password: {password}'
                     
             else:      
-                return 'Пользователь с таким логином уже существует!'
+                
+                date = datetime.strptime(exist_user.subscribe_time, '%Y-%m-%d %H:%M:%S')
+                total_date=(date + timedelta(days=ceil(365/12*int(months))))
+                exist_user.subscribe_time = total_date.strftime('%Y-%m-%d %H:%M:%S')
+                db.commit()
+
+                return 'Пользователь продлен'
 
 
-    def user_autorization(self, user_login_auto: str, user_pass_auto:str) -> str:
+    def user_autorization(self, user_login_auto: str, user_pass_auto: str, user_agent: str):
 
         with Session(autoflush=False, bind=create_engine(f'mysql://{os.getenv("ADMIN_NAME")}:{os.getenv("ADMIN_PASSWORD")}@{os.getenv("HOST")}/{os.getenv("DB_NAME")}')) as db:
 
@@ -45,14 +62,45 @@ class DBApi():
                 h.update(user.solt + bytes(user_pass_auto, 'utf-8'))
 
                 if user.password == h.hexdigest():
-                    return {'id':user.record_id, 'login':user.login, 'is_admin':user.isAdmin}
+
+                    if datetime.strptime(user.subscribe_time, '%Y-%m-%d %H:%M:%S') > datetime.now():
+                        print(user_agent in user.device.split('$') )
+                        if user.device == 'all':
+                            return {'id':user.record_id, 'login':user.login, 'is_admin':user.isAdmin}
+
+                        elif len(user.device.split('$')) == 0:
+                            user.device = user_agent
+                            db.commit()
+                            return {'id':user.record_id, 'login':user.login, 'is_admin':user.isAdmin}
+
+                        elif user_agent in user.device.split('$') and len(user.device.split('$')) == 1:
+                            return {'id':user.record_id, 'login':user.login, 'is_admin':user.isAdmin}
+
+                        elif user_agent in user.device.split('$') and len(user.device.split('$')) == 2:
+                            return {'id':user.record_id, 'login':user.login, 'is_admin':user.isAdmin}
+
+                        elif user_agent not in user.device.split('$') and len(user.device.split('$')) == 1:
+                            user.device += '$' + user_agent
+                            db.commit()
+                            return {'id':user.record_id, 'login':user.login, 'is_admin':user.isAdmin}
+
+                        elif user_agent not in user.device.split('$') and len(user.device.split('$')) == 2:
+                            return 'Превышено число подключенных устройств!'
+
+                        else:
+                            return 'Ошибка!'
+
+                    else:
+                         return 'Необходимо продлить подписку!'
+
                 else:
-                    return None
+                    return 'Неверный логин/пароль!'
                     
             else:
-                return None
+                return 'Пользователя с таким логином не существует!'
 
     def getUserInfo(self, user_id):
+
         with Session(autoflush=False, bind=create_engine(f'mysql://{os.getenv("ADMIN_NAME")}:{os.getenv("ADMIN_PASSWORD")}@{os.getenv("HOST")}/{os.getenv("DB_NAME")}')) as db:
 
             user = db.query(User).filter(User.record_id==user_id).first()
@@ -62,12 +110,15 @@ class DBApi():
                 return None
 
     def getMenu(self, login, root):
-        print(login, root)
+ 
         menu_list = []
+
         with Session(autoflush=False, bind=create_engine(f'mysql://{os.getenv("ADMIN_NAME")}:{os.getenv("ADMIN_PASSWORD")}@{os.getenv("HOST")}/{os.getenv("DB_NAME")}')) as db:
+
             menu = db.query(App).filter(App.login==login, App.root==root).all()
             for i in menu:
                 menu_list.append([i.frame_name, i.frame_url])
+
             return menu_list
 
 
@@ -85,18 +136,16 @@ if __name__ == '__main__':
     print(host)
     print(db)
 
-
     with Session(autoflush=False, bind=create_engine(f'mysql://{name}:{password}@{host}/{db}')) as db:
 
-        exist_user = db.query(User).filter(User.login=='test_user1').first()
+        exist_user = db.query(User).filter(User.login=='m_admin').first()
         if exist_user == None:
-
-            cipher = Salsa20.new(key=b'\x9eKY\xaaT\xf10u7\xf8\xaf\x19\x8b7\x132E\x86\xb5V\xb3\xd1\x8b\nE\xac\x90\xa7/U\xa6\x81')
+            cipher = Salsa20.new(key=os.getenv("PSWRD_KEY").encode("utf-8"))
             solt = cipher.nonce + cipher.encrypt(bytes('m_admin', 'utf-8'))
             h = SHA256.new()
-            h.update(solt + bytes('password12345', 'utf-8'))
+            h.update(solt + bytes('mikel112358', 'utf-8'))
 
-            db.add(User(login='test_user1', solt=solt, password=h.hexdigest(), isAdmin=False, isPrime=True, fdevice='all', sdevice='all'))
+            db.add(User(name='m_admin',phone_number='88005553535', email='admin@mail.ru', login='m_admin', solt=solt, password=h.hexdigest(), isAdmin=False, device='all', registration_time=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), subscribe_time=(datetime.now() + timedelta(weeks=100)).strftime('%Y-%m-%d %H:%M:%S')))
             db.commit()
                        
                

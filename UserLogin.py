@@ -3,7 +3,6 @@ from db_api import DBApi
 class UserLogin():
     def fromDB(self, user_id):
         self.__user = DBApi().getUserInfo(user_id)
-
         return self
 
     def create(self, user):

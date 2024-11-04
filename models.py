@@ -8,13 +8,16 @@ class Base(DeclarativeBase): pass
 class User(Base):
     __tablename__ = "users"
     record_id = Column(Integer, primary_key=True, index=True)
-    login = Column(String(30))
+    name = Column(String(100))
+    phone_number = Column(String(12))
+    email = Column(String(100))
+    login = Column(String(100))
     password = Column(String(100))
     solt = Column(LargeBinary)
     isAdmin = Column(BOOLEAN)
-    isPrime = Column(BOOLEAN)
-    fdevice = Column(String(30))
-    sdevice = Column(String(30))
+    device = Column(String(1000))
+    registration_time = Column(String(100))
+    subscribe_time = Column(String(100))
 
 class App(Base):
     __tablename__ = 'app'
@@ -42,6 +45,7 @@ if __name__ == '__main__':
 
     Base.metadata.create_all(bind=engine)
 
+    """
     with Session(autoflush=False, bind=create_engine(f'mysql://{name}:{password}@{host}/{db}')) as db:
 
         db.add(App(frame_name='Главная', frame_url='/main', root = False, login = False))
@@ -57,6 +61,6 @@ if __name__ == '__main__':
         db.add(App(frame_name='Учетная запись', frame_url='/profile', root = True, login = True))
         db.add(App(frame_name='Регистрация', frame_url='/registration', root = True, login = True))
         db.commit()
-
+    """
 
 

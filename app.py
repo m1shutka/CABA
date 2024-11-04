@@ -1,21 +1,29 @@
 ﻿from flask import Flask
-from flask import render_template, request, redirect, session, flash
+from flask import render_template, request, redirect, flash, session
 from stages import stages, progress
 from farm import farm
 from stack import Stack
 from dotenv import load_dotenv
-from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user, fresh_login_required
 from UserLogin import UserLogin
 from db_api import DBApi
 import os
+from datetime import timedelta
 
 load_dotenv()
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
+app.config['PERMANENT_SESSION_LIFETIME'] =  timedelta(hours=2)
 login_manager = LoginManager(app)
+
 login_manager.login_view = 'login'
 login_manager.login_message = 'Необходимо авторизоваться'
 login_manager.login_message_category = "alert alert-danger alert-dismissible fade show text-center"
+
+login_manager.refresh_view = 'login'
+login_manager.needs_refresh_message = 'Необходимо авторизоваться r'
+login_manager.needs_refresh_message_category = "alert alert-danger alert-dismissible fade show text-center"
 
 stage = 0
 local_stages = [('aa0', stages['aa0'])]
@@ -27,7 +35,9 @@ stk = Stack()
 
 @login_manager.user_loader
 def load_user(user_id):
+
     user = UserLogin().fromDB(user_id)
+
     return user
 
 
@@ -42,16 +52,20 @@ def progress_output():
 
 def body_params():
     global local_progress
+
     for i in local_progress[2].keys():
         if local_progress[2][i] == True:
             return i
+
     return None
 
-@app.route("/registration")
+
+@app.route("/registration", methods = ['GET', 'POST'])
 def registration():
 
     if request.method == "POST":
-        pass
+        result = DBApi().user_registration(request.form['name'], request.form['email'], request.form['phone'], request.form['time'])
+        flash(result, "alert alert-success alert-dismissible fade show text-center")
 
     if current_user.is_authenticated:
         menu = DBApi().getMenu(True, current_user.is_admin())
@@ -68,14 +82,17 @@ def registration():
 def login():
 
     if request.method == "POST":
-        user = DBApi().user_autorization(request.form['login'], request.form['password'])
+        msg = DBApi().user_autorization(request.form['login'], request.form['password'], request.user_agent.string)
 
-        if user != None:
-            userlogin = UserLogin().create(user)
-            login_user(userlogin, remember=False)
+        if type(msg) != str:
+
+            userlogin = UserLogin().create(msg)
+            login_user(userlogin, remember=False, fresh=False, duration=None, force=False)
+            session.permanent = True
             return redirect('/main')
+
         else:
-            flash("Неверный логин или пароль", "alert alert-danger alert-dismissible fade show text-center")
+            flash(f'{msg}', "alert alert-danger alert-dismissible fade show text-center")
 
     if current_user.is_authenticated:
         menu = DBApi().getMenu(True, current_user.is_admin())
@@ -87,10 +104,41 @@ def login():
 
     return render_template('sign_in.html', menu=menu)
 
+
+@app.route('/info')
+def info():
+
+    if current_user.is_authenticated:
+        menu = DBApi().getMenu(True, current_user.is_admin())
+    else:
+        menu = DBApi().getMenu(False, False)
+
+    for i in menu:
+        i.append('nav-link active') if i[0] == 'Справка' else i.append('nav-link')
+
+    return render_template('info.html', menu=menu)
+
+
+@app.route('/profile')
+def profile():
+
+    if current_user.is_authenticated:
+        menu = DBApi().getMenu(True, current_user.is_admin())
+    else:
+        menu = DBApi().getMenu(False, False)
+
+    for i in menu:
+        i.append('nav-link active') if i[0] == 'Учетная запись' else i.append('nav-link')
+
+    return render_template('profile.html', menu=menu)
+
+
 @app.route('/logout')
 @login_required
 def logout():
+
     logout_user()
+
     return redirect('/login')
 
 
@@ -104,9 +152,6 @@ def main():
     local_stages = [('aa0', stages['aa0'])]
     local_progress = [{'1': False}]
     local_flags = {'flag_changes': False}
-    print(request.user_agent_class)
-
-    #print(current_user)
 
     if current_user.is_authenticated:
         menu = DBApi().getMenu(True, current_user.is_admin())
@@ -116,7 +161,6 @@ def main():
     for i in menu:
         i.append('nav-link active') if i[0] == 'Главная' else i.append('nav-link')
           
-    #return redirect('/logout')
     return render_template("index.html", menu=menu)
 
 
@@ -198,13 +242,19 @@ def prev_stage():
 
     return redirect(local_stages[stage][1].attr['base_url'])
 
+
 @app.route("/to_beginning")
 @login_required
 def to_beginning():
     global local_stages, local_progress, stage, local_flags
-    stage = 2
-    local_stages = local_stages[:3]
-    local_progress = local_progress[:3]
+
+    if body_params() != None:
+        stage = 2
+    else:
+        stage = 1
+
+    local_stages = local_stages[:stage + 1]
+    local_progress = local_progress[:stage + 1]
     local_flags = {'flag_changes': False}
 
     return redirect('/next_stage')
