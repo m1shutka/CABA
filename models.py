@@ -1,4 +1,4 @@
-﻿from dotenv import load_dotenv
+from dotenv import load_dotenv
 from sqlalchemy import create_engine, Column, Integer, String, LargeBinary, BOOLEAN
 from sqlalchemy.orm import DeclarativeBase, Session
 import os

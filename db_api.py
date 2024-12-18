@@ -1,4 +1,4 @@
-﻿from dotenv import load_dotenv
+from dotenv import load_dotenv
 from models import User, App
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
@@ -64,27 +64,31 @@ class DBApi():
                 if user.password == h.hexdigest():
 
                     if datetime.strptime(user.subscribe_time, '%Y-%m-%d %H:%M:%S') > datetime.now():
-                        print(user_agent in user.device.split('$') )
+
+                        #print(user_agent in user.device.split('%') )
+                        print(user.device.split('%'))
+                        new_addr = user_agent['string'] + '$' + user_agent['addr']
+                        print(new_addr)
                         if user.device == 'all':
                             return {'id':user.record_id, 'login':user.login, 'is_admin':user.isAdmin}
 
-                        elif len(user.device.split('$')) == 0:
-                            user.device = user_agent
+                        elif len(user.device.split('%')) == 0:
+                            user.device = new_addr
                             db.commit()
                             return {'id':user.record_id, 'login':user.login, 'is_admin':user.isAdmin}
 
-                        elif user_agent in user.device.split('$') and len(user.device.split('$')) == 1:
+                        elif new_addr in user.device.split('%') and len(user.device.split('%')) == 1:
                             return {'id':user.record_id, 'login':user.login, 'is_admin':user.isAdmin}
 
-                        elif user_agent in user.device.split('$') and len(user.device.split('$')) == 2:
+                        elif new_addr in user.device.split('%') and len(user.device.split('%')) == 2:
                             return {'id':user.record_id, 'login':user.login, 'is_admin':user.isAdmin}
 
-                        elif user_agent not in user.device.split('$') and len(user.device.split('$')) == 1:
-                            user.device += '$' + user_agent
+                        elif new_addr not in user.device.split('%') and len(user.device.split('%')) == 1:
+                            user.device += '%' + new_addr
                             db.commit()
                             return {'id':user.record_id, 'login':user.login, 'is_admin':user.isAdmin}
 
-                        elif user_agent not in user.device.split('$') and len(user.device.split('$')) == 2:
+                        elif user_agent not in user.device.split('%') and len(user.device.split('%')) == 2:
                             return 'Превышено число подключенных устройств!'
 
                         else:

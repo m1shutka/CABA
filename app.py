@@ -1,4 +1,4 @@
-﻿from flask import Flask
+from flask import Flask
 from flask import render_template, request, redirect, flash, session
 from stages import stages, progress
 from farm import farm
@@ -7,8 +7,9 @@ from dotenv import load_dotenv
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user, fresh_login_required
 from UserLogin import UserLogin
 from db_api import DBApi
-import os
 from datetime import timedelta
+from ua_parser import user_agent_parser
+import os
 
 load_dotenv()
 
@@ -20,10 +21,6 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message = 'Необходимо авторизоваться'
 login_manager.login_message_category = "alert alert-danger alert-dismissible fade show text-center"
-
-login_manager.refresh_view = 'login'
-login_manager.needs_refresh_message = 'Необходимо авторизоваться r'
-login_manager.needs_refresh_message_category = "alert alert-danger alert-dismissible fade show text-center"
 
 stage = 0
 local_stages = [('aa0', stages['aa0'])]
@@ -82,7 +79,11 @@ def registration():
 def login():
 
     if request.method == "POST":
-        msg = DBApi().user_autorization(request.form['login'], request.form['password'], request.user_agent.string)
+        
+        ua = user_agent_parser.Parse(request.user_agent.string)
+        ua['addr'] = request.remote_addr
+        print(ua)
+        msg = DBApi().user_autorization(request.form['login'], request.form['password'], ua)
 
         if type(msg) != str:
 
@@ -176,10 +177,28 @@ def next_stage():
         stk.push('fa23')
     elif local_stages[stage][0] == 'ga13':
         stk.push('ga23')
+    elif local_stages[stage][0] == 'ca8' and next_atr == 'fb3.2':
+        stk.push('ca24.3')
+    elif local_stages[stage][0] == 'cb8' and next_atr == 'fb3.2':
+        stk.push('ca13.3')
+    elif local_stages[stage][0] == 'da8' and next_atr == 'fb3.2':
+        stk.push('da13.3')
+    elif local_stages[stage][0] == 'db8' and next_atr == 'fb3.2':
+        stk.push('da24.6')
+    elif local_stages[stage][0] == 'eh13.1' and next_atr == 'ga3.2':
+        stk.push('ea16')
+    elif local_stages[stage][0] == 'eb8' and next_atr == 'ga3.2':
+        stk.push('ea16')
+    elif local_stages[stage][0] == 'fa4' and next_atr == 'ca5':
+        stk.push('fb24.9')
+    elif local_stages[stage][0] == 'ga4' and next_atr == 'ca5':
+        stk.push('ga18')
 
     if next_atr == 'ba3.2' and stk.get() == 'fa23':
         next_atr = stk.pop()
     elif next_atr == 'ba3.2' and stk.get() == 'ga23':
+        next_atr = stk.pop()
+    elif next_atr[2:] == '12' and not stk.is_empty():
         next_atr = stk.pop()
 
     if stage + 1 == len(local_progress):
@@ -270,7 +289,6 @@ def test_first():
         return redirect('/prev_stage')
 
     if request.is_json:
-        #print(request.path)
         button_number = request.args.get('button_number')
         local_progress[stage][button_number] = not local_progress[stage][button_number]
 
@@ -322,9 +340,11 @@ def test_first():
         local_stages[stage][1].attr['info']['text'][0] = f'Важно! Только при ДаД выше 120 мм.рт.ст. АД снижать на 10-15% Введите внутривенно/внутрикостно Урапидил 12, 5 мг в/в медленно, далее капельно (у пациентов старше 18 лет)'
         local_stages[stage][1].attr['info']['text'][1] = f'Сульфат магнезии 25% {farm["magnesia_sulfate"][body_p]} мл в/в медленно'
     elif local_stages[stage][0][2:] == '28.5':
-        local_stages[stage][1].attr['info']['text'][0] = f'1. Присоедините к лицевой маске (размер #{farm["face_mask"][body_p]}) или установленной ларингеальной маске ( размер #{farm["i-gel"][body_p]}) дыхательный мешок'
+        local_stages[stage][1].attr['info']['text'][0] = f'Присоедините к лицевой маске (размер #{farm["face_mask"][body_p]}) или установленной ларингеальной маске ( размер #{farm["i-gel"][body_p]}) дыхательный мешок'
     elif local_stages[stage][0][2:] == '28.7':
         local_stages[stage][1].attr['info']['text'][2] = f'С третьего разряда дефибрилляции введите амиодарон {farm["amiodaron"][body_p]} мг при отсутствии – лидокаин {farm["lidocaine"][body_p]} мг (пациентам старше 1 года)'
+    elif local_stages[stage][0][2:] == '33.1':
+        local_stages[stage][1].attr['info']['text'][0] = f'Присоедините к лицевой маске (размер  #{farm["face_mask"][body_p]}) или установленной ларингеальной маске (размер #{farm["i-gel"][body_p]}) дыхательный мешок'
 
     true_count = 0
     for i in local_progress[stage].keys():
@@ -382,8 +402,6 @@ def test_second():
         return redirect('/prev_stage')
 
     if request.is_json:
-
-        #print(request.path)
 
         button_number = request.args.get('button_number')
 
@@ -1679,6 +1697,12 @@ def test_fourth():
             elif local_progress[stage]['2'] == True:
                 local_stages[stage][1].next = 'hb27.2.2'
 
+        elif local_stages[stage][0] == 'hf27.4':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'he27.6'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'hc27.2.2'
+
     elif local_stages[stage][0][2:] == '28.1':
 
         if local_progress[stage]['1'] == True:
@@ -1699,6 +1723,12 @@ def test_fourth():
             elif local_progress[stage]['2'] == True:
                 local_stages[stage][1].next = 'ha27.2'
 
+        if local_stages[stage][0] == 'hb28.1':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'hd14'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'hb28.2'
+
     elif local_stages[stage][0][2:] == '28.2':
 
         if local_progress[stage]['1'] == True:
@@ -1718,6 +1748,12 @@ def test_fourth():
                 local_stages[stage][1].next = 'ha14'
             elif local_progress[stage]['2'] == True:
                 local_stages[stage][1].next = 'hb27.2'
+
+        if local_stages[stage][0] == 'hb28.2':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'hc14'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'hb27.1'
 
     elif local_stages[stage][0][2:] == '29':
 
@@ -1784,6 +1820,26 @@ def test_fourth():
                 local_stages[stage][1].next = 'ja9.2'
             elif local_progress[stage]['2'] == True:
                 local_stages[stage][1].next = 'ba3.2'
+
+    elif local_stages[stage][0][2:] == '32':
+
+        if local_progress[stage]['1'] == True:
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
+   
+        elif local_progress[stage]['2'] == True:
+            local_stages[stage][1].attr['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            local_stages[stage][1].attr['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
+            local_stages[stage][1].attr['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
+            local_stages[stage][1].attr['navigation']['text'][2] = 'Далее'
+
+        if local_stages[stage][0] == 'ha32':
+            if local_progress[stage]['1'] == True:
+                local_stages[stage][1].next = 'ha27.1'
+            elif local_progress[stage]['2'] == True:
+                local_stages[stage][1].next = 'hb28.1'
 
     info.append((local_stages[stage][1].attr['info']['styles'][0], local_stages[stage][1].attr['info']['text'][0]))
     for i in local_progress[stage].keys():
