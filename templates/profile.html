@@ -30,8 +30,28 @@
                     <div class="mb-3">
                         <h1>Учетная запись</h1>
                     </div>
+
+                    <br>
+
+                    <h3>Логин:</h3>
+                    <div class="alert alert-secondary" role="alert">
+                        <a>{{ user_login }}</a>
+                    </div>
+
+                    <br>
+
+                    <h3>Ваши устройства:</h3>
+                    {% for i in sessions %}
+                        <div class="alert alert-secondary" role="alert">
+                            <p>{{ i['os'] }}</p>
+                            <a>{{ i['browser'] }} {{ i['addr'] }}</a>
+                        </div>
+                    {% endfor %}
+
+                    <br> 
+
                     <p class="lead">
-                        <a href="/logout" class="btn btn-lg btn-primary">Выйти</a>
+                        <a href="/logout" class="btn btn-lg btn-primary">Выйти из учетной записи</a>
                     </p>
                 </main>
 
