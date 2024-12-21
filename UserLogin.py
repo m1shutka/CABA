@@ -23,6 +23,13 @@ class UserLogin():
 
     def get_id(self):
         return str(self.__user['id'])
+    
+    def get_login(self):
+        return self.__user['login']
+    
+    def get_user_sessions(self):
+        self.__user_sessions = DBApi().getUserSessions(self.__user['id'])
+        return self.__user_sessions
 
 
 

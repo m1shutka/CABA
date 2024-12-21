@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from math import ceil
 import string
 import random
+from ua_parser import user_agent_parser
 
 
 class DBApi():
@@ -65,14 +66,15 @@ class DBApi():
 
                     if datetime.strptime(user.subscribe_time, '%Y-%m-%d %H:%M:%S') > datetime.now():
 
-                        #print(user_agent in user.device.split('%') )
-                        print(user.device.split('%'))
                         new_addr = user_agent['string'] + '$' + user_agent['addr']
+
                         print(new_addr)
+                        print(user.device.split('%'))
+
                         if user.device == 'all':
                             return {'id':user.record_id, 'login':user.login, 'is_admin':user.isAdmin}
 
-                        elif len(user.device.split('%')) == 0:
+                        elif user.device.split('%')[0] == '':
                             user.device = new_addr
                             db.commit()
                             return {'id':user.record_id, 'login':user.login, 'is_admin':user.isAdmin}
@@ -112,6 +114,43 @@ class DBApi():
                 return {'id':user.record_id, 'login':user.login, 'is_admin':user.isAdmin}
             else:
                 return None
+            
+    def getUserSessions(self, user_id):
+
+        with Session(autoflush=False, bind=create_engine(f'mysql://{os.getenv("ADMIN_NAME")}:{os.getenv("ADMIN_PASSWORD")}@{os.getenv("HOST")}/{os.getenv("DB_NAME")}')) as db:
+
+            user = db.query(User).filter(User.record_id==user_id).first()
+
+            if user != None:
+
+                sessions = user.device
+
+                print(sessions.split('%'))
+
+                if sessions == 'all':
+                    return [{'browser': 'all', 'os': 'all', 'addr': 'all'}] 
+
+                elif len(sessions.split('%')) == 1:
+
+                    ua = user_agent_parser.Parse(sessions.split('%')[0].split('$')[0])
+                    addr = sessions.split('%')[0].split('$')[1]
+
+                    return [{'browser': ua['user_agent']['family'] + ' ' + ua['user_agent']['major'] + '.' + ua['user_agent']['minor'], 'os': ua['os']['family'] + ' ' + ua['os']['major'], 'addr': addr}]
+                
+                elif len(sessions.split('%')) == 2:
+
+                    ua1 = user_agent_parser.Parse(sessions.split('%')[0].split('$')[0])
+                    addr1 = sessions.split('%')[0].split('$')[1]
+
+                    ua2 = user_agent_parser.Parse(sessions.split('%')[1].split('$')[0])
+                    addr2 = sessions.split('%')[1].split('$')[1]
+
+                    return [{'browser': ua1['user_agent']['family'] + ' ' + ua1['user_agent']['major'] + '.' + ua1['user_agent']['minor'], 'os': ua1['os']['family'] + ' ' + ua1['os']['major'], 'addr': addr1},
+                            {'browser': ua2['user_agent']['family'] + ' ' + ua2['user_agent']['major'] + '.' + ua2['user_agent']['minor'], 'os': ua2['os']['family'] + ' ' + ua2['os']['major'], 'addr': addr2}]
+                
+                print(sessions.split('%')[0].split('$'))
+            else:
+                return None
 
     def getMenu(self, login, root):
  
@@ -120,10 +159,47 @@ class DBApi():
         with Session(autoflush=False, bind=create_engine(f'mysql://{os.getenv("ADMIN_NAME")}:{os.getenv("ADMIN_PASSWORD")}@{os.getenv("HOST")}/{os.getenv("DB_NAME")}')) as db:
 
             menu = db.query(App).filter(App.login==login, App.root==root).all()
+
             for i in menu:
                 menu_list.append([i.frame_name, i.frame_url])
 
             return menu_list
+        
+    def user_logout(self, user_id, user_agent):
+         
+        with Session(autoflush=False, bind=create_engine(f'mysql://{os.getenv("ADMIN_NAME")}:{os.getenv("ADMIN_PASSWORD")}@{os.getenv("HOST")}/{os.getenv("DB_NAME")}')) as db:
+
+            user = db.query(User).filter(User.record_id==user_id).first()
+
+            if user != None:
+                
+                sessions = user.device.split('%')
+
+                if sessions == ['all']:
+                    return
+
+                if user_agent['string'] + '$' + user_agent['addr'] in sessions:
+
+                    if len(sessions) == 1:
+
+                        if user_agent['string'] + '$' + user_agent['addr'] == sessions[0]:
+                            user.device = ''
+
+                    elif len(sessions) == 2:
+
+                        if user_agent['string'] + '$' + user_agent['addr'] == sessions[0]:
+                            user.device = sessions[1]
+
+                        elif user_agent['string'] + '$' + user_agent['addr'] == sessions[1]:
+                            user.device = sessions[0]
+
+                else:
+                    user.device = ''
+
+                db.commit()
+
+            else:
+                return None
 
 
 

@@ -121,23 +121,30 @@ def info():
 
 
 @app.route('/profile')
+@login_required
 def profile():
 
     if current_user.is_authenticated:
         menu = DBApi().getMenu(True, current_user.is_admin())
+        user_login = current_user.get_login()
+        sessions = current_user.get_user_sessions()
     else:
         menu = DBApi().getMenu(False, False)
+        user_login = ''
 
     for i in menu:
         i.append('nav-link active') if i[0] == 'Учетная запись' else i.append('nav-link')
 
-    return render_template('profile.html', menu=menu)
+    return render_template('profile.html', menu=menu, user_login=user_login, sessions=sessions)
 
 
 @app.route('/logout')
 @login_required
 def logout():
 
+    ua = user_agent_parser.Parse(request.user_agent.string)
+    ua['addr'] = request.remote_addr
+    DBApi().user_logout(current_user.get_id(), ua)
     logout_user()
 
     return redirect('/login')
