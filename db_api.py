@@ -15,11 +15,13 @@ from ua_parser import user_agent_parser
 class DBApi():
 
     def generate_password(self, n = 12):
-        characters = string.ascii_letters + string.digits + string.punctuation
+        characters = string.ascii_letters + string.digits
         password = ''.join(random.choice(characters) for _ in range(n))
         return password
 
-    def user_registration(self, user_name_reg: str, user_email_reg: str, user_phone_reg: str, months: str):
+    def user_registration(self, user_name_reg: str, user_email_reg: str, user_phone_reg: str, months: str = '1'):
+
+        
 
         with Session(autoflush=False, bind=create_engine(f'mysql://{os.getenv("ADMIN_NAME")}:{os.getenv("ADMIN_PASSWORD")}@{os.getenv("HOST")}/{os.getenv("DB_NAME")}')) as db:
 
