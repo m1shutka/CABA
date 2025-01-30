@@ -10,6 +10,7 @@ from db_api import DBApi
 from datetime import timedelta
 from ua_parser import user_agent_parser
 import os
+from werkzeug.exceptions import HTTPException
 
 load_dotenv()
 
@@ -61,7 +62,17 @@ def pageNotFount(error):
     for i in menu:
         i.append('nav-link')
 
-    return render_template('page404.html', menu=menu), 404
+    return render_template('error_page.html', menu=menu, error='Страница не найдена!'), 404
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+
+    if isinstance(e, HTTPException):
+        return e
+    
+    menu = []
+    
+    return render_template("error_page.html", menu=menu, error='Ошибка приложения!'), 500
 
 
 @app.route("/registration", methods = ['GET', 'POST'])
