@@ -1,13 +1,15 @@
 from flask import Flask
-from flask import render_template, request, redirect, flash, session
+from flask import render_template, request, redirect, flash, session, send_from_directory
 from stages import stages, progress
+from email_manager import send_ya_mail
 from farm import farm
 from stack import Stack
 from dotenv import load_dotenv
-from flask_login import LoginManager, login_user, login_required, logout_user, current_user, fresh_login_required
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from UserLogin import UserLogin
 from db_api import DBApi
-from datetime import timedelta
+from pdf_writer import PDFWirter
+from datetime import timedelta, datetime
 from ua_parser import user_agent_parser
 import os
 from werkzeug.exceptions import HTTPException
@@ -17,6 +19,7 @@ load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 app.config['PERMANENT_SESSION_LIFETIME'] =  timedelta(hours=2)
+app.config['UPLOAD_FOLDER'] = os.getenv("UPLOAD_FOLDER")
 login_manager = LoginManager(app)
 
 login_manager.login_view = 'login'
@@ -39,8 +42,9 @@ def progress_output():
     print(f"Current stage: {session['stage']}")
     print(f"Current flags: {session['local_flags']}")
     print(f"Current stack: {session['stk']}")
+    #print(f"Current changes: {session['local_changes']}")
     for i in range(1, len(session['local_progress'])):
-        print(f"stage: {i}, template: {session['local_stages'][i][0]}, Current progress {session['local_progress'][i]}")
+        print(f"{session['timing'][i]} stage: {i}, template: {session['local_stages'][i][0]}, Current progress {session['local_progress'][i]}")
 
 
 def body_params():
@@ -50,6 +54,7 @@ def body_params():
             return i
 
     return None
+
 
 @app.errorhandler(404)
 def pageNotFount(error):
@@ -64,18 +69,43 @@ def pageNotFount(error):
 
     return render_template('error_page.html', menu=menu, error='Страница не найдена!'), 404
 
-@app.errorhandler(Exception)
+
+#@app.errorhandler(Exception)
 def handle_exception(e):
 
     if isinstance(e, HTTPException):
         return e
-    
-    menu = []
-    
-    return render_template("error_page.html", menu=menu, error='Ошибка приложения!'), 500
+
+    return render_template("error_page.html", menu=[], error='Ошибка приложения!'), 500
+
+
+@app.route("/download_protocol", methods = ['GET', 'POST'])
+@login_required
+def download_protocol():
+
+    pdfw = PDFWirter(app.config['UPLOAD_FOLDER'], current_user.get_login())
+    pdfw.write_file(session['local_stages'], session['local_progress'], session['timing'])
+
+    return send_from_directory(app.config['UPLOAD_FOLDER'], pdfw.filename + '.pdf', as_attachment=True)
+
+
+@app.route('/protocol', methods = ['GET', 'POST'])
+@login_required
+def protocol():
+
+    if current_user.is_authenticated:
+        menu = DBApi().getMenu(True, current_user.is_admin())
+    else:
+        menu = DBApi().getMenu(False, False)
+
+    for i in menu:
+        i.append('nav-link')
+
+    return render_template("protocol.html", menu=menu)
 
 
 @app.route("/registration", methods = ['GET', 'POST'])
+@login_required
 def registration():
 
     if current_user.is_admin():
@@ -89,8 +119,15 @@ def registration():
             elif request.form['time'] not in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '24', '36']:
                 flash('Неверный формат ввода кол-ва месяцев (1, 2, ... 12, 24, 36)!', "alert alert-danger alert-dismissible fade show text-center")
             else:
-                result = DBApi().user_registration(request.form['name'], request.form['email'], request.form['phone'], request.form['time'])
-                flash(result, "alert alert-success alert-dismissible fade show text-center")
+                login, password, msg = DBApi().user_registration(request.form['name'], request.form['email'], request.form['phone'], request.form['time'])
+                if msg == '':
+                    msg = send_ya_mail(msg_info={'to':request.form['email'], 'header': 'Данные учетной записи САВА', 'text':f'Логин: {login}\nПароль: {password}'})
+                    if msg == "Success":
+                        flash(f'Зарегестрировано, login: {login}, password: {password}', "alert alert-success alert-dismissible fade show text-center")
+                    else:
+                        flash(msg, "alert alert-success alert-dismissible fade show text-center")
+                else:
+                        flash(msg, "alert alert-success alert-dismissible fade show text-center")
 
         if current_user.is_authenticated:
             menu = DBApi().getMenu(True, current_user.is_admin())
@@ -112,8 +149,7 @@ def login():
     if request.method == "POST":
         
         ua = user_agent_parser.Parse(request.user_agent.string)
-        ua['addr'] = request.remote_addr
-        print(ua)
+        ua['addr'] = request.headers.get('X-Real-IP', request.remote_addr)
         msg = DBApi().user_autorization(request.form['login'], request.form['password'], ua)
 
         if type(msg) != str:
@@ -186,11 +222,12 @@ def logout():
 def main():
 
     session['stage'] = 0
-    session['local_stages'] = [['aa0', stages['aa0']]]
+    session['local_stages'] = [['aa0', {'prev': stages['aa0']['prev'], 'next': stages['aa0']['next']}]]
     session['local_progress'] = [{'1': False}]
     session['local_flags'] = {'flag_changes': False}
     session['local_changes'] = []
     session['stk'] = []
+    session['timing'] = [datetime.now().strftime("%H:%M:%S")]
 
     if current_user.is_authenticated:
         menu = DBApi().getMenu(True, current_user.is_admin())
@@ -207,6 +244,9 @@ def main():
 def next_stage():
 
     next_atr = session['local_stages'][session['stage']][1]['next']
+
+    print( session['local_flags']['flag_changes'])
+    
 
     if session['local_stages'][session['stage']][0] == 'fb13':
         stk.push(session['stk'], 'fa23')
@@ -230,32 +270,38 @@ def next_stage():
         stk.push(session['stk'],'ga18')
 
     if next_atr == 'ba3.2' and stk.get(session['stk']) == 'fa23':
-        next_atr = stk.pop(session['stk'])
+        next_atr, session['stk'] = stk.pop(session['stk'])
     elif next_atr == 'ba3.2' and stk.get(session['stk']) == 'ga23':
-        next_atr = stk.pop(session['stk'])
+        next_atr, session['stk'] = stk.pop(session['stk'])
     elif next_atr[2:] == '12' and not stk.is_empty(session['stk']):
-        next_atr = stk.pop(session['stk'])
+        next_atr, session['stk'] = stk.pop(session['stk'])
 
     if session['stage'] + 1 == len(session['local_progress']):
-        print("\n" + f'var1')
-        session['local_stages'].append([next_atr, stages[next_atr].copy()])
+        #print('1')
+        session['local_stages'].append([next_atr, {'prev': stages[next_atr]['prev'], 'next': stages[next_atr]['next']}])
         session['local_progress'].append(progress[next_atr[2:]].copy())
+        session['timing'].append(datetime.now().strftime("%H:%M:%S"))
         session['stage'] += 1
+
         session['local_stages'][session['stage']][1]['prev'] = session['local_stages'][session['stage'] - 1][0]
         session['local_flags']['flag_changes'] = False
 
     elif session['local_flags']['flag_changes']:
-        print("\n" + f'var2')
+        #print('2')
         session['local_stages'] = session['local_stages'][:session['stage'] + 1]
         session['local_progress'] = session['local_progress'][:session['stage'] + 1]
-        session['local_stages'].append([next_atr, stages[next_atr].copy()])
+        session['timing'] = session['timing'][:session['stage'] + 1]
+
+        session['local_stages'].append([next_atr, {'prev': stages[next_atr]['prev'], 'next': stages[next_atr]['next']}])
         session['local_progress'].append(progress[next_atr[2:]].copy())
+        session['timing'].append(datetime.now().strftime("%H:%M:%S"))
         session['stage'] += 1
+
         session['local_stages'][session['stage']][1]['prev'] = session['local_stages'][session['stage'] - 1][0]
         session['local_flags']['flag_changes'] = False
 
     elif not session['local_flags']['flag_changes'] and session['stage'] < len(session['local_progress']):
-        print("\n" + f'var3')
+        #print('3')
         session['stage'] += 1
 
     progress_output()
@@ -263,9 +309,9 @@ def next_stage():
     session['local_changes'].clear()
 
     if session['local_stages'][session['stage']][1]['prev'][2:] == '12':
-        return redirect('/main', 301)
+        return redirect('/protocol', 301)
     else:
-        return redirect(session['local_stages'][session['stage']][1]['attr']['base_url'], 301)
+        return redirect(stages[session['local_stages'][session['stage']][0]]['attr']['base_url'], 301)
 
 
 @app.route("/prev_stage")
@@ -273,15 +319,16 @@ def next_stage():
 def prev_stage():
 
     if session['local_stages'][session['stage']][0] == 'fa23':
-        session['stk'].push('fa23')
+        stk.push(session['stk'], 'fa23')
     elif session['local_stages'][session['stage']][0] == 'ga23':
-        session['stk'].push('ga23')
-    if (session['local_stages'][session['stage']][0] == 'aa9.1' and session['stk'].get() == 'fa23') or (session['local_stages'][session['stage']][0] == 'aa9.1' and session['stk'].get() == 'ga23'):
-        session['stk'].pop()
+        stk.push(session['stk'], 'ga23')
+    if (session['local_stages'][session['stage']][0] == 'aa9.1' and stk.get(session['stk']) == 'fa23') or (session['local_stages'][session['stage']][0] == 'aa9.1' and stk.get(session['stk']) == 'ga23'):
+        _, session['stk'] = stk.pop(session['stk'])
 
     if session['local_flags']['flag_changes']:
         session['local_stages'] = session['local_stages'][:session['stage'] + 1]
         session['local_progress'] = session['local_progress'][:session['stage'] + 1]
+        session['timing'] = session['timing'][:session['stage'] + 1]
         session['local_flags']['flag_changes'] = False
 
     if session['stage'] > 1:
@@ -292,7 +339,7 @@ def prev_stage():
 
     progress_output()
 
-    return redirect(session['local_stages'][session['stage']][1]['attr']['base_url'], 301)
+    return redirect(stages[session['local_stages'][session['stage']][0]]['attr']['base_url'], 301)
 
 
 @app.route("/to_beginning")
@@ -306,6 +353,7 @@ def to_beginning():
 
     session['local_stages'] = session['local_stages'][:session['stage'] + 1]
     session['local_progress'] = session['local_progress'][:session['stage'] + 1]
+    session['timing'] = session['timing'][:session['stage'] + 1]
     session['local_flags'] = {'flag_changes': False}
 
     return redirect('/next_stage')
@@ -314,10 +362,8 @@ def to_beginning():
 @app.route("/test_first", methods = ['GET', 'POST'])
 @login_required
 def test_first():
-
-    #global session['local_progress'], session['local_stages'], session['stage'], session['local_flags']
-
-    if session['local_stages'][session['stage']][1]['attr']['base_url'] != "test_first":
+    
+    if stages[session['local_stages'][session['stage']][0]]['attr']['base_url'] != "test_first":
         return redirect('/prev_stage')
 
     if request.is_json:
@@ -329,88 +375,97 @@ def test_first():
 
         if body_p == None:
             return redirect('/to_beginning', 301)
+        
+    info_text = stages[session['local_stages'][session['stage']][0]]['attr']['info']['text'].copy()
+    info_styles = stages[session['local_stages'][session['stage']][0]]['attr']['info']['styles'].copy()
 
     if session['local_stages'][session['stage']][0][2:] == '10.1':
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][1] = f'Оценивайте дыхание, пульс и SpO2 непрерывно, измеряйте АД не реже раза в 5 минут). При нарушениях дыхания, снижения SpO2 ниже 92% При АД выше {farm["ads"][body_p][1]} или ниже {farm["ads"][body_p][0]} мм.рт.ст., развитии судорог нажмите «В начало»'
+        info_text[1] = f'Оценивайте дыхание, пульс и SpO2 непрерывно, измеряйте АД не реже раза в 5 минут). При нарушениях дыхания, снижения SpO2 ниже 92% При АД выше {farm["ads"][body_p][1]} или ниже {farm["ads"][body_p][0]} мм.рт.ст., развитии судорог нажмите «В начало»'
     elif session['local_stages'][session['stage']][0][2:] == '17':
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][0] = f'Установите воздуховод #{farm["air_duct"][body_p]} или ларингеальную маску #{farm["i-gel"][body_p]}'
+        info_text[0] = f'Установите воздуховод #{farm["air_duct"][body_p]} или ларингеальную маску #{farm["i-gel"][body_p]}'
     elif session['local_stages'][session['stage']][0][2:] == '20':
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][0] = f'Поместите сахар/конфету за щёку пациента (не за зубы). При наличии доступа в вену – внутривенно {farm["glucose"][body_p]} мл 20% раствора глюкозы (ампулы 40% глюкозы развести пополам 0,9% раствором NaCl)'
+        info_text[0] = f'Поместите сахар/конфету за щёку пациента (не за зубы). При наличии доступа в вену – внутривенно {farm["glucose"][body_p]} мл 20% раствора глюкозы (ампулы 40% глюкозы развести пополам 0,9% раствором NaCl)'
     elif session['local_stages'][session['stage']][0][2:] == '21':
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][0] = f'При наличии сосудистого доступа – введите внутривенно вальпроевую кислоту (детям старше 3 лет) {farm["valpro"][body_p]} мл за 5 минут либо мидазолам {farm["midazolam"][body_p]} мл, либо диазепам {farm["diazepam"][body_p]} мл'
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][1] = f'При отсутствии сосудистого доступа внутримышечно ввести мидазолам {farm["midazolam"][body_p]} мл, либо диазепам {farm["diazepam"][body_p]} мл'
+        info_text[0] = f'При наличии сосудистого доступа – введите внутривенно вальпроевую кислоту (детям старше 3 лет) {farm["valpro"][body_p]} мл за 5 минут либо мидазолам {farm["midazolam"][body_p]} мл, либо диазепам {farm["diazepam"][body_p]} мл'
+        info_text[1] = f'При отсутствии сосудистого доступа внутримышечно ввести мидазолам {farm["midazolam"][body_p]} мл, либо диазепам {farm["diazepam"][body_p]} мл'
     elif session['local_stages'][session['stage']][0][2:] == '24.3':
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][0] = f'Введите внутривенно/внутрикостно или (при отсутствии сосудистого доступа – внутримышечно) 1. Эпинефрин (адреналин) {farm["adrenalin_v"][body_p]} мл'
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][1] = f'2. Дексаметазон {farm["dexamethasone"][body_p]} мл или Преднизолон {farm["prednisolone"][body_p]} мл или Метилпреднизолон {farm["methylprednisolone"][body_p]} мг или Гидрокортизон {farm["hydrocortisone"][body_p]} мл (только внутримышечно)'
+        info_text[0] = f'Введите внутривенно/внутрикостно или (при отсутствии сосудистого доступа – внутримышечно) 1. Эпинефрин (адреналин) {farm["adrenalin_v"][body_p]} мл'
+        info_text[1] = f'2. Дексаметазон {farm["dexamethasone"][body_p]} мл или Преднизолон {farm["prednisolone"][body_p]} мл или Метилпреднизолон {farm["methylprednisolone"][body_p]} мг или Гидрокортизон {farm["hydrocortisone"][body_p]} мл (только внутримышечно)'
     elif session['local_stages'][session['stage']][0][2:] == '24.3.2':
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][0] = f'Вводите внутривенно капельно или (при отсутствии сосудистого доступа – внутримышечно) Атропин {farm["atropin"][body_p]} мл в 10 мл (5 мл при внутримышечном введении) 0,9% раствора NaCl. Максимальное количество введений - два. Целевое ЧСС не менее {farm["css"][body_p][0]} в мин (при внутримышечном введении интервал 1 раз в 5 минут)'
+        info_text[0] = f'Вводите внутривенно капельно или (при отсутствии сосудистого доступа – внутримышечно) Атропин {farm["atropin"][body_p]} мл в 10 мл (5 мл при внутримышечном введении) 0,9% раствора NaCl. Максимальное количество введений - два. Целевое ЧСС не менее {farm["css"][body_p][0]} в мин (при внутримышечном введении интервал 1 раз в 5 минут)'
     elif session['local_stages'][session['stage']][0][2:] == '24.3.3':
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][0] = f'Вводите внутривенно капельно Допамин (дофамин) 100 мг в 200 мл 5 % раствора глюкозы или 0,9 % раствора NaCl. До достижения артериального давления не менее 90/60 мм.рт.ст., ЧСС не менее {farm["css"][body_p][0]} в мин'
+        info_text[0] = f'Вводите внутривенно капельно Допамин (дофамин) 100 мг в 200 мл 5 % раствора глюкозы или 0,9 % раствора NaCl. До достижения артериального давления не менее 90/60 мм.рт.ст., ЧСС не менее {farm["css"][body_p][0]} в мин'
     elif session['local_stages'][session['stage']][0][2:] == '24.3.4':
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][0] = f'Введите внутривенно болюс интралипида 20% {farm["intralipid_b"][body_p]} мл (1,5 мл/кг) в течение 1 минуты. Немедленно начните инфузию со скоростью {farm["intralipid_k"][body_p]} кап/мин (15 мл/кг/час) (взрослому пациенту - 1 л/час, 300 капель в минуту)'
+        info_text[0] = f'Введите внутривенно болюс интралипида 20% {farm["intralipid_b"][body_p]} мл (1,5 мл/кг) в течение 1 минуты. Немедленно начните инфузию со скоростью {farm["intralipid_k"][body_p]} кап/мин (15 мл/кг/час) (взрослому пациенту - 1 л/час, 300 капель в минуту)'
     elif session['local_stages'][session['stage']][0][2:] == '24.3.5':
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][0] = f'Введите струйно внутривенно/внутрикостно или (при отсутствии сосудистого доступа – внутримышечно под язык) Эпинефрин (адреналин) {farm["adrenalin_v"][body_p]} мл'
+        info_text[0] = f'Введите струйно внутривенно/внутрикостно или (при отсутствии сосудистого доступа – внутримышечно под язык) Эпинефрин (адреналин) {farm["adrenalin_v"][body_p]} мл'
     elif session['local_stages'][session['stage']][0][2:] == '24.4':
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][0] = f'Введите ингаляционно через небулайзер 1. Будесонид {farm["budesonid"][body_p]} мл + NaCl 0,9% 3,0 мл'
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][1] = f'2. Адреналин {farm["adrenalin_n"][body_p]} мл + NaCl 0,9% 5,0 мл'
+        info_text[0] = f'Введите ингаляционно через небулайзер 1. Будесонид {farm["budesonid"][body_p]} мл + NaCl 0,9% 3,0 мл'
+        info_text[1] = f'2. Адреналин {farm["adrenalin_n"][body_p]} мл + NaCl 0,9% 5,0 мл'
     elif session['local_stages'][session['stage']][0][2:] == '24.5':
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][0] = f'Введите ингаляционно через небулайзер 1. Сальбутамол {farm["salbutamol"][body_p]} доз'
+        info_text[0] = f'Введите ингаляционно через небулайзер 1. Сальбутамол {farm["salbutamol"][body_p]} доз'
     elif session['local_stages'][session['stage']][0][2:] == '24.6':
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][0] = f'Введите внутривенно/внутрикостно или (при отсутствии сосудистого доступа – внутримышечно) 1.Аминофиллин (эуфиллин) {farm["eufillin"][body_p]} мл'
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][1] = f'2. Дексаметазон {farm["dexamethasone"][body_p]} мл или Преднизолон {farm["prednisolone"][body_p]} мл или Метилпреднизолон {farm["methylprednisolone"][body_p]} мг или Гидрокортизон {farm["hydrocortisone"][body_p]} мл (только внутримышечно)'
+        info_text[0] = f'Введите внутривенно/внутрикостно или (при отсутствии сосудистого доступа – внутримышечно) 1.Аминофиллин (эуфиллин) {farm["eufillin"][body_p]} мл'
+        info_text[1] = f'2. Дексаметазон {farm["dexamethasone"][body_p]} мл или Преднизолон {farm["prednisolone"][body_p]} мл или Метилпреднизолон {farm["methylprednisolone"][body_p]} мг или Гидрокортизон {farm["hydrocortisone"][body_p]} мл (только внутримышечно)'
     elif session['local_stages'][session['stage']][0][2:] == '24.7.1':
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][0] = f'Введите внутривенно или (при отсутствии сосудистого доступа – внутримышечно) Фуросемид {farm["furosemide"][body_p]} мл'
+        info_text[0] = f'Введите внутривенно или (при отсутствии сосудистого доступа – внутримышечно) Фуросемид {farm["furosemide"][body_p]} мл'
     elif session['local_stages'][session['stage']][0][2:] == '24.8':
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][0] = f'Введите внутривенно/внутрикостно Урапидил 25 мг в/в медленно, далее капельно (у пациентов старше 18 лет)'
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][1] = f'Сульфат магнезии 25% {farm["magnesia_sulfate"][body_p]} мл в/в медленно'
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][2] = f'Фуросемид {farm["furosemide"][body_p]} мл внутривенно'
+        info_text[0] = f'Введите внутривенно/внутрикостно Урапидил 25 мг в/в медленно, далее капельно (у пациентов старше 18 лет)'
+        info_text[1] = f'Сульфат магнезии 25% {farm["magnesia_sulfate"][body_p]} мл в/в медленно'
+        info_text[2] = f'Фуросемид {farm["furosemide"][body_p]} мл внутривенно'
     elif session['local_stages'][session['stage']][0][2:] == '24.8.1':
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][0] = f'Введите внутривенно Урапидил 25 мг в/в медленно, далее капельно (у пациентов старше 18 лет)'
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][1] = f'Сульфат магнезии 25% {farm["magnesia_sulfate"][body_p]} мл в/в медленно'
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][2] = f'Фуросемид {farm["furosemide"][body_p]} мл внутривенно'
+        info_text[0] = f'Введите внутривенно Урапидил 25 мг в/в медленно, далее капельно (у пациентов старше 18 лет)'
+        info_text[1] = f'Сульфат магнезии 25% {farm["magnesia_sulfate"][body_p]} мл в/в медленно'
+        info_text[2] = f'Фуросемид {farm["furosemide"][body_p]} мл внутривенно'
     elif session['local_stages'][session['stage']][0][2:] == '24.9':
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][0] = f'Важно! Только при ДаД выше 120 мм.рт.ст. АД снижать на 10-15% Введите внутривенно/внутрикостно Урапидил 12, 5 мг в/в медленно, далее капельно (у пациентов старше 18 лет)'
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][1] = f'Сульфат магнезии 25% {farm["magnesia_sulfate"][body_p]} мл в/в медленно'
+        info_text[0] = f'Важно! Только при ДаД выше 120 мм.рт.ст. АД снижать на 10-15% Введите внутривенно/внутрикостно Урапидил 12, 5 мг в/в медленно, далее капельно (у пациентов старше 18 лет)'
+        info_text['text'][1] = f'Сульфат магнезии 25% {farm["magnesia_sulfate"][body_p]} мл в/в медленно'
     elif session['local_stages'][session['stage']][0][2:] == '28.5':
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][0] = f'Присоедините к лицевой маске (размер #{farm["face_mask"][body_p]}) или установленной ларингеальной маске ( размер #{farm["i-gel"][body_p]}) дыхательный мешок'
+        info_text[0] = f'Присоедините к лицевой маске (размер #{farm["face_mask"][body_p]}) или установленной ларингеальной маске ( размер #{farm["i-gel"][body_p]}) дыхательный мешок'
     elif session['local_stages'][session['stage']][0][2:] == '28.7':
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][2] = f'С третьего разряда дефибрилляции введите амиодарон {farm["amiodaron"][body_p]} мг при отсутствии – лидокаин {farm["lidocaine"][body_p]} мг (пациентам старше 1 года)'
+        info_text[2] = f'С третьего разряда дефибрилляции введите амиодарон {farm["amiodaron"][body_p]} мг при отсутствии – лидокаин {farm["lidocaine"][body_p]} мг (пациентам старше 1 года)'
     elif session['local_stages'][session['stage']][0][2:] == '33.1':
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][0] = f'Присоедините к лицевой маске (размер  #{farm["face_mask"][body_p]}) или установленной ларингеальной маске (размер #{farm["i-gel"][body_p]}) дыхательный мешок'
+        info_text[0] = f'Присоедините к лицевой маске (размер  #{farm["face_mask"][body_p]}) или установленной ларингеальной маске (размер #{farm["i-gel"][body_p]}) дыхательный мешок'
+
+    buttons_text = stages[session['local_stages'][session['stage']][0]]['attr']['buttons']['text'].copy()
+    buttons_styles = stages[session['local_stages'][session['stage']][0]]['attr']['buttons']['styles'].copy()
 
     true_count = 0
     for i in session['local_progress'][session['stage']].keys():
         if session['local_progress'][session['stage']][i] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['text'][int(i) - 1] = 'Выполнено'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][int(i) - 1] = f'btn btn-lg btn-success btn{i} w-100'
+            buttons_text[int(i) - 1] = 'Выполнено'
+            buttons_styles[int(i) - 1] = f'btn btn-lg btn-success btn{i} w-100'
             true_count += 1
         else:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['text'][int(i) - 1] = 'Выполнить'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][int(i) - 1] = f'btn btn-lg btn-outline-success btn{i} w-100'
+            buttons_text[int(i) - 1] = 'Выполнить'
+            buttons_styles[int(i) - 1] = f'btn btn-lg btn-outline-success btn{i} w-100'
 
     navigation = []
+    navigation_text = stages[session['local_stages'][session['stage']][0]]['attr']['navigation']['text'].copy()
+    navigation_styles = stages[session['local_stages'][session['stage']][0]]['attr']['navigation']['styles'].copy()
+    navigation_links = stages[session['local_stages'][session['stage']][0]]['attr']['navigation']['links'].copy()
 
     if true_count == len(session['local_progress'][session['stage']].keys()):
         if session['local_stages'][session['stage']][0] == 'aa1':
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][0] = 'btn btn-lg btn-success w-100 btn-next'
-            navigation.append((session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][0], session['local_stages'][session['stage']][1]['attr']['navigation']['text'][0], session['local_stages'][session['stage']][1]['attr']['navigation']['links'][0]))
+            navigation_styles[0] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation.append((navigation_styles[0], navigation_text[0], navigation_links[0]))
         else: 
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            navigation.append((session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][0], session['local_stages'][session['stage']][1]['attr']['navigation']['text'][0], session['local_stages'][session['stage']][1]['attr']['navigation']['links'][0]))
-            navigation.append((session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][1], session['local_stages'][session['stage']][1]['attr']['navigation']['text'][1], session['local_stages'][session['stage']][1]['attr']['navigation']['links'][1]))
-            navigation.append((session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2], session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2], session['local_stages'][session['stage']][1]['attr']['navigation']['links'][2]))
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation.append((navigation_styles[0], navigation_text[0], navigation_links[0]))
+            navigation.append((navigation_styles[1], navigation_text[1], navigation_links[1]))
+            navigation.append((navigation_styles[2], navigation_text[2], navigation_links[2]))
     else:
         if session['local_stages'][session['stage']][0] == 'aa1':
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][0] = 'btn btn-lg btn-outline-danger w-100 btn-next disabled'
-            navigation.append((session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][0], session['local_stages'][session['stage']][1]['attr']['navigation']['text'][0], session['local_stages'][session['stage']][1]['attr']['navigation']['links'][0]))
+            navigation_styles[0] = 'btn btn-lg btn-outline-danger w-100 btn-next disabled'
+            navigation.append((navigation_styles[0], navigation_text[0], navigation_links[0]))
         else:
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-outline-danger w-100 btn-next disabled'
-            navigation.append((session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][0], session['local_stages'][session['stage']][1]['attr']['navigation']['text'][0], session['local_stages'][session['stage']][1]['attr']['navigation']['links'][0]))
-            navigation.append((session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][1], session['local_stages'][session['stage']][1]['attr']['navigation']['text'][1], session['local_stages'][session['stage']][1]['attr']['navigation']['links'][1]))
-            navigation.append((session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2], session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2], session['local_stages'][session['stage']][1]['attr']['navigation']['links'][2]))
+            navigation_styles[2] = 'btn btn-lg btn-outline-danger w-100 btn-next disabled'
+            navigation.append((navigation_styles[0], navigation_text[0], navigation_links[0]))
+            navigation.append((navigation_styles[1], navigation_text[1], navigation_links[1]))
+            navigation.append((navigation_styles[2], navigation_text[2], navigation_links[2]))
 
     data = []
-    for i in zip(session['local_stages'][session['stage']][1]['attr']['buttons']['text'], session['local_stages'][session['stage']][1]['attr']['buttons']['styles'], session['local_stages'][session['stage']][1]['attr']['info']['text'], session['local_stages'][session['stage']][1]['attr']['info']['styles']):
+    for i in zip(buttons_text, buttons_styles, info_text, info_styles):
         data.append(i)
 
     if current_user.is_authenticated:
@@ -428,9 +483,7 @@ def test_first():
 @login_required
 def test_second():
 
-    #global session['local_progress'], session['local_stages'], session['stage']
-
-    if session['local_stages'][session['stage']][1]['attr']['base_url'] != "test_second":
+    if stages[session['local_stages'][session['stage']][0]]['attr']['base_url'] != "test_second":
         return redirect('/prev_stage', 301)
 
     if request.is_json:
@@ -442,25 +495,32 @@ def test_second():
                 session['local_progress'][session['stage']][i] = True
             else:
                 session['local_progress'][session['stage']][i] = False
+
+    buttons_text = stages[session['local_stages'][session['stage']][0]]['attr']['buttons']['text'].copy()
+    buttons_styles = stages[session['local_stages'][session['stage']][0]]['attr']['buttons']['styles'].copy()
     
     data = []
     next_ability = False
     for i in session['local_progress'][session['stage']].keys():
         if session['local_progress'][session['stage']][i] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][int(i) - 1] = f'btn btn-lg btn-success btn{i} w-100'
+            buttons_styles[int(i) - 1] = f'btn btn-lg btn-success btn{i} w-100'
             next_ability = True
         else:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][int(i) - 1] = f'btn btn-lg btn-outline-success btn{i} w-100'
-        data.append((session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][int(i) - 1], session['local_stages'][session['stage']][1]['attr']['buttons']['text'][int(i) - 1]))
+            buttons_styles[int(i) - 1] = f'btn btn-lg btn-outline-success btn{i} w-100'
+        data.append((buttons_styles[int(i) - 1], buttons_text[int(i) - 1]))
     
     navigation = []
+    navigation_text = stages[session['local_stages'][session['stage']][0]]['attr']['navigation']['text'].copy()
+    navigation_styles = stages[session['local_stages'][session['stage']][0]]['attr']['navigation']['styles'].copy()
+    navigation_links = stages[session['local_stages'][session['stage']][0]]['attr']['navigation']['links'].copy()
+
     if next_ability:
-        session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
+        navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
     else:
-        session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-outline-danger w-100 btn-next disabled'
-    navigation.append((session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][0], session['local_stages'][session['stage']][1]['attr']['navigation']['text'][0], session['local_stages'][session['stage']][1]['attr']['navigation']['links'][0])) 
-    navigation.append((session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][1], session['local_stages'][session['stage']][1]['attr']['navigation']['text'][1], session['local_stages'][session['stage']][1]['attr']['navigation']['links'][1]))
-    navigation.append((session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2], session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2], session['local_stages'][session['stage']][1]['attr']['navigation']['links'][2]))
+        navigation_styles[2] = 'btn btn-lg btn-outline-danger w-100 btn-next disabled'
+    navigation.append((navigation_styles[0], navigation_text[0], navigation_links[0])) 
+    navigation.append((navigation_styles[1], navigation_text[1], navigation_links[1]))
+    navigation.append((navigation_styles[2], navigation_text[2], navigation_links[2]))
 
     if current_user.is_authenticated:
         menu = DBApi().getMenu(True, current_user.is_admin())
@@ -477,13 +537,24 @@ def test_second():
 @login_required
 def test_third():
 
-    #global session['local_progress'], session['local_stages'], session['stage'], session['local_flags'], session['local_changes']
-
-    if session['local_stages'][session['stage']][1]['attr']['base_url'] != "test_third":
+    if stages[session['local_stages'][session['stage']][0]]['attr']['base_url'] != "test_third":
         return redirect('/prev_stage', 301)
 
     data, navigation = [], []
-    navigation.append((session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][0], session['local_stages'][session['stage']][1]['attr']['navigation']['text'][0], session['local_stages'][session['stage']][1]['attr']['navigation']['links'][0]))
+
+    buttons_left_text = stages[session['local_stages'][session['stage']][0]]['attr']['buttons']['left']['text'].copy()
+    buttons_left_styles = stages[session['local_stages'][session['stage']][0]]['attr']['buttons']['left']['styles'].copy()
+    buttons_right_text = stages[session['local_stages'][session['stage']][0]]['attr']['buttons']['right']['text'].copy()
+    buttons_right_styles = stages[session['local_stages'][session['stage']][0]]['attr']['buttons']['right']['styles'].copy()
+
+    info_text = stages[session['local_stages'][session['stage']][0]]['attr']['info']['text'].copy()
+    info_styles = stages[session['local_stages'][session['stage']][0]]['attr']['info']['styles'].copy()
+
+    navigation_text = stages[session['local_stages'][session['stage']][0]]['attr']['navigation']['text'].copy()
+    navigation_styles = stages[session['local_stages'][session['stage']][0]]['attr']['navigation']['styles'].copy()
+    navigation_links = stages[session['local_stages'][session['stage']][0]]['attr']['navigation']['links'].copy()
+
+    navigation.append((navigation_styles[0], navigation_text[0], navigation_links[0]))
 
     button_number = None
 
@@ -491,7 +562,7 @@ def test_third():
         button_number = request.args.get('button_number')
 
         session['local_changes'].append(session['local_progress'][session['stage']])
-        changes = session['local_progress'][session['stage']]
+        changes = session['local_progress'][session['stage']].copy()
 
         if button_number == '1':
             changes[button_number] = True
@@ -519,36 +590,36 @@ def test_third():
 
         if  session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['3'] == True:
             
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-success btn31 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-danger btn33 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-outline-danger btn32 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn34 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'SOS. Судороги'
+            buttons_left_styles[0] = f'btn btn-lg btn-success btn31 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-danger btn33 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-outline-danger btn32 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-outline-success btn34 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-warning w-100 btn-next'
+            navigation_text[2] = 'SOS. Судороги'
 
         elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['3'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-success btn31 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-danger btn33 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-danger btn32 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn34 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'SOS. Оценить дыхание!'
+            buttons_left_styles[0] = f'btn btn-lg btn-outline-success btn31 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-danger btn33 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-danger btn32 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-outline-success btn34 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-danger w-100 btn-next'
+            navigation_text[2] = 'SOS. Оценить дыхание!'
 
         elif session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['4'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-success btn31 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-outline-danger btn33 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-outline-danger btn32 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn34 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_left_styles[0] = f'btn btn-lg btn-success btn31 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-outline-danger btn33 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-outline-danger btn32 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-success btn34 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['4'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-success btn31 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-outline-danger btn33 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-danger btn32 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn34 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_left_styles[0] = f'btn btn-lg btn-outline-success btn31 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-outline-danger btn33 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-danger btn32 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-success btn34 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         if session['local_stages'][session['stage']][0] == 'aa3':
             if session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['3'] == True:
@@ -567,36 +638,36 @@ def test_third():
     elif session['local_stages'][session['stage']][0][2:] == '3.3':
 
         if  session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['3'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-danger btn111 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-danger btn113 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-outline-success btn112 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn114 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_left_styles[0] = f'btn btn-lg btn-danger btn111 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-danger btn113 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-outline-success btn112 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-outline-success btn114 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-warning w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['3'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-danger btn111 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-danger btn113 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-success btn112 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn114 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'           
+            buttons_left_styles[0] = f'btn btn-lg btn-outline-danger btn111 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-danger btn113 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-success btn112 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-outline-success btn114 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-warning w-100 btn-next'
+            navigation_text[2] = 'Далее'           
 
         elif session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['4'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-danger btn111 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-outline-danger btn113 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-outline-success btn112 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn114 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_left_styles[0] = f'btn btn-lg btn-danger btn111 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-outline-danger btn113 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-outline-success btn112 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-success btn114 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-warning w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['4'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-danger btn111 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-outline-danger btn113 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-success btn112 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn114 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_left_styles[0] = f'btn btn-lg btn-outline-danger btn111 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-outline-danger btn113 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-success btn112 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-success btn114 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         if session['local_stages'][session['stage']][0] == 'ga3.3':
             if  session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['3'] == True:
@@ -615,40 +686,40 @@ def test_third():
         if body_p == None:
             return redirect('/to_beginning', 301)
 
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][0] = f'ЧСС более {farm["css"][body_p][1]} в мин'
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][1] = f'ЧСС менее {farm["css"][body_p][0]} в мин'
+        info_text[0] = f'ЧСС более {farm["css"][body_p][1]} в мин'
+        info_text[1] = f'ЧСС менее {farm["css"][body_p][0]} в мин'
 
         if  session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['3'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-danger btn111 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-danger btn113 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-outline-success btn112 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn114 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_left_styles[0] = f'btn btn-lg btn-danger btn111 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-danger btn113 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-outline-success btn112 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-outline-success btn114 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-warning w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['3'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-danger btn111 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-danger btn113 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-success btn112 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn114 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'       
+            buttons_left_styles[0] = f'btn btn-lg btn-outline-danger btn111 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-danger btn113 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-success btn112 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-outline-success btn114 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-warning w-100 btn-next'
+            navigation_text[2] = 'Далее'       
 
         elif session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['4'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-danger btn111 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-outline-danger btn113 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-outline-success btn112 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn114 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_left_styles[0] = f'btn btn-lg btn-danger btn111 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-outline-danger btn113 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-outline-success btn112 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-success btn114 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-warning w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['4'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-danger btn111 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-outline-danger btn113 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-success btn112 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn114 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_left_styles[0] = f'btn btn-lg btn-outline-danger btn111 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-outline-danger btn113 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-success btn112 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-success btn114 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         if session['local_stages'][session['stage']][0] == 'ga8.2':
             if  session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['3'] == True:
@@ -673,36 +744,36 @@ def test_third():
     elif session['local_stages'][session['stage']][0][2:] == '11':
 
         if  session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['3'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-danger btn111 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-danger btn113 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-outline-success btn112 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn114 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_left_styles[0] = f'btn btn-lg btn-danger btn111 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-danger btn113 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-outline-success btn112 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-outline-success btn114 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-warning w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['3'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-danger btn111 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-danger btn113 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-success btn112 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn114 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_left_styles[0] = f'btn btn-lg btn-outline-danger btn111 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-danger btn113 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-success btn112 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-outline-success btn114 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-warning w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['4'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-danger btn111 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-outline-danger btn113 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-outline-success btn112 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn114 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_left_styles[0] = f'btn btn-lg btn-danger btn111 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-outline-danger btn113 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-outline-success btn112 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-success btn114 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-warning w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['4'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-danger btn111 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-outline-danger btn113 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-success btn112 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn114 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_left_styles[0] = f'btn btn-lg btn-outline-danger btn111 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-outline-danger btn113 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-success btn112 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-success btn114 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         if session['local_stages'][session['stage']][0] == 'ca11':
             if  session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['3'] == True:
@@ -767,36 +838,36 @@ def test_third():
     elif session['local_stages'][session['stage']][0][2:] == '15':
 
         if  session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['3'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-success btn151 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-success btn153 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-outline-danger btn152 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-danger btn154 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_left_styles[0] = f'btn btn-lg btn-success btn151 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-success btn153 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-outline-danger btn152 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-outline-danger btn154 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['3'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-success btn151 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-success btn153 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-danger btn152 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-danger btn154 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_left_styles[0] = f'btn btn-lg btn-outline-success btn151 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-success btn153 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-danger btn152 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-outline-danger btn154 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-warning w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['4'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-success btn151 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-outline-success btn153 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-outline-danger btn152 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-danger btn154 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_left_styles[0] = f'btn btn-lg btn-success btn151 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-outline-success btn153 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-outline-danger btn152 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-danger btn154 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['4'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-success btn151 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-outline-success btn153 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-danger btn152 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-danger btn154 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_left_styles[0] = f'btn btn-lg btn-outline-success btn151 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-outline-success btn153 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-danger btn152 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-danger btn154 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-warning w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         if session['local_stages'][session['stage']][0] == 'ba15':
             if  session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['3'] == True:
@@ -857,36 +928,36 @@ def test_third():
     elif session['local_stages'][session['stage']][0][2:] == '23.1':
 
         if  session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['3'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-danger btn2311 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-danger btn2313 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-outline-success btn2312 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn2314 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_left_styles[0] = f'btn btn-lg btn-danger btn2311 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-danger btn2313 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-outline-success btn2312 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-outline-success btn2314 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['3'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-danger btn2311 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-danger btn2313 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-success btn2312 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-outline-success btn2314 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_left_styles[0] = f'btn btn-lg btn-outline-danger btn2311 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-danger btn2313 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-success btn2312 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-outline-success btn2314 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['4'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-danger btn2311 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-outline-danger btn2313 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-outline-success btn2312 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn2314 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_left_styles[0] = f'btn btn-lg btn-danger btn2311 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-outline-danger btn2313 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-outline-success btn2312 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-success btn2314 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['4'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][0] = f'btn btn-lg btn-outline-danger btn2311 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][1] = f'btn btn-lg btn-outline-danger btn2313 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][0] = f'btn btn-lg btn-success btn2312 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][1] = f'btn btn-lg btn-success btn2314 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_left_styles[0] = f'btn btn-lg btn-outline-danger btn2311 w-100'
+            buttons_left_styles[1] = f'btn btn-lg btn-outline-danger btn2313 w-100'
+            buttons_right_styles[0] = f'btn btn-lg btn-success btn2312 w-100'
+            buttons_right_styles[1] = f'btn btn-lg btn-success btn2314 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         if session['local_stages'][session['stage']][0] == 'fa23.1':
             if  session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['3'] == True:
@@ -898,11 +969,13 @@ def test_third():
             elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['4'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'fc13.4'
 
-    navigation.append((session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][1], session['local_stages'][session['stage']][1]['attr']['navigation']['text'][1], session['local_stages'][session['stage']][1]['attr']['navigation']['links'][1]))
-    navigation.append((session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2], session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2], session['local_stages'][session['stage']][1]['attr']['navigation']['links'][2]))
+    navigation.append((navigation_styles[1], navigation_text[1], navigation_links[1]))
+    navigation.append((navigation_styles[2], navigation_text[2], navigation_links[2]))
+
+
 
     for i in range(int(len(session['local_progress'][session['stage']].keys())//2)):
-        data.append((session['local_stages'][session['stage']][1]['attr']['info']['styles'][i], session['local_stages'][session['stage']][1]['attr']['info']['text'][i], session['local_stages'][session['stage']][1]['attr']['buttons']['left']['styles'][i], session['local_stages'][session['stage']][1]['attr']['buttons']['left']['text'][i], session['local_stages'][session['stage']][1]['attr']['buttons']['right']['styles'][i], session['local_stages'][session['stage']][1]['attr']['buttons']['right']['text'][i]))
+        data.append((info_styles[i], info_text[i], buttons_left_styles[i], buttons_left_text[i], buttons_right_styles[i], buttons_right_text[i]))
 
     if current_user.is_authenticated:
         menu = DBApi().getMenu(True, current_user.is_admin())
@@ -919,11 +992,22 @@ def test_third():
 @login_required
 def test_fourth():
 
-    if session['local_stages'][session['stage']][1]['attr']['base_url'] != "test_fourth":
+    if stages[session['local_stages'][session['stage']][0]]['attr']['base_url'] != "test_fourth":
         return redirect('/prev_stage', 301)
 
     info, data, navigation = [], [], []
-    navigation.append((session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][0], session['local_stages'][session['stage']][1]['attr']['navigation']['text'][0], session['local_stages'][session['stage']][1]['attr']['navigation']['links'][0]))
+
+    buttons_text = stages[session['local_stages'][session['stage']][0]]['attr']['buttons']['text'].copy()
+    buttons_styles = stages[session['local_stages'][session['stage']][0]]['attr']['buttons']['styles'].copy()
+
+    info_text = stages[session['local_stages'][session['stage']][0]]['attr']['info']['text'].copy()
+    info_styles = stages[session['local_stages'][session['stage']][0]]['attr']['info']['styles'].copy()
+
+    navigation_text = stages[session['local_stages'][session['stage']][0]]['attr']['navigation']['text'].copy()
+    navigation_styles = stages[session['local_stages'][session['stage']][0]]['attr']['navigation']['styles'].copy()
+    navigation_links = stages[session['local_stages'][session['stage']][0]]['attr']['navigation']['links'].copy()
+
+    navigation.append((navigation_styles[0], navigation_text[0], navigation_links[0]))
 
     button_number = None
 
@@ -951,17 +1035,17 @@ def test_fourth():
     if session['local_stages'][session['stage']][0][2:] == '3.2':
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-danger btn3321 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-success btn3322 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'SOS. Оценить дыхание!'
+            buttons_styles[0] = f'btn btn-lg btn-danger btn3321 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-success btn3322 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-danger w-100 btn-next'
+            navigation_text[2] = 'SOS. Оценить дыхание!'
             session['local_flags']['3.2'] = '3.4'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-danger btn3321 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-success btn3322 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-outline-danger btn3321 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-success btn3322 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
             session['local_flags']['3.2'] = '3.5'
 
         if session['local_stages'][session['stage']][0] == 'ba3.2':
@@ -974,7 +1058,7 @@ def test_fourth():
             if session['local_progress'][session['stage']]['1'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'fa13'
             elif session['local_progress'][session['stage']]['2'] == True:
-                session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+                navigation_text[2] = 'Далее'
                 session['local_stages'][session['stage']][1]['next'] = 'aa9'
 
         elif session['local_stages'][session['stage']][0] == 'fb3.2':
@@ -992,39 +1076,39 @@ def test_fourth():
     elif session['local_stages'][session['stage']][0][2:] == '4':
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-success btn41 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn42 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn43 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn44 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-success btn41 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-warning btn42 w-100'
+            buttons_styles[2] = f'btn btn-lg btn-outline-warning btn43 w-100'
+            buttons_styles[3] = f'btn btn-lg btn-outline-danger btn44 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
             session['local_flags']['4'] = '4.1'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn41 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-warning btn42 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn43 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn44 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'SOS. Обеспечение проходимости дыхательных путей'
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn41 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-warning btn42 w-100'
+            buttons_styles[2] = f'btn btn-lg btn-outline-warning btn43 w-100'
+            buttons_styles[3] = f'btn btn-lg btn-outline-danger btn44 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-warning w-100 btn-next'
+            navigation_text[2] = 'SOS. Обеспечение проходимости дыхательных путей'
             session['local_flags']['4'] = '4.2'
 
         elif session['local_progress'][session['stage']]['3'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn41 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn42 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][2] = f'btn btn-lg btn-warning btn43 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn44 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'SOS. Дыхательная недостаточность'
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn41 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-warning btn42 w-100'
+            buttons_styles[2] = f'btn btn-lg btn-warning btn43 w-100'
+            buttons_styles[3] = f'btn btn-lg btn-outline-danger btn44 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-warning w-100 btn-next'
+            navigation_text[2] = 'SOS. Дыхательная недостаточность'
             session['local_flags']['4'] = '4.3'
 
         elif session['local_progress'][session['stage']]['4'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn41 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn42 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn43 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][3] = f'btn btn-lg btn-danger btn44 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'SOS. Реанимация!!!'
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn41 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-warning btn42 w-100'
+            buttons_styles[2] = f'btn btn-lg btn-outline-warning btn43 w-100'
+            buttons_styles[3] = f'btn btn-lg btn-danger btn44 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-danger w-100 btn-next'
+            navigation_text[2] = 'SOS. Реанимация!!!'
             session['local_flags']['4'] = '4.4'
 
         if session['local_stages'][session['stage']][0] == 'ba4':
@@ -1080,28 +1164,28 @@ def test_fourth():
     elif session['local_stages'][session['stage']][0][2:] == '5':
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-warning btn51 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn52 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn53 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'SOS. Отёк гортани'
+            buttons_styles[0] = f'btn btn-lg btn-warning btn51 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-warning btn52 w-100'
+            buttons_styles[2] = f'btn btn-lg btn-outline-warning btn53 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-warning w-100 btn-next'
+            navigation_text[2] = 'SOS. Отёк гортани'
             session['local_flags']['5'] = '5.1'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-warning btn51 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-warning btn52 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn53 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'SOS. Бронхообструкция'
+            buttons_styles[0] = f'btn btn-lg btn-outline-warning btn51 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-warning btn52 w-100'
+            buttons_styles[2] = f'btn btn-lg btn-outline-warning btn53 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-warning w-100 btn-next'
+            navigation_text[2] = 'SOS. Бронхообструкция'
             session['local_flags']['5'] = '5.2'
 
         elif session['local_progress'][session['stage']]['3'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-warning btn51 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn52 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][2] = f'btn btn-lg btn-warning btn53 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'SOS. Отёк лёгких'
-            session['local_flags'][5] = '5.3'
+            buttons_styles[0] = f'btn btn-lg btn-outline-warning btn51 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-warning btn52 w-100'
+            buttons_styles[2] = f'btn btn-lg btn-warning btn53 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-warning w-100 btn-next'
+            navigation_text[2] = 'SOS. Отёк лёгких'
+            session['local_flags']['5'] = '5.3'
 
         if session['local_stages'][session['stage']][0] == 'ca5':
             if session['local_progress'][session['stage']]['1'] == True:
@@ -1114,17 +1198,17 @@ def test_fourth():
     elif session['local_stages'][session['stage']][0][2:] == '6':
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-success btn61 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn62 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-success btn61 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-danger btn62 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
             session['local_flags']['6'] = '6.1'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn61 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-danger btn62 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'SOS. Реанимация!!!'
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn61 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-danger btn62 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-danger w-100 btn-next'
+            navigation_text[2] = 'SOS. Реанимация!!!'
             session['local_flags']['6'] = '6.2'
 
         if session['local_stages'][session['stage']][0] == 'fa6':
@@ -1140,42 +1224,42 @@ def test_fourth():
         if body_p == None:
             return redirect('/to_beginning', 301)
 
-        session['local_stages'][session['stage']][1]['attr']['buttons']['text'][0] = f'Систолическое {farm["ads"][body_p][0]}-{farm["ads"][body_p][1]} Диастолическое {farm["add"][body_p][0]}-{farm["add"][body_p][1]} мм.рт.ст.'
-        session['local_stages'][session['stage']][1]['attr']['buttons']['text'][1] = f'Выше 180/120 мм.рт.ст.'
-        session['local_stages'][session['stage']][1]['attr']['buttons']['text'][2] = f'Ниже {farm["ads"][body_p][0]}/{farm["add"][body_p][0]} мм.рт.ст.'
-        session['local_stages'][session['stage']][1]['attr']['buttons']['text'][3] = f'Не определяется'
+        buttons_text[0] = f'Систолическое {farm["ads"][body_p][0]}-{farm["ads"][body_p][1]} Диастолическое {farm["add"][body_p][0]}-{farm["add"][body_p][1]} мм.рт.ст.'
+        buttons_text[1] = f'Выше 180/120 мм.рт.ст.'
+        buttons_text[2] = f'Ниже {farm["ads"][body_p][0]}/{farm["add"][body_p][0]} мм.рт.ст.'
+        buttons_text[3] = f'Не определяется'
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-success btn81 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-success btn81 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-warning btn82 w-100'
+            buttons_styles[2] = f'btn btn-lg btn-outline-warning btn83 w-100'
+            buttons_styles[3] = f'btn btn-lg btn-outline-danger btn84 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-warning btn82 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'SOS. Гипертонический криз'   
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn81 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-warning btn82 w-100'
+            buttons_styles[2] = f'btn btn-lg btn-outline-warning btn83 w-100'
+            buttons_styles[3] = f'btn btn-lg btn-outline-danger btn84 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-warning w-100 btn-next'
+            navigation_text[2] = 'SOS. Гипертонический криз'   
 
         elif session['local_progress'][session['stage']]['3'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][2] = f'btn btn-lg btn-warning btn83 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][3] = f'btn btn-lg btn-outline-danger btn84 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-warning w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'SOS. Артериальная гипотония'
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn81 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-warning btn82 w-100'
+            buttons_styles[2] = f'btn btn-lg btn-warning btn83 w-100'
+            buttons_styles[3] = f'btn btn-lg btn-outline-danger btn84 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-warning w-100 btn-next'
+            navigation_text[2] = 'SOS. Артериальная гипотония'
 
         elif session['local_progress'][session['stage']]['4'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn81 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-warning btn82 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][2] = f'btn btn-lg btn-outline-warning btn83 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][3] = f'btn btn-lg btn-danger btn84 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'SOS. Реанимация!!!'
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn81 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-warning btn82 w-100'
+            buttons_styles[2] = f'btn btn-lg btn-outline-warning btn83 w-100'
+            buttons_styles[3] = f'btn btn-lg btn-danger btn84 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-danger w-100 btn-next'
+            navigation_text[2] = 'SOS. Реанимация!!!'
 
         if session['local_stages'][session['stage']][0] == 'ca8':
             if session['local_progress'][session['stage']]['1'] == True:
@@ -1270,16 +1354,16 @@ def test_fourth():
     elif session['local_stages'][session['stage']][0][2:] == '18.1':
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         if session['local_stages'][session['stage']][0] == 'fa18.1':
             if session['local_progress'][session['stage']]['1'] == True:
@@ -1290,16 +1374,16 @@ def test_fourth():
     elif session['local_stages'][session['stage']][0][2:] == '19':
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         if session['local_stages'][session['stage']][0] == 'aa19':
             if session['local_progress'][session['stage']]['1'] == True:
@@ -1328,16 +1412,16 @@ def test_fourth():
     elif session['local_stages'][session['stage']][0][2:] == '22':
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         if session['local_stages'][session['stage']][0] == 'aa22':
             if session['local_progress'][session['stage']]['1'] == True:
@@ -1348,17 +1432,17 @@ def test_fourth():
     elif session['local_stages'][session['stage']][0][2:] == '23':
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
             session['local_flags']['23'] = '23.1'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
             session['local_flags']['23'] = '23.2'
 
         if session['local_stages'][session['stage']][0] == 'ca23':
@@ -1448,16 +1532,16 @@ def test_fourth():
     elif session['local_stages'][session['stage']][0][2:] == '23.2':
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-success btn2321 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn2322 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-success btn2321 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-danger btn2322 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn2321 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-danger btn2322 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn2321 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-danger btn2322 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         if session['local_stages'][session['stage']][0] == 'fa23.2':
             if session['local_progress'][session['stage']]['1'] == True:
@@ -1480,16 +1564,16 @@ def test_fourth():
     elif session['local_stages'][session['stage']][0][2:] == '23.3':
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-danger btn2321 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-success btn2322 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-danger w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-danger btn2321 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-success btn2322 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-danger w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-danger btn2321 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-success btn2322 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-outline-danger btn2321 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-success btn2322 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         if session['local_stages'][session['stage']][0] == 'ga23.3':
             if session['local_progress'][session['stage']]['1'] == True:
@@ -1500,17 +1584,17 @@ def test_fourth():
     elif session['local_stages'][session['stage']][0][2:] == '24':
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
             session['local_flags']['24'] = '24.1'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее' 
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее' 
             session['local_flags']['24'] = '24.2'
 
         if session['local_stages'][session['stage']][0] == 'ca24':
@@ -1528,17 +1612,17 @@ def test_fourth():
     elif session['local_stages'][session['stage']][0][2:] == '25':
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
             session['local_flags']['25'] = '25.1'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
             session['local_flags']['25'] = '25.2'
 
         if session['local_stages'][session['stage']][0] == 'ca25':
@@ -1568,16 +1652,16 @@ def test_fourth():
     elif session['local_stages'][session['stage']][0][2:] == '26.1':
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         if session['local_stages'][session['stage']][0] == 'fa26.1':
             if session['local_progress'][session['stage']]['1'] == True:
@@ -1594,16 +1678,16 @@ def test_fourth():
     elif session['local_stages'][session['stage']][0][2:] == '26.2':
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         if session['local_stages'][session['stage']][0] == 'fa26.2':
             if session['local_progress'][session['stage']]['1'] == True:
@@ -1620,16 +1704,16 @@ def test_fourth():
     elif session['local_stages'][session['stage']][0][2:] == '26.3':
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         if session['local_stages'][session['stage']][0] == 'fa26.3':
             if session['local_progress'][session['stage']]['1'] == True:
@@ -1644,19 +1728,19 @@ def test_fourth():
         if body_p == None:
             return redirect('/to_beginning', 301)
 
-        session['local_stages'][session['stage']][1]['attr']['info']['text'][0] = f'ЧСС выше {farm["css"][body_p][1]} в мин?'
+        info_text[0] = f'ЧСС выше {farm["css"][body_p][1]} в мин?'
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-success btn2641 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-success btn2642 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-success btn2641 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-success btn2642 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn2641 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-success btn2642 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn2641 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-success btn2642 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         if session['local_stages'][session['stage']][0] == 'fa26.4':
             if session['local_progress'][session['stage']]['1'] == True:
@@ -1667,16 +1751,16 @@ def test_fourth():
     elif session['local_stages'][session['stage']][0][2:] == '26.5':
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         if session['local_stages'][session['stage']][0] == 'ia26.5':
             if session['local_progress'][session['stage']]['1'] == True:
@@ -1687,16 +1771,16 @@ def test_fourth():
     elif session['local_stages'][session['stage']][0][2:] == '27.4':
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         if session['local_stages'][session['stage']][0] == 'ha27.4':
             if session['local_progress'][session['stage']]['1'] == True:
@@ -1737,16 +1821,16 @@ def test_fourth():
     elif session['local_stages'][session['stage']][0][2:] == '28.1':
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         if session['local_stages'][session['stage']][0] == 'ha28.1':
             if session['local_progress'][session['stage']]['1'] == True:
@@ -1763,16 +1847,16 @@ def test_fourth():
     elif session['local_stages'][session['stage']][0][2:] == '28.2':
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         if session['local_stages'][session['stage']][0] == 'ha28.2':
             if session['local_progress'][session['stage']]['1'] == True:
@@ -1789,16 +1873,16 @@ def test_fourth():
     elif session['local_stages'][session['stage']][0][2:] == '29':
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-danger btn191 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-success btn192 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-danger btn191 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-success btn192 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-danger btn191 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-success btn192 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-outline-danger btn191 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-success btn192 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         if session['local_stages'][session['stage']][0] == 'ja29':
             if session['local_progress'][session['stage']]['1'] == True:
@@ -1815,16 +1899,16 @@ def test_fourth():
     elif session['local_stages'][session['stage']][0][2:] == '30':
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-danger btn191 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-success btn192 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-danger btn191 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-success btn192 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-danger btn191 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-success btn192 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-outline-danger btn191 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-success btn192 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         if session['local_stages'][session['stage']][0] == 'ja30':
             if session['local_progress'][session['stage']]['1'] == True:
@@ -1835,16 +1919,16 @@ def test_fourth():
     elif session['local_stages'][session['stage']][0][2:] == '31':
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-danger btn191 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-success btn192 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-danger btn191 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-success btn192 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-danger btn191 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-success btn192 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-outline-danger btn191 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-success btn192 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         if session['local_stages'][session['stage']][0] == 'ja31':
             if session['local_progress'][session['stage']]['1'] == True:
@@ -1855,16 +1939,16 @@ def test_fourth():
     elif session['local_stages'][session['stage']][0][2:] == '32':
 
         if session['local_progress'][session['stage']]['1'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-outline-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         elif session['local_progress'][session['stage']]['2'] == True:
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][0] = f'btn btn-lg btn-outline-success btn181 w-100'
-            session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][1] = f'btn btn-lg btn-danger btn182 w-100'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2] = 'btn btn-lg btn-success w-100 btn-next'
-            session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2] = 'Далее'
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
 
         if session['local_stages'][session['stage']][0] == 'ha32':
             if session['local_progress'][session['stage']]['1'] == True:
@@ -1872,11 +1956,11 @@ def test_fourth():
             elif session['local_progress'][session['stage']]['2'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'hb28.1'
 
-    info.append((session['local_stages'][session['stage']][1]['attr']['info']['styles'][0], session['local_stages'][session['stage']][1]['attr']['info']['text'][0]))
+    info.append((info_styles[0], info_text[0]))
     for i in session['local_progress'][session['stage']].keys():
-        data.append((session['local_stages'][session['stage']][1]['attr']['buttons']['styles'][int(i) - 1], session['local_stages'][session['stage']][1]['attr']['buttons']['text'][int(i) - 1]))
-    navigation.append((session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][1], session['local_stages'][session['stage']][1]['attr']['navigation']['text'][1], session['local_stages'][session['stage']][1]['attr']['navigation']['links'][1]))
-    navigation.append((session['local_stages'][session['stage']][1]['attr']['navigation']['styles'][2], session['local_stages'][session['stage']][1]['attr']['navigation']['text'][2], session['local_stages'][session['stage']][1]['attr']['navigation']['links'][2]))
+        data.append((buttons_styles[int(i) - 1], buttons_text[int(i) - 1]))
+    navigation.append((navigation_styles[1], navigation_text[1], navigation_links[1]))
+    navigation.append((navigation_styles[2], navigation_text[2], navigation_links[2]))
 
     if current_user.is_authenticated:
         menu = DBApi().getMenu(True, current_user.is_admin())

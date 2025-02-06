@@ -21,9 +21,7 @@ class DBApi():
 
     def user_registration(self, user_name_reg: str, user_email_reg: str, user_phone_reg: str, months: str = '1'):
 
-        
-
-        with Session(autoflush=False, bind=create_engine(f'mysql://{os.getenv("ADMIN_NAME")}:{os.getenv("ADMIN_PASSWORD")}@{os.getenv("HOST")}/{os.getenv("DB_NAME")}')) as db:
+        with Session(autoflush=False, bind=create_engine(f'{os.getenv("DB_TYPE")}://{os.getenv("ADMIN_NAME")}:{os.getenv("ADMIN_PASSWORD")}@{os.getenv("HOST")}/{os.getenv("DB_NAME")}')) as db:
 
             exist_user = db.query(User).filter(User.email==user_email_reg).first()
             if exist_user == None:
@@ -42,7 +40,7 @@ class DBApi():
                 db.add(User(name=user_name_reg, phone_number=user_phone_reg, email=user_email_reg, login=login, solt=solt, password=h.hexdigest(), isAdmin=False, device='', registration_time=date.strftime('%Y-%m-%d %H:%M:%S'), subscribe_time=total_date.strftime('%Y-%m-%d %H:%M:%S')))
                 db.commit()
 
-                return f'Зарегестрировано, login: {login}, password: {password}'
+                return login, password, ''
                     
             else:      
                 
@@ -51,12 +49,12 @@ class DBApi():
                 exist_user.subscribe_time = total_date.strftime('%Y-%m-%d %H:%M:%S')
                 db.commit()
 
-                return 'Пользователь продлен'
+                return login, '', 'Пользователь продлен'
 
 
     def user_autorization(self, user_login_auto: str, user_pass_auto: str, user_agent: str):
 
-        with Session(autoflush=False, bind=create_engine(f'mysql://{os.getenv("ADMIN_NAME")}:{os.getenv("ADMIN_PASSWORD")}@{os.getenv("HOST")}/{os.getenv("DB_NAME")}')) as db:
+        with Session(autoflush=False, bind=create_engine(f'{os.getenv("DB_TYPE")}://{os.getenv("ADMIN_NAME")}:{os.getenv("ADMIN_PASSWORD")}@{os.getenv("HOST")}/{os.getenv("DB_NAME")}')) as db:
 
             user = db.query(User).filter(User.login==user_login_auto).first()
             if user != None:
@@ -66,33 +64,50 @@ class DBApi():
 
                 if user.password == h.hexdigest():
 
+                    if user.device == 'all':
+                        return {'id':user.record_id, 'login':user.login, 'is_admin':user.isAdmin}
+
                     if datetime.strptime(user.subscribe_time, '%Y-%m-%d %H:%M:%S') > datetime.now():
 
                         new_addr = user_agent['string'] + '$' + user_agent['addr']
 
-                        print(new_addr)
-                        print(user.device.split('%'))
+                        devices = user.device.split('%')
 
-                        if user.device == 'all':
-                            return {'id':user.record_id, 'login':user.login, 'is_admin':user.isAdmin}
+                        i = len(devices) - 1
 
-                        elif user.device.split('%')[0] == '':
-                            user.device = new_addr
+                        if devices[0] != '':
+
+                            while i >= 0:
+                                if datetime.strptime(devices[i][len(devices[i])-19:], '%Y-%m-%d %H:%M:%S') < datetime.now() - timedelta(hours=2):
+                                    devices.pop(i)
+                                i -= 1
+
+                        if len(devices) == 0:
+                            devices = ['']
+
+                        user.device = devices
+                        db.commit()
+
+                        for i in range(len(devices)):
+                            devices[i] = devices[i][:len(devices[i])-20]
+
+                        if devices[0] == '':
+                            user.device = new_addr + '$' + datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                             db.commit()
                             return {'id':user.record_id, 'login':user.login, 'is_admin':user.isAdmin}
 
-                        elif new_addr in user.device.split('%') and len(user.device.split('%')) == 1:
+                        elif new_addr in devices and len(devices) == 1:
                             return {'id':user.record_id, 'login':user.login, 'is_admin':user.isAdmin}
 
-                        elif new_addr in user.device.split('%') and len(user.device.split('%')) == 2:
+                        elif new_addr in devices and len(devices) == 2:
                             return {'id':user.record_id, 'login':user.login, 'is_admin':user.isAdmin}
 
-                        elif new_addr not in user.device.split('%') and len(user.device.split('%')) == 1:
-                            user.device += '%' + new_addr
+                        elif new_addr not in devices and len(devices) == 1:
+                            user.device += '%' + new_addr + '$' + datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                             db.commit()
                             return {'id':user.record_id, 'login':user.login, 'is_admin':user.isAdmin}
 
-                        elif user_agent not in user.device.split('%') and len(user.device.split('%')) == 2:
+                        elif new_addr not in devices and len(devices) == 2:
                             return 'Превышено число подключенных устройств!'
 
                         else:
@@ -109,7 +124,7 @@ class DBApi():
 
     def getUserInfo(self, user_id):
 
-        with Session(autoflush=False, bind=create_engine(f'mysql://{os.getenv("ADMIN_NAME")}:{os.getenv("ADMIN_PASSWORD")}@{os.getenv("HOST")}/{os.getenv("DB_NAME")}')) as db:
+        with Session(autoflush=False, bind=create_engine(f'{os.getenv("DB_TYPE")}://{os.getenv("ADMIN_NAME")}:{os.getenv("ADMIN_PASSWORD")}@{os.getenv("HOST")}/{os.getenv("DB_NAME")}')) as db:
 
             user = db.query(User).filter(User.record_id==user_id).first()
             if user != None:
@@ -119,15 +134,13 @@ class DBApi():
             
     def getUserSessions(self, user_id):
 
-        with Session(autoflush=False, bind=create_engine(f'mysql://{os.getenv("ADMIN_NAME")}:{os.getenv("ADMIN_PASSWORD")}@{os.getenv("HOST")}/{os.getenv("DB_NAME")}')) as db:
+        with Session(autoflush=False, bind=create_engine(f'{os.getenv("DB_TYPE")}://{os.getenv("ADMIN_NAME")}:{os.getenv("ADMIN_PASSWORD")}@{os.getenv("HOST")}/{os.getenv("DB_NAME")}')) as db:
 
             user = db.query(User).filter(User.record_id==user_id).first()
 
             if user != None:
 
                 sessions = user.device
-
-                print(sessions.split('%'))
 
                 if sessions == 'all':
                     return [{'browser': 'all', 'os': 'all', 'addr': 'all'}] 
@@ -150,7 +163,7 @@ class DBApi():
                     return [{'browser': ua1['user_agent']['family'] + ' ' + ua1['user_agent']['major'] + '.' + ua1['user_agent']['minor'], 'os': ua1['os']['family'] + ' ' + ua1['os']['major'], 'addr': addr1},
                             {'browser': ua2['user_agent']['family'] + ' ' + ua2['user_agent']['major'] + '.' + ua2['user_agent']['minor'], 'os': ua2['os']['family'] + ' ' + ua2['os']['major'], 'addr': addr2}]
                 
-                print(sessions.split('%')[0].split('$'))
+                #print(sessions.split('%')[0].split('$'))
             else:
                 return None
 
@@ -158,7 +171,7 @@ class DBApi():
  
         menu_list = []
 
-        with Session(autoflush=False, bind=create_engine(f'mysql://{os.getenv("ADMIN_NAME")}:{os.getenv("ADMIN_PASSWORD")}@{os.getenv("HOST")}/{os.getenv("DB_NAME")}')) as db:
+        with Session(autoflush=False, bind=create_engine(f'{os.getenv("DB_TYPE")}://{os.getenv("ADMIN_NAME")}:{os.getenv("ADMIN_PASSWORD")}@{os.getenv("HOST")}/{os.getenv("DB_NAME")}')) as db:
 
             menu = db.query(App).filter(App.login==login, App.root==root).all()
 
@@ -169,31 +182,34 @@ class DBApi():
         
     def user_logout(self, user_id, user_agent):
          
-        with Session(autoflush=False, bind=create_engine(f'mysql://{os.getenv("ADMIN_NAME")}:{os.getenv("ADMIN_PASSWORD")}@{os.getenv("HOST")}/{os.getenv("DB_NAME")}')) as db:
+        with Session(autoflush=False, bind=create_engine(f'{os.getenv("DB_TYPE")}://{os.getenv("ADMIN_NAME")}:{os.getenv("ADMIN_PASSWORD")}@{os.getenv("HOST")}/{os.getenv("DB_NAME")}')) as db:
 
             user = db.query(User).filter(User.record_id==user_id).first()
 
             if user != None:
-                
-                sessions = user.device.split('%')
 
-                if sessions == ['all']:
+                if user.device == 'all':
                     return
+                
+                devices = user.device.split('%')
 
-                if user_agent['string'] + '$' + user_agent['addr'] in sessions:
+                for i in range(len(devices)):
+                    devices[i] = devices[i][:len(devices[i])-20]
 
-                    if len(sessions) == 1:
+                if user_agent['string'] + '$' + user_agent['addr'] in devices:
 
-                        if user_agent['string'] + '$' + user_agent['addr'] == sessions[0]:
+                    if len(devices) == 1:
+
+                        if user_agent['string'] + '$' + user_agent['addr'] == devices[0]:
                             user.device = ''
 
-                    elif len(sessions) == 2:
+                    elif len(devices) == 2:
 
-                        if user_agent['string'] + '$' + user_agent['addr'] == sessions[0]:
-                            user.device = sessions[1]
+                        if user_agent['string'] + '$' + user_agent['addr'] == devices[0]:
+                            user.device = user.device.split('%')[1]
 
-                        elif user_agent['string'] + '$' + user_agent['addr'] == sessions[1]:
-                            user.device = sessions[0]
+                        elif user_agent['string'] + '$' + user_agent['addr'] == devices[1]:
+                            user.device = user.device.split('%')[0]
 
                 else:
                     user.device = ''
@@ -218,7 +234,7 @@ if __name__ == '__main__':
     print(host)
     print(db)
 
-    with Session(autoflush=False, bind=create_engine(f'mysql://{name}:{password}@{host}/{db}')) as db:
+    with Session(autoflush=False, bind=create_engine(f'{os.getenv("DB_TYPE")}://{name}:{password}@{host}/{db}')) as db:
 
         exist_user = db.query(User).filter(User.login=='m_admin').first()
         if exist_user == None:

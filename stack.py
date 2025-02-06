@@ -4,16 +4,19 @@ class Stack():
         list.append(object)
 
     def pop(self, list):
+
         if self.is_empty(list):
             return None
 
-        result = list[len(self.list) - 1]
+        result = list[len(list) - 1]
         list = list[: len(list) - 1]
-        return list
+
+        return result, list
 
     def get(self, list):
         if self.is_empty(list):
             return None
+        
         result = list[len(list) - 1]
         return result
 
