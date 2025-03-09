@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     Base.metadata.create_all(bind=engine)
 
-    """
+    
     with Session(autoflush=False, bind=create_engine(f'mysql://{name}:{password}@{host}/{db}')) as db:
 
         db.add(App(frame_name='Главная', frame_url='/main', root = False, login = False))
@@ -53,14 +53,19 @@ if __name__ == '__main__':
         db.add(App(frame_name='Войти', frame_url='/login', root = False, login = False))
 
         db.add(App(frame_name='Главная', frame_url='/main', root = False, login = True))
+        db.add(App(frame_name='Оснащение и медикаменты', frame_url='/equipment_and_medicines', root = False, login = True))
         db.add(App(frame_name='Справка', frame_url='/info', root = False, login = True))
         db.add(App(frame_name='Учетная запись', frame_url='/profile', root = False, login = True))
+        
 
         db.add(App(frame_name='Главная', frame_url='/main', root = True, login = True))
+        db.add(App(frame_name='Оснащение и медикаменты', frame_url='/equipment_and_medicines', root = True, login = True))
         db.add(App(frame_name='Справка', frame_url='/info', root = True, login = True))
         db.add(App(frame_name='Учетная запись', frame_url='/profile', root = True, login = True))
-        db.add(App(frame_name='Регистрация', frame_url='/registration', root = True, login = True))
+        db.add(App(frame_name='Регистрация', frame_url='/registration', root = True, login = True))   
+        
+
         db.commit()
-    """
+
 
 

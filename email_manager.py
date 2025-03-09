@@ -23,9 +23,14 @@ def send_ya_mail(msg_info: dict):
         s.starttls()
         s.login(login, password)
         s.sendmail(msg['From'], msg_info["to"], msg.as_string())
+        s.sendmail(msg['From'], msg['From'], msg.as_string())
     except Exception as ex:
         error = ex
     finally:
         s.quit()
 
     return error
+
+
+if __name__ == '__main__':
+    print(send_ya_mail(msg_info={'to':'maihailovsky18@mail.ru', 'header': 'Данные учетной записи САВА', 'text':f'Логин: login\nПароль: password'}))

@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import render_template, request, redirect, flash, session, send_from_directory
+from flask import render_template, request, redirect, flash, session, send_from_directory, make_response
 from stages import stages, progress
 from email_manager import send_ya_mail
 from farm import farm
@@ -54,6 +54,16 @@ def body_params():
             return i
 
     return None
+
+
+@app.route('/robots.txt', methods=['GET'])
+def robots_txt():
+
+    response = make_response(open('static/robots.txt').read())
+    response.headers["Content-type"] = "text/plain"
+    
+    return response
+
 
 
 @app.errorhandler(404)
@@ -187,6 +197,21 @@ def info():
     return render_template('info.html', menu=menu)
 
 
+@app.route("/equipment_and_medicines", methods = ['GET', 'POST'])
+@login_required
+def equipment_and_medicines():
+
+    if current_user.is_authenticated:
+        menu = DBApi().getMenu(True, current_user.is_admin())
+    else:
+        menu = DBApi().getMenu(False, False)
+
+    for i in menu:
+        i.append('nav-link active') if i[0] == 'Оснащение и медикаменты' else i.append('nav-link')
+
+    return render_template('equipment_and_medicines.html', menu=menu)
+
+
 @app.route('/profile')
 @login_required
 def profile():
@@ -258,8 +283,12 @@ def next_stage():
         stk.push(session['stk'],'ca13.3')
     elif session['local_stages'][session['stage']][0] == 'da8' and next_atr == 'fb3.2':
         stk.push(session['stk'],'da13.3')
+    elif session['local_stages'][session['stage']][0] == 'da8' and next_atr == 'ga3.2':
+        stk.push(session['stk'], 'db13.1')
     elif session['local_stages'][session['stage']][0] == 'db8' and next_atr == 'fb3.2':
         stk.push(session['stk'], 'da24.6')
+    elif session['local_stages'][session['stage']][0] == 'db8' and next_atr == 'ga3.2':
+        stk.push(session['stk'], 'da18')
     elif session['local_stages'][session['stage']][0] == 'eh13.1' and next_atr == 'ga3.2':
         stk.push(session['stk'],'ea16')
     elif session['local_stages'][session['stage']][0] == 'eb8' and next_atr == 'ga3.2':
@@ -323,6 +352,27 @@ def prev_stage():
     elif session['local_stages'][session['stage']][0] == 'ga23':
         stk.push(session['stk'], 'ga23')
     if (session['local_stages'][session['stage']][0] == 'aa9.1' and stk.get(session['stk']) == 'fa23') or (session['local_stages'][session['stage']][0] == 'aa9.1' and stk.get(session['stk']) == 'ga23'):
+        _, session['stk'] = stk.pop(session['stk'])
+
+    if session['local_stages'][session['stage'] - 1][0] == 'ca8' and stk.get(session['stk']) == 'ca24.3':
+        _, session['stk'] = stk.pop(session['stk'])
+    elif session['local_stages'][session['stage'] - 1][0] == 'cb8' and stk.get(session['stk']) == 'ca13.3':
+        _, session['stk'] = stk.pop(session['stk'])
+    elif session['local_stages'][session['stage'] - 1][0] == 'da8' and stk.get(session['stk']) == 'da13.3':
+        _, session['stk'] = stk.pop(session['stk'])
+    elif session['local_stages'][session['stage'] - 1][0] == 'da8' and stk.get(session['stk']) == 'db13.1':
+        _, session['stk'] = stk.pop(session['stk'])
+    elif session['local_stages'][session['stage'] - 1][0] == 'db8' and stk.get(session['stk']) == 'da24.6':
+        _, session['stk'] = stk.pop(session['stk'])
+    elif session['local_stages'][session['stage'] - 1][0] == 'db8' and stk.get(session['stk']) == 'da18':
+        _, session['stk'] = stk.pop(session['stk'])
+    elif session['local_stages'][session['stage'] - 1][0] == 'eh13.1' and stk.get(session['stk']) == 'ea16':
+        _, session['stk'] = stk.pop(session['stk'])
+    elif session['local_stages'][session['stage'] - 1][0] == 'eb8' and stk.get(session['stk']) == 'ea16':
+        _, session['stk'] = stk.pop(session['stk'])
+    elif session['local_stages'][session['stage'] - 1][0] == 'fa4' and stk.get(session['stk']) == 'fb24.9':
+        _, session['stk'] = stk.pop(session['stk'])
+    elif session['local_stages'][session['stage'] - 1][0] == 'ga4' and stk.get(session['stk']) == 'ga18':
         _, session['stk'] = stk.pop(session['stk'])
 
     if session['local_flags']['flag_changes']:
@@ -390,7 +440,7 @@ def test_first():
         info_text[1] = f'При отсутствии сосудистого доступа внутримышечно ввести мидазолам {farm["midazolam"][body_p]} мл, либо диазепам {farm["diazepam"][body_p]} мл'
     elif session['local_stages'][session['stage']][0][2:] == '24.3':
         info_text[0] = f'Введите внутривенно/внутрикостно или (при отсутствии сосудистого доступа – внутримышечно) 1. Эпинефрин (адреналин) {farm["adrenalin_v"][body_p]} мл'
-        info_text[1] = f'2. Дексаметазон {farm["dexamethasone"][body_p]} мл или Преднизолон {farm["prednisolone"][body_p]} мл или Метилпреднизолон {farm["methylprednisolone"][body_p]} мг или Гидрокортизон {farm["hydrocortisone"][body_p]} мл (только внутримышечно)'
+        info_text[1] = f'Введите внутривенно/внутрикостно или (при отсутствии сосудистого доступа – внутримышечно) 2. Дексаметазон {farm["dexamethasone"][body_p]} мл или Преднизолон {farm["prednisolone"][body_p]} мл или Метилпреднизолон {farm["methylprednisolone"][body_p]} мг или Гидрокортизон {farm["hydrocortisone"][body_p]} мл (только внутримышечно)'
     elif session['local_stages'][session['stage']][0][2:] == '24.3.2':
         info_text[0] = f'Вводите внутривенно капельно или (при отсутствии сосудистого доступа – внутримышечно) Атропин {farm["atropin"][body_p]} мл в 10 мл (5 мл при внутримышечном введении) 0,9% раствора NaCl. Максимальное количество введений - два. Целевое ЧСС не менее {farm["css"][body_p][0]} в мин (при внутримышечном введении интервал 1 раз в 5 минут)'
     elif session['local_stages'][session['stage']][0][2:] == '24.3.3':
@@ -406,7 +456,7 @@ def test_first():
         info_text[0] = f'Введите ингаляционно через небулайзер 1. Сальбутамол {farm["salbutamol"][body_p]} доз'
     elif session['local_stages'][session['stage']][0][2:] == '24.6':
         info_text[0] = f'Введите внутривенно/внутрикостно или (при отсутствии сосудистого доступа – внутримышечно) 1.Аминофиллин (эуфиллин) {farm["eufillin"][body_p]} мл'
-        info_text[1] = f'2. Дексаметазон {farm["dexamethasone"][body_p]} мл или Преднизолон {farm["prednisolone"][body_p]} мл или Метилпреднизолон {farm["methylprednisolone"][body_p]} мг или Гидрокортизон {farm["hydrocortisone"][body_p]} мл (только внутримышечно)'
+        info_text[1] = f'Введите внутривенно/внутрикостно или (при отсутствии сосудистого доступа – внутримышечно) 2. Дексаметазон {farm["dexamethasone"][body_p]} мл или Преднизолон {farm["prednisolone"][body_p]} мл или Метилпреднизолон {farm["methylprednisolone"][body_p]} мг или Гидрокортизон {farm["hydrocortisone"][body_p]} мл (только внутримышечно)'
     elif session['local_stages'][session['stage']][0][2:] == '24.7.1':
         info_text[0] = f'Введите внутривенно или (при отсутствии сосудистого доступа – внутримышечно) Фуросемид {farm["furosemide"][body_p]} мл'
     elif session['local_stages'][session['stage']][0][2:] == '24.8':
@@ -419,7 +469,7 @@ def test_first():
         info_text[2] = f'Фуросемид {farm["furosemide"][body_p]} мл внутривенно'
     elif session['local_stages'][session['stage']][0][2:] == '24.9':
         info_text[0] = f'Важно! Только при ДаД выше 120 мм.рт.ст. АД снижать на 10-15% Введите внутривенно/внутрикостно Урапидил 12, 5 мг в/в медленно, далее капельно (у пациентов старше 18 лет)'
-        info_text['text'][1] = f'Сульфат магнезии 25% {farm["magnesia_sulfate"][body_p]} мл в/в медленно'
+        info_text[1] = f'Сульфат магнезии 25% {farm["magnesia_sulfate"][body_p]} мл в/в медленно'
     elif session['local_stages'][session['stage']][0][2:] == '28.5':
         info_text[0] = f'Присоедините к лицевой маске (размер #{farm["face_mask"][body_p]}) или установленной ларингеальной маске ( размер #{farm["i-gel"][body_p]}) дыхательный мешок'
     elif session['local_stages'][session['stage']][0][2:] == '28.7':
@@ -1287,7 +1337,7 @@ def test_fourth():
             elif session['local_progress'][session['stage']]['2'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'fb3.2'
             elif session['local_progress'][session['stage']]['3'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'db13.1'
+                session['local_stages'][session['stage']][1]['next'] = 'ga3.2'
             elif session['local_progress'][session['stage']]['4'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'ha13.2'
 
@@ -1297,7 +1347,7 @@ def test_fourth():
             elif session['local_progress'][session['stage']]['2'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'fb3.2'
             elif session['local_progress'][session['stage']]['3'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'da18'
+                session['local_stages'][session['stage']][1]['next'] = 'ga3.2'
             elif session['local_progress'][session['stage']]['4'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'ha13.2'
 
