@@ -131,7 +131,7 @@ def registration():
             else:
                 login, password, msg = DBApi().user_registration(request.form['name'], request.form['email'], request.form['phone'], request.form['time'])
                 if msg == '':
-                    msg = send_ya_mail(msg_info={'to':request.form['email'], 'header': 'Данные учетной записи САВА', 'text':f'Логин: {login}\nПароль: {password}'})
+                    msg = send_ya_mail(msg_info={'to':request.form['email'], 'header': 'Данные учетной записи САВА', 'text':f'Логин: {login}\nПароль: {password}\nАдрес: https://caba-urgent-care.ru/'})
                     if msg == "Success":
                         flash(f'Зарегестрировано, login: {login}, password: {password}', "alert alert-success alert-dismissible fade show text-center")
                     else:
