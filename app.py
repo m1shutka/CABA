@@ -209,6 +209,8 @@ def equipment_and_medicines():
     for i in menu:
         i.append('nav-link active') if i[0] == 'Оснащение и медикаменты' else i.append('nav-link')
 
+    session['local_flags']['manipulations'] = True
+
     return render_template('equipment_and_medicines.html', menu=menu)
 
 
@@ -230,6 +232,57 @@ def profile():
     return render_template('profile.html', menu=menu, user_login=user_login, sessions=sessions)
 
 
+@app.route('/manipulations/<manipulation>')
+@login_required
+def manipulations(manipulation):
+
+    if current_user.is_authenticated:
+        menu = DBApi().getMenu(True, current_user.is_admin())
+    else:
+        menu = DBApi().getMenu(False, False)
+
+    for i in menu:
+        i.append('nav-link active') if i[0] == 'Алгоритмы манипуляций' else i.append('nav-link')
+
+    if manipulation == 'ivlr':
+        header = 'ИВЛ рот в рот'
+        content = ['/static/images/IVLr1.png', '/static/images/IVLr2.png', '/static/images/IVLr3.png', '/static/images/IVLr4.png', '/static/images/IVLr5.png', '/static/images/IVLr6.png']
+    elif manipulation == 'ivlfm':
+        header = 'ИВЛ (лицевая маска)'
+        content = ['/static/images/IVLfm1.png', '/static/images/IVLfm2.png', '/static/images/IVLfm3.png', '/static/images/IVLfm4.png', '/static/images/IVLfm5.png', '/static/images/IVLfm6.png', '/static/images/IVLfm7.png']
+    elif manipulation == 'ivllm':
+        header = 'ИВЛ (ларингеальная маска)'
+        content = ['/static/images/IVLlm1.png', '/static/images/IVLlm2.png', '/static/images/IVLlm3.png', '/static/images/IVLlm4.png', '/static/images/IVLlm5.png', '/static/images/IVLlm6.png', '/static/images/IVLlm7.png']
+    elif manipulation == 'tps':
+        header = 'Тройной прием Сафара'
+        content = ['/static/images/TPS1.png', '/static/images/TPS2.png', '/static/images/TPS3.png', '/static/images/TPS4.png']
+    elif manipulation == 'ulm':
+        header = 'Установка ларингеальной маски'
+        content = ['/static/images/ULM1.png', '/static/images/ULM2.png', '/static/images/ULM3.png', '/static/images/ULM4.png', '/static/images/ULM5.png', '/static/images/ULM6.png']
+    elif manipulation == 'uv':
+        header = 'Установка воздуховода'
+        content = ['/static/images/UV1.png', '/static/images/UV2.png', '/static/images/UV3.png', '/static/images/UV4.png', '/static/images/UV5.png']
+
+    return render_template('manipulation.html', menu=menu, header=header, content=content)
+
+
+@app.route('/manipulations_menu')
+@login_required
+def manipulations_menu():
+
+    if current_user.is_authenticated:
+        menu = DBApi().getMenu(True, current_user.is_admin())
+    else:
+        menu = DBApi().getMenu(False, False)
+
+    for i in menu:
+        i.append('nav-link active') if i[0] == 'Алгоритмы манипуляций' else i.append('nav-link')
+
+    session['local_flags']['manipulations'] = True
+
+    return render_template('manipulations_menu.html', menu=menu)
+
+
 @app.route('/logout')
 @login_required
 def logout():
@@ -243,13 +296,23 @@ def logout():
 
 
 @app.route("/main")
+def sub_main():
+
+    if session['local_flags']['manipulations'] and len(session['local_progress']) > 1:
+        session['local_flags']['manipulations'] = False
+        return redirect(stages[session['local_stages'][session['stage']][0]]['attr']['base_url'], 301)
+    else:
+        return redirect('/', 301)
+
+
+
 @app.route("/")
 def main():
 
     session['stage'] = 0
     session['local_stages'] = [['aa0', {'prev': stages['aa0']['prev'], 'next': stages['aa0']['next']}]]
     session['local_progress'] = [{'1': False}]
-    session['local_flags'] = {'flag_changes': False}
+    session['local_flags'] = {'flag_changes': False, 'manipulations':False}
     session['local_changes'] = []
     session['stk'] = []
     session['timing'] = [datetime.now().strftime("%H:%M:%S")]
@@ -524,7 +587,7 @@ def test_first():
         menu = DBApi().getMenu(False, False)
 
     for i in menu:
-        i.append('nav-link active') if i[0] == 'Главная' else i.append('nav-link')
+        i.append('nav-link')
     
     return render_template("test1.html", data=data, navigation=navigation, len=len, str=str, menu=menu)
 
@@ -578,7 +641,7 @@ def test_second():
         menu = DBApi().getMenu(False, False)
 
     for i in menu:
-        i.append('nav-link active') if i[0] == 'Главная' else i.append('nav-link')
+        i.append('nav-link')
 
     return render_template("test2.html", data=data, navigation=navigation, menu=menu)
 
@@ -1033,7 +1096,7 @@ def test_third():
         menu = DBApi().getMenu(False, False)
 
     for i in menu:
-        i.append('nav-link active') if i[0] == 'Главная' else i.append('nav-link')
+        i.append('nav-link')
 
     return render_template("test3.html", data=data, navigation=navigation, menu=menu)
 
@@ -2018,7 +2081,7 @@ def test_fourth():
         menu = DBApi().getMenu(False, False)
 
     for i in menu:
-        i.append('nav-link active') if i[0] == 'Главная' else i.append('nav-link')
+        i.append('nav-link')
 
     return render_template("test4.html", info=info, data=data, navigation=navigation, menu=menu)
 
