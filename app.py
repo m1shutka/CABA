@@ -262,6 +262,18 @@ def manipulations(manipulation):
     elif manipulation == 'uv':
         header = 'Установка воздуховода'
         content = ['/static/images/UV1.png', '/static/images/UV2.png', '/static/images/UV3.png', '/static/images/UV4.png', '/static/images/UV5.png']
+    elif manipulation == 'vvd':
+        header = 'Выполнение внутрикостного доступа'
+        content = ['/static/images/VVD1.png', '/static/images/VVD2.png', '/static/images/VVD3.png', '/static/images/VVD4.png', '/static/images/VVD5.png', '/static/images/VVD6.png', '/static/images/VVD7.png', '/static/images/VVD8.png']
+    elif manipulation == 'kpv':
+        header = 'Катетеризация периферической вены'
+        content = ['/static/images/KPV1.png', '/static/images/KPV2.png', '/static/images/KPV3.png', '/static/images/KPV4.png', '/static/images/KPV5.png', '/static/images/KPV6.png', '/static/images/KPV7.png']
+    elif manipulation == 'iand':
+        header = 'Использование АНД'
+        content = ['/static/images/Iand1.png', '/static/images/Iand2.png', '/static/images/Iand3.png', '/static/images/Iand4.png']
+    elif manipulation == 'kgk':
+        header = 'Компрессии грудной клетки'
+        content = ['/static/images/KGK1.png', '/static/images/KGK2.png', '/static/images/KGK3.png']
 
     return render_template('manipulation.html', menu=menu, header=header, content=content)
 
@@ -298,7 +310,7 @@ def logout():
 @app.route("/main")
 def sub_main():
 
-    if session['local_flags']['manipulations'] and len(session['local_progress']) > 1:
+    if 'local_flags' in session and session['local_flags']['manipulations'] and len(session['local_progress']) > 1:
         session['local_flags']['manipulations'] = False
         return redirect(stages[session['local_stages'][session['stage']][0]]['attr']['base_url'], 301)
     else:
@@ -467,7 +479,7 @@ def to_beginning():
     session['local_stages'] = session['local_stages'][:session['stage'] + 1]
     session['local_progress'] = session['local_progress'][:session['stage'] + 1]
     session['timing'] = session['timing'][:session['stage'] + 1]
-    session['local_flags'] = {'flag_changes': False}
+    session['local_flags'] = {'flag_changes': False, 'manipulations': False}
 
     return redirect('/next_stage')
 
