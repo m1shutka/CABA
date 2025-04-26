@@ -13,6 +13,7 @@ from datetime import timedelta, datetime
 from ua_parser import user_agent_parser
 import os
 from werkzeug.exceptions import HTTPException
+import traceback
 
 load_dotenv()
 
@@ -80,8 +81,11 @@ def pageNotFount(error):
     return render_template('error_page.html', menu=menu, error='Страница не найдена!'), 404
 
 
-#@app.errorhandler(Exception)
+@app.errorhandler(Exception)
 def handle_exception(e):
+
+    with open('log_file.txt', 'a') as file:
+        file.write(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}\n{e}\n{traceback.format_exc()}\n')
 
     if isinstance(e, HTTPException):
         return e
@@ -321,7 +325,7 @@ def sub_main():
 @app.route("/")
 def main():
 
-    session['stage'] = 0
+    session['stage'] = 2
     session['local_stages'] = [['aa0', {'prev': stages['aa0']['prev'], 'next': stages['aa0']['next']}]]
     session['local_progress'] = [{'1': False}]
     session['local_flags'] = {'flag_changes': False, 'manipulations':False}
@@ -345,33 +349,34 @@ def next_stage():
 
     next_atr = session['local_stages'][session['stage']][1]['next']
 
-    print( session['local_flags']['flag_changes'])
+    #print(session['local_flags']['flag_changes'])
     
-
-    if session['local_stages'][session['stage']][0] == 'fb13':
-        stk.push(session['stk'], 'fa23')
-    elif session['local_stages'][session['stage']][0] == 'ga13':
-        stk.push(session['stk'], 'ga23')
-    elif session['local_stages'][session['stage']][0] == 'ca8' and next_atr == 'fb3.2':
-        stk.push(session['stk'],'ca24.3')
-    elif session['local_stages'][session['stage']][0] == 'cb8' and next_atr == 'fb3.2':
-        stk.push(session['stk'],'ca13.3')
-    elif session['local_stages'][session['stage']][0] == 'da8' and next_atr == 'fb3.2':
-        stk.push(session['stk'],'da13.3')
-    elif session['local_stages'][session['stage']][0] == 'da8' and next_atr == 'ga3.2':
-        stk.push(session['stk'], 'db13.1')
-    elif session['local_stages'][session['stage']][0] == 'db8' and next_atr == 'fb3.2':
-        stk.push(session['stk'], 'da24.6')
-    elif session['local_stages'][session['stage']][0] == 'db8' and next_atr == 'ga3.2':
-        stk.push(session['stk'], 'da18')
-    elif session['local_stages'][session['stage']][0] == 'eh13.1' and next_atr == 'ga3.2':
+    #if session['local_stages'][session['stage']][0] == 'ga13':
+    #    stk.push(session['stk'], 'ga23')
+    #elif session['local_stages'][session['stage']][0] == 'fb13':
+    #    stk.push(session['stk'], 'fa23')
+    #elif session['local_stages'][session['stage']][0] == 'ca8' and next_atr == 'fb3.2':
+    #    stk.push(session['stk'],'ca24.3')
+    #elif session['local_stages'][session['stage']][0] == 'cb8' and next_atr == 'fb3.2':
+    #    stk.push(session['stk'],'ca13.3')
+    #elif session['local_stages'][session['stage']][0] == 'da8' and next_atr == 'fb3.2':
+    #    stk.push(session['stk'],'da13.3')
+    #elif session['local_stages'][session['stage']][0] == 'da8' and next_atr == 'ga3.2':
+    #    stk.push(session['stk'], 'db13.1')
+    #elif session['local_stages'][session['stage']][0] == 'db8' and next_atr == 'fb3.2':
+    #    stk.push(session['stk'], 'da24.6')
+    #elif session['local_stages'][session['stage']][0] == 'db8' and next_atr == 'ga3.2':
+    #    stk.push(session['stk'], 'da18')
+    if session['local_stages'][session['stage']][0] == 'eh13.1' and next_atr == 'ga3.2':
         stk.push(session['stk'],'ea16')
+    elif session['local_stages'][session['stage']][0] == 'ea8' and next_atr == 'ga3.2':
+        stk.push(session['stk'], 'ea16')
     elif session['local_stages'][session['stage']][0] == 'eb8' and next_atr == 'ga3.2':
         stk.push(session['stk'], 'ea16')
-    elif session['local_stages'][session['stage']][0] == 'fa4' and next_atr == 'ca5':
-        stk.push(session['stk'],'fb24.9')
-    elif session['local_stages'][session['stage']][0] == 'ga4' and next_atr == 'ca5':
-        stk.push(session['stk'],'ga18')
+    #elif session['local_stages'][session['stage']][0] == 'fa4' and next_atr == 'ca5':
+    #    stk.push(session['stk'],'fb24.9')
+    #elif session['local_stages'][session['stage']][0] == 'ga4' and next_atr == 'ca5':
+    #    stk.push(session['stk'],'ga18')
 
     if next_atr == 'ba3.2' and stk.get(session['stk']) == 'fa23':
         next_atr, session['stk'] = stk.pop(session['stk'])
@@ -557,6 +562,7 @@ def test_first():
 
     true_count = 0
     for i in session['local_progress'][session['stage']].keys():
+
         if session['local_progress'][session['stage']][i] == True:
             buttons_text[int(i) - 1] = 'Выполнено'
             buttons_styles[int(i) - 1] = f'btn btn-lg btn-success btn{i} w-100'
@@ -960,96 +966,6 @@ def test_third():
             elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['4'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'id10.1'
 
-    elif session['local_stages'][session['stage']][0][2:] == '15':
-
-        if  session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['3'] == True:
-            buttons_left_styles[0] = f'btn btn-lg btn-success btn151 w-100'
-            buttons_left_styles[1] = f'btn btn-lg btn-success btn153 w-100'
-            buttons_right_styles[0] = f'btn btn-lg btn-outline-danger btn152 w-100'
-            buttons_right_styles[1] = f'btn btn-lg btn-outline-danger btn154 w-100'
-            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
-            navigation_text[2] = 'Далее'
-
-        elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['3'] == True:
-            buttons_left_styles[0] = f'btn btn-lg btn-outline-success btn151 w-100'
-            buttons_left_styles[1] = f'btn btn-lg btn-success btn153 w-100'
-            buttons_right_styles[0] = f'btn btn-lg btn-danger btn152 w-100'
-            buttons_right_styles[1] = f'btn btn-lg btn-outline-danger btn154 w-100'
-            navigation_styles[2] = 'btn btn-lg btn-warning w-100 btn-next'
-            navigation_text[2] = 'Далее'
-
-        elif session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['4'] == True:
-            buttons_left_styles[0] = f'btn btn-lg btn-success btn151 w-100'
-            buttons_left_styles[1] = f'btn btn-lg btn-outline-success btn153 w-100'
-            buttons_right_styles[0] = f'btn btn-lg btn-outline-danger btn152 w-100'
-            buttons_right_styles[1] = f'btn btn-lg btn-danger btn154 w-100'
-            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
-            navigation_text[2] = 'Далее'
-
-        elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['4'] == True:
-            buttons_left_styles[0] = f'btn btn-lg btn-outline-success btn151 w-100'
-            buttons_left_styles[1] = f'btn btn-lg btn-outline-success btn153 w-100'
-            buttons_right_styles[0] = f'btn btn-lg btn-danger btn152 w-100'
-            buttons_right_styles[1] = f'btn btn-lg btn-danger btn154 w-100'
-            navigation_styles[2] = 'btn btn-lg btn-warning w-100 btn-next'
-            navigation_text[2] = 'Далее'
-
-        if session['local_stages'][session['stage']][0] == 'ba15':
-            if  session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['3'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'fa6'
-                session['local_flags']['15'] = '15.1'
-            elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['3'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'bb17'
-                session['local_flags']['15'] = '15.3'
-            elif session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['4'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'bb16'
-                session['local_flags']['15'] = '15.2'
-            elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['4'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'ba17'
-                session['local_flags']['15'] = '15.4'
-
-        elif session['local_stages'][session['stage']][0] == 'fa15':
-            if  session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['3'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'fb18'
-                session['local_flags']['15'] = '15.1'
-            elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['3'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'fa14'
-                session['local_flags']['15'] = '15.3'
-            elif session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['4'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'fa16'
-                session['local_flags']['15'] = '15.2'
-            elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['4'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'fa14'
-                session['local_flags']['15'] = '15.4'
-
-        elif session['local_stages'][session['stage']][0] == 'fb15':
-            if  session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['3'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'fd18'
-                session['local_flags']['15'] = '15.1'
-            elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['3'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'fa17'
-                session['local_flags']['15'] = '15.3'
-            elif session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['4'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'fc16'
-                session['local_flags']['15'] = '15.2'
-            elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['4'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'fb17'
-                session['local_flags']['15'] = '15.4'
-
-        elif session['local_stages'][session['stage']][0] == 'ga15':
-            if  session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['3'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'ga18'
-                session['local_flags']['15'] = '15.1'
-            elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['3'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'gb17'
-                session['local_flags']['15'] = '15.3'
-            elif session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['4'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'gb16'
-                session['local_flags']['15'] = '15.2'
-            elif session['local_progress'][session['stage']]['2'] == True and session['local_progress'][session['stage']]['4'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'ga17'
-                session['local_flags']['15'] = '15.4'
-
     elif session['local_stages'][session['stage']][0][2:] == '23.1':
 
         if  session['local_progress'][session['stage']]['1'] == True and session['local_progress'][session['stage']]['3'] == True:
@@ -1184,7 +1100,7 @@ def test_fourth():
                 session['local_stages'][session['stage']][1]['next'] = 'fa13'
             elif session['local_progress'][session['stage']]['2'] == True:
                 navigation_text[2] = 'Далее'
-                session['local_stages'][session['stage']][1]['next'] = 'aa9'
+                session['local_stages'][session['stage']][1]['next'] = 'fx10.1'
 
         elif session['local_stages'][session['stage']][0] == 'fb3.2':
             if session['local_progress'][session['stage']]['1'] == True:
@@ -1238,21 +1154,21 @@ def test_fourth():
 
         if session['local_stages'][session['stage']][0] == 'ba4':
             if session['local_progress'][session['stage']]['1'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'fa6'
+                session['local_stages'][session['stage']][1]['next'] = 'ba13'
             elif session['local_progress'][session['stage']]['2'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'ba13.2'
             elif session['local_progress'][session['stage']]['3'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'fa6'
+                session['local_stages'][session['stage']][1]['next'] = 'ba13'
             elif session['local_progress'][session['stage']]['4'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'ha13.2'
 
         elif session['local_stages'][session['stage']][0] == 'bb4':
             if session['local_progress'][session['stage']]['1'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'fa6'
+                session['local_stages'][session['stage']][1]['next'] = 'bc7.3'
             elif session['local_progress'][session['stage']]['2'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'ba13.2'
             elif session['local_progress'][session['stage']]['3'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'ca5'
+                session['local_stages'][session['stage']][1]['next'] = 'bd7.3'
             elif session['local_progress'][session['stage']]['4'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'ha13.2'
 
@@ -1390,7 +1306,7 @@ def test_fourth():
             if session['local_progress'][session['stage']]['1'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'ca18'
             elif session['local_progress'][session['stage']]['2'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'fb3.2'
+                session['local_stages'][session['stage']][1]['next'] = 'ca18'
             elif session['local_progress'][session['stage']]['3'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'ca18'
             elif session['local_progress'][session['stage']]['4'] == True:
@@ -1400,7 +1316,7 @@ def test_fourth():
             if session['local_progress'][session['stage']]['1'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'ca13.3'
             elif session['local_progress'][session['stage']]['2'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'fb3.2'
+                session['local_stages'][session['stage']][1]['next'] = 'ca13.3'
             elif session['local_progress'][session['stage']]['3'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'cb13.1'
             elif session['local_progress'][session['stage']]['4'] == True:
@@ -1410,7 +1326,7 @@ def test_fourth():
             if session['local_progress'][session['stage']]['1'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'da13.3'
             elif session['local_progress'][session['stage']]['2'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'fb3.2'
+                session['local_stages'][session['stage']][1]['next'] = 'da13.3'
             elif session['local_progress'][session['stage']]['3'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'ga3.2'
             elif session['local_progress'][session['stage']]['4'] == True:
@@ -1420,7 +1336,7 @@ def test_fourth():
             if session['local_progress'][session['stage']]['1'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'da18'
             elif session['local_progress'][session['stage']]['2'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'fb3.2'
+                session['local_stages'][session['stage']][1]['next'] = 'da18'
             elif session['local_progress'][session['stage']]['3'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'ga3.2'
             elif session['local_progress'][session['stage']]['4'] == True:
@@ -1432,7 +1348,7 @@ def test_fourth():
             elif session['local_progress'][session['stage']]['2'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'ea13.3'
             elif session['local_progress'][session['stage']]['3'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'eb13.1'
+                session['local_stages'][session['stage']][1]['next'] = 'ga3.2'
             elif session['local_progress'][session['stage']]['4'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'ha13.2'
 
@@ -1475,6 +1391,98 @@ def test_fourth():
                 session['local_stages'][session['stage']][1]['next'] = 'ia13.4'
             elif session['local_progress'][session['stage']]['4'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'ha13.2'
+
+    elif session['local_stages'][session['stage']][0][2:] == '15':
+
+        if  session['local_progress'][session['stage']]['1'] == True:
+            buttons_styles[0] = f'btn btn-lg btn-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
+
+        elif session['local_progress'][session['stage']]['2'] == True:
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
+
+        if session['local_stages'][session['stage']][0] == 'ba15':
+            if  session['local_progress'][session['stage']]['1'] == True:
+                session['local_stages'][session['stage']][1]['next'] = 'ba3.2'
+                session['local_flags']['15'] = '15.1'
+            elif session['local_progress'][session['stage']]['2'] == True:
+                session['local_stages'][session['stage']][1]['next'] = 'ba17'
+                session['local_flags']['15'] = '15.2'
+
+        elif session['local_stages'][session['stage']][0] == 'fa15':
+            if  session['local_progress'][session['stage']]['1'] == True:
+                session['local_stages'][session['stage']][1]['next'] = 'fb18'###
+                session['local_flags']['15'] = '15.1'
+            elif session['local_progress'][session['stage']]['2'] == True:
+                session['local_stages'][session['stage']][1]['next'] = 'fa14'###
+                session['local_flags']['15'] = '15.3'
+
+        elif session['local_stages'][session['stage']][0] == 'fb15':
+            if  session['local_progress'][session['stage']]['1'] == True:
+                session['local_stages'][session['stage']][1]['next'] = 'fd18'###
+                session['local_flags']['15'] = '15.1'
+            elif session['local_progress'][session['stage']]['2'] == True:
+                session['local_stages'][session['stage']][1]['next'] = 'fa17'###
+                session['local_flags']['15'] = '15.3'
+
+        elif session['local_stages'][session['stage']][0] == 'ga15':
+            if  session['local_progress'][session['stage']]['1'] == True:
+                session['local_stages'][session['stage']][1]['next'] = 'ga18'###
+                session['local_flags']['15'] = '15.1'
+            elif session['local_progress'][session['stage']]['2'] == True:
+                session['local_stages'][session['stage']][1]['next'] = 'gb17'###
+                session['local_flags']['15'] = '15.3'
+
+    elif session['local_stages'][session['stage']][0][2:] == '15.1':
+
+        if  session['local_progress'][session['stage']]['1'] == True:
+            buttons_styles[0] = f'btn btn-lg btn-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-outline-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
+
+        elif session['local_progress'][session['stage']]['2'] == True:
+            buttons_styles[0] = f'btn btn-lg btn-outline-success btn181 w-100'
+            buttons_styles[1] = f'btn btn-lg btn-danger btn182 w-100'
+            navigation_styles[2] = 'btn btn-lg btn-success w-100 btn-next'
+            navigation_text[2] = 'Далее'
+
+        if session['local_stages'][session['stage']][0] == 'ba15.1':
+            if  session['local_progress'][session['stage']]['1'] == True:
+                session['local_stages'][session['stage']][1]['next'] = 'fa6'
+                session['local_flags']['15'] = '15.1'
+            elif session['local_progress'][session['stage']]['2'] == True:
+                session['local_stages'][session['stage']][1]['next'] = 'ba16'
+                session['local_flags']['15'] = '15.2'
+
+        elif session['local_stages'][session['stage']][0] == 'bb15.1':
+            if  session['local_progress'][session['stage']]['1'] == True:
+                session['local_stages'][session['stage']][1]['next'] = 'ba15'
+                session['local_flags']['15'] = '15.1'
+            elif session['local_progress'][session['stage']]['2'] == True:
+                session['local_stages'][session['stage']][1]['next'] = 'bb16'
+                session['local_flags']['15'] = '15.2'
+
+        elif session['local_stages'][session['stage']][0] == 'bc15.1':
+            if  session['local_progress'][session['stage']]['1'] == True:
+                session['local_stages'][session['stage']][1]['next'] = 'fa6'
+                session['local_flags']['15'] = '15.1'
+            elif session['local_progress'][session['stage']]['2'] == True:
+                session['local_stages'][session['stage']][1]['next'] = 'bc16'
+                session['local_flags']['15'] = '15.2'
+
+        elif session['local_stages'][session['stage']][0] == 'bd15.1':
+            if  session['local_progress'][session['stage']]['1'] == True:
+                session['local_stages'][session['stage']][1]['next'] = 'ca5'
+                session['local_flags']['15'] = '15.1'
+            elif session['local_progress'][session['stage']]['2'] == True:
+                session['local_stages'][session['stage']][1]['next'] = 'bd16'
+                session['local_flags']['15'] = '15.2'
 
     elif session['local_stages'][session['stage']][0][2:] == '18.1':
 
@@ -1574,7 +1582,7 @@ def test_fourth():
             if session['local_progress'][session['stage']]['1'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'cb7'
             elif session['local_progress'][session['stage']]['2'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'ca13.1'
+                session['local_stages'][session['stage']][1]['next'] = 'ca13.4'
 
         elif session['local_stages'][session['stage']][0] == 'da23':
             if session['local_progress'][session['stage']]['1'] == True:
@@ -1610,7 +1618,7 @@ def test_fourth():
             if session['local_progress'][session['stage']]['1'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'fa23.1'
             elif session['local_progress'][session['stage']]['2'] == True:   
-                session['local_stages'][session['stage']][1]['next'] = 'fa13.4'
+                session['local_stages'][session['stage']][1]['next'] = 'fb13.4'
 
         elif session['local_stages'][session['stage']][0] == 'fb23':
             if session['local_progress'][session['stage']]['1'] == True:
@@ -1641,6 +1649,12 @@ def test_fourth():
                 session['local_stages'][session['stage']][1]['next'] = 'ff12'
             elif session['local_progress'][session['stage']]['2'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'fe9'
+
+        elif session['local_stages'][session['stage']][0] == 'fg23':
+            if session['local_progress'][session['stage']]['1'] == True:
+                session['local_stages'][session['stage']][1]['next'] = 'fg12'
+            elif session['local_progress'][session['stage']]['2'] == True:
+                session['local_stages'][session['stage']][1]['next'] = 'ff9'
 
         elif session['local_stages'][session['stage']][0] == 'ga23':
             if session['local_progress'][session['stage']]['1'] == True:
@@ -1752,25 +1766,25 @@ def test_fourth():
 
         if session['local_stages'][session['stage']][0] == 'ca25':
             if session['local_progress'][session['stage']]['1'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'ca10'
+                session['local_stages'][session['stage']][1]['next'] = 'ba3.2'
             elif session['local_progress'][session['stage']]['2'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'ca16'
 
         elif session['local_stages'][session['stage']][0] == 'cb25':
             if session['local_progress'][session['stage']]['1'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'ca10'
+                session['local_stages'][session['stage']][1]['next'] = 'ba3.2'
             elif session['local_progress'][session['stage']]['2'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'cb16'
 
         elif session['local_stages'][session['stage']][0] == 'da25':
             if session['local_progress'][session['stage']]['1'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'da10'
+                session['local_stages'][session['stage']][1]['next'] = 'ba3.2'
             elif session['local_progress'][session['stage']]['2'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'da16'
 
         elif session['local_stages'][session['stage']][0] == 'db25':
             if session['local_progress'][session['stage']]['1'] == True:
-                session['local_stages'][session['stage']][1]['next'] = 'da10'
+                session['local_stages'][session['stage']][1]['next'] = 'ba3.2'
             elif session['local_progress'][session['stage']]['2'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'db16'
 
@@ -1845,6 +1859,12 @@ def test_fourth():
                 session['local_stages'][session['stage']][1]['next'] = 'fb10.1'
             elif session['local_progress'][session['stage']]['2'] == True:
                 session['local_stages'][session['stage']][1]['next'] = 'fa24.11'
+
+        elif session['local_stages'][session['stage']][0] == 'fb26.3':
+            if session['local_progress'][session['stage']]['1'] == True:
+                session['local_stages'][session['stage']][1]['next'] = 'fa10.1'
+            elif session['local_progress'][session['stage']]['2'] == True:
+                session['local_stages'][session['stage']][1]['next'] = 'fa18'
 
     elif session['local_stages'][session['stage']][0][2:] == '26.4':
 

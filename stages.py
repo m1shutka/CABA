@@ -6,8 +6,9 @@ progress = {'1': {'1': False, '2': False, '3': False, '4': False},
             '4': {'1': False, '2': False, '3': False, '4': False},
             '5': {'1': False, '2': False, '3': False},
             '6': {'1': False, '2': False},
-            '7': {'1': False, '2': False},
+            '7': {'1': False},
             '7.1': {'1': False},
+            '7.3': {'1': False},
             '8': {'1': False, '2': False, '3': False, '4': False},
             '8.2': {'1': False, '2': False, '3': False, '4': False},
             '9': {'1': False, '2': False},
@@ -23,7 +24,8 @@ progress = {'1': {'1': False, '2': False, '3': False, '4': False},
             '13.3': {'1': False},
             '13.4': {'1': False},
             '14': {'1': False, '2': False, '3': False},
-            '15': {'1': False, '2': False, '3': False, '4': False},
+            '15': {'1': False, '2': False},
+            '15.1': {'1': False, '2': False},
             '16': {'1': False},
             '17': {'1': False},
             '18': {'1': False},
@@ -211,6 +213,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }},
 
+            # вырезано
           'fa4': {'prev':'', 'next': '', 'attr':{'base_url': 'test_fourth', 
                                                  'info': {'text': ['Характер дыхания'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -221,6 +224,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }},
 
+            # вырезано
           'ga4': {'prev':'', 'next': '', 'attr':{'base_url': 'test_fourth', 
                                                  'info': {'text': ['Характер дыхания'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -252,110 +256,110 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                  }},
 
           'ba7': {'prev':'ba14', 'next': 'ba15', 'attr':{'base_url': 'test_first', 
-                                                  'info': {'text': ['Подключите к пациенту пульсоксиметр', 'Подсоедините тонометр, измерьте артериальное давление'], 
-                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
-                                                  'buttons': {'text': ['Выполнить', 'Выполнить'], 
-                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
+                                                  'info': {'text': ['Подсоедините тонометр, пульсоксиметр, измерьте артериальное давление'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
                                                   'navigation': {'text': ['В начало', 'Назад', 'Далее'],
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
-          'ca7': {'prev':'ca13.1', 'next': 'ca8', 'attr':{'base_url': 'test_first', 
-                                                  'info': {'text': ['Подключите к пациенту пульсоксиметр', 'Подсоедините тонометр, измерьте артериальное давление'], 
-                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
-                                                  'buttons': {'text': ['Выполнить', 'Выполнить'], 
-                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
+          'ca7': {'prev':'ca13.4', 'next': 'ca8', 'attr':{'base_url': 'test_first', 
+                                                  'info': {'text': ['Подсоедините тонометр, пульсоксиметр, измерьте артериальное давление'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
                                                   'navigation': {'text': ['В начало', 'Назад', 'Далее'],
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
           'da7': {'prev':'da23', 'next': 'da8', 'attr':{'base_url': 'test_first', 
-                                                  'info': {'text': ['Подключите к пациенту пульсоксиметр', 'Подсоедините тонометр, измерьте артериальное давление'], 
-                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
-                                                  'buttons': {'text': ['Выполнить', 'Выполнить'], 
-                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
+                                                  'info': {'text': ['Подсоедините тонометр, пульсоксиметр, измерьте артериальное давление'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
                                                   'navigation': {'text': ['В начало', 'Назад', 'Далее'],
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
           'ea7': {'prev':'ea23', 'next': 'ea8', 'attr':{'base_url': 'test_first', 
-                                                  'info': {'text': ['Подключите к пациенту пульсоксиметр', 'Подсоедините тонометр, измерьте артериальное давление'], 
-                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
-                                                  'buttons': {'text': ['Выполнить', 'Выполнить'], 
-                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
+                                                  'info': {'text': ['Подсоедините тонометр, пульсоксиметр, измерьте артериальное давление'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
                                                   'navigation': {'text': ['В начало', 'Назад', 'Далее'],
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
           'db7': {'prev':'da13.1', 'next': 'db8', 'attr':{'base_url': 'test_first', 
-                                                  'info': {'text': ['Подключите к пациенту пульсоксиметр', 'Подсоедините тонометр, измерьте артериальное давление'], 
-                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
-                                                  'buttons': {'text': ['Выполнить', 'Выполнить'], 
-                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
+                                                  'info': {'text': ['Подсоедините тонометр, пульсоксиметр, измерьте артериальное давление'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
                                                   'navigation': {'text': ['В начало', 'Назад', 'Далее'],
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
           'cb7': {'prev':'ca23', 'next': 'cb8', 'attr':{'base_url': 'test_first', 
-                                                  'info': {'text': ['Подключите к пациенту пульсоксиметр', 'Подсоедините тонометр, измерьте артериальное давление'], 
-                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
-                                                  'buttons': {'text': ['Выполнить', 'Выполнить'], 
-                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
+                                                  'info': {'text': ['Подсоедините тонометр, пульсоксиметр, измерьте артериальное давление'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
                                                   'navigation': {'text': ['В начало', 'Назад', 'Далее'],
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
           'eb7': {'prev':'ea13.1', 'next': 'eb8', 'attr':{'base_url': 'test_first', 
-                                                  'info': {'text': ['Подключите к пациенту пульсоксиметр', 'Подсоедините тонометр, измерьте артериальное давление'], 
-                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
-                                                  'buttons': {'text': ['Выполнить', 'Выполнить'], 
-                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
+                                                  'info': {'text': ['Подсоедините тонометр, пульсоксиметр, измерьте артериальное давление'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
                                                   'navigation': {'text': ['В начало', 'Назад', 'Далее'],
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
           'fa7': {'prev':'fa6', 'next': 'fa8', 'attr':{'base_url': 'test_first', 
-                                                  'info': {'text': ['Подключите к пациенту пульсоксиметр', 'Подсоедините тонометр, измерьте артериальное давление'], 
-                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
-                                                  'buttons': {'text': ['Выполнить', 'Выполнить'], 
-                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
+                                                  'info': {'text': ['Подсоедините тонометр, пульсоксиметр, измерьте артериальное давление'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
                                                   'navigation': {'text': ['В начало', 'Назад', 'Далее'],
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
           'ha7': {'prev':'hc27.4', 'next': 'hc27.6', 'attr':{'base_url': 'test_first', 
-                                                  'info': {'text': ['Подключите к пациенту пульсоксиметр', 'Подсоедините тонометр, измерьте артериальное давление'], 
-                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
-                                                  'buttons': {'text': ['Выполнить', 'Выполнить'], 
-                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
+                                                  'info': {'text': ['Подсоедините тонометр, пульсоксиметр, измерьте артериальное давление'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
                                                   'navigation': {'text': ['В начало', 'Назад', 'Далее'],
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
           'hb7': {'prev':'', 'next': 'hd27.6', 'attr':{'base_url': 'test_first', 
-                                                  'info': {'text': ['Подключите к пациенту пульсоксиметр', 'Подсоедините тонометр, измерьте артериальное давление'], 
-                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
-                                                  'buttons': {'text': ['Выполнить', 'Выполнить'], 
-                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
+                                                  'info': {'text': ['Подсоедините тонометр, пульсоксиметр, измерьте артериальное давление'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
                                                   'navigation': {'text': ['В начало', 'Назад', 'Далее'],
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
           'ia7': {'prev':'', 'next': 'ia8', 'attr':{'base_url': 'test_first', 
-                                                  'info': {'text': ['Подключите к пациенту пульсоксиметр', 'Подсоедините тонометр, измерьте артериальное давление'], 
-                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
-                                                  'buttons': {'text': ['Выполнить', 'Выполнить'], 
-                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
+                                                  'info': {'text': ['Подсоедините тонометр, пульсоксиметр, измерьте артериальное давление'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
                                                   'navigation': {'text': ['В начало', 'Назад', 'Далее'],
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
@@ -401,6 +405,46 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
+
+          'ba7.3': {'prev': 'ba13', 'next': 'ba15.1', 'attr':{'base_url': 'test_first', 
+                                        'info': {'text': ['Подключите к пациенту пульсоксиметр'], 
+                                                'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                        'buttons': {'text': ['Выполнить'], 
+                                                    'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                        'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                        'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                        'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                        }},
+
+          'bb7.3': {'prev': '', 'next': '', 'attr':{'base_url': 'test_first', 
+                                        'info': {'text': ['Подключите к пациенту пульсоксиметр'], 
+                                                 'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                        'buttons': {'text': ['Выполнить'], 
+                                                    'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                        'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                       'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                       'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                        }},
+
+          'bc7.3': {'prev': 'bb4', 'next': 'bc15.1', 'attr':{'base_url': 'test_first', 
+                                        'info': {'text': ['Подключите к пациенту пульсоксиметр'], 
+                                                'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                        'buttons': {'text': ['Выполнить'], 
+                                                    'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                        'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                       'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                       'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                        }},
+
+          'bd7.3': {'prev': 'bb4', 'next': 'bd15.1', 'attr':{'base_url': 'test_first', 
+                                        'info': {'text': ['Подключите к пациенту пульсоксиметр'], 
+                                                'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                        'buttons': {'text': ['Выполнить'], 
+                                                    'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                        'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                       'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                       'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                        }},
 
           'ca8': {'prev':'ca7', 'next': '', 'attr':{'base_url': 'test_fourth', 
                                                  'info': {'text': ['Артериальное давление'], 
@@ -526,6 +570,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'ca9': {'prev':'cb23', 'next': 'aa19', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Не помещайте пальцы в рот (за зубы) пациента', 'Ничего не давайте через рот/под язык до полного восстановления сознания! Не используйте нашатырный спирт!'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -535,7 +580,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
-
+            # вырезано
           'da9': {'prev':'da23', 'next': 'aa19', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Не помещайте пальцы в рот (за зубы) пациента', 'Ничего не давайте через рот/под язык до полного восстановления сознания! Не используйте нашатырный спирт!'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -546,6 +591,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'ea9': {'prev':'ea23', 'next': 'aa19', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Не помещайте пальцы в рот (за зубы) пациента', 'Ничего не давайте через рот/под язык до полного восстановления сознания! Не используйте нашатырный спирт!'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -586,6 +632,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'fd9': {'prev':'fe23', 'next': 'aa19', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Не помещайте пальцы в рот (за зубы) пациента', 'Ничего не давайте через рот/под язык до полного восстановления сознания! Не используйте нашатырный спирт!'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -597,6 +644,16 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                   }},
 
           'fe9': {'prev':'ff23', 'next': 'aa19', 'attr':{'base_url': 'test_first', 
+                                                  'info': {'text': ['Не помещайте пальцы в рот (за зубы) пациента', 'Ничего не давайте через рот/под язык до полного восстановления сознания! Не используйте нашатырный спирт!'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить', 'Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }},
+
+          'ff9': {'prev':'fg23', 'next': 'aa19', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Не помещайте пальцы в рот (за зубы) пациента', 'Ничего не давайте через рот/под язык до полного восстановления сознания! Не используйте нашатырный спирт!'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить', 'Выполнить'], 
@@ -636,6 +693,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'fa9.1': {'prev':'fa13.4', 'next': 'fa15', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Не помещайте пальцы в рот (за зубы) пациента', 'Ничего не давайте через рот/под язык!'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -666,6 +724,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'ca10': {'prev':'', 'next': 'ca11', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Оценивайте дыхание, пульс и SpO2 непрерывно, измеряйте АД не реже раза в 5 минут'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -676,6 +735,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'da10': {'prev':'', 'next': 'da11', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Оценивайте дыхание, пульс и SpO2 непрерывно, измеряйте АД не реже раза в 5 минут'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -686,6 +746,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'ea10': {'prev':'ea24.7', 'next': 'ea11', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Оценивайте дыхание, пульс и SpO2 непрерывно, измеряйте АД не реже раза в 5 минут'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -696,6 +757,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'fa10': {'prev':'fa24.7', 'next': 'fa11', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Оценивайте дыхание, пульс и SpO2 непрерывно, измеряйте АД не реже раза в 5 минут'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -736,6 +798,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'ca10.1': {'prev':'cb23', 'next': 'ca12', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Оценивайте дыхание, пульс и SpO2 непрерывно, измеряйте АД не реже раза в 5 минут.', 'При нарушениях, развитии судорог нажмите «В начало»'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -745,7 +808,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
-
+            # вырезано
           'da10.1': {'prev':'cb23', 'next': 'da12', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Оценивайте дыхание, пульс и SpO2 непрерывно, измеряйте АД не реже раза в 5 минут.', 'При нарушениях, развитии судорог нажмите «В начало»'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -756,6 +819,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'ea10.1': {'prev':'eb23', 'next': 'ea12', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Оценивайте дыхание, пульс и SpO2 непрерывно, измеряйте АД не реже раза в 5 минут.', 'При нарушениях, развитии судорог нажмите «В начало»'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -805,7 +869,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
-
+            # вырезано
           'fe10.1': {'prev':'fa11', 'next': 'fe23', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Оценивайте дыхание, пульс и SpO2 непрерывно, измеряйте АД не реже раза в 5 минут.', 'При нарушениях, развитии судорог нажмите «В начало»'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -816,6 +880,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'ff10.1': {'prev':'', 'next': 'ff23', 'attr':{'base_url': 'test_first', 
                                                  'info': {'text': ['Оценивайте дыхание, пульс и SpO2 непрерывно, измеряйте АД не реже раза в 5 минут.', 'При нарушениях, развитии судорог нажмите «В начало»'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -875,6 +940,17 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
+
+          'fx10.1': {'prev':'fa3.2', 'next': 'fg23', 'attr':{'base_url': 'test_first', 
+                                                  'info': {'text': ['Оценивайте дыхание, пульс и SpO2 непрерывно, измеряйте АД не реже раза в 5 минут.', 'При нарушениях, развитии судорог нажмите «В начало»'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить', 'Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }},
+
           'fy10.1': {'prev':'fb26.1', 'next': 'fg12', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Оценивайте дыхание, пульс и SpO2 непрерывно, измеряйте АД не реже раза в 5 минут.', 'При нарушениях, развитии судорог нажмите «В начало»'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -895,6 +971,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано 
           'ca11': {'prev':'ca10', 'next': '', 'attr':{'base_url': 'test_third', 
                                                  'info': {'text': ['Нарушено дыхание?', 'Нарушены пульс, давление?'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -906,7 +983,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-warning w-100 btn-next disabled'],
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }},
-
+            # вырезано
           'da11': {'prev':'da10', 'next': '', 'attr':{'base_url': 'test_third', 
                                                  'info': {'text': ['Нарушено дыхание?', 'Нарушены пульс, давление?'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -919,6 +996,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }},
 
+            # вырезано
           'ea11': {'prev':'ea10', 'next': '', 'attr':{'base_url': 'test_third', 
                                                  'info': {'text': ['Нарушено дыхание?', 'Нарушены пульс, давление?'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -931,6 +1009,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }},
 
+            # вырезано
           'fa11': {'prev':'fa10', 'next': '', 'attr':{'base_url': 'test_third', 
                                                  'info': {'text': ['Нарушено дыхание?', 'Нарушены пульс, давление?'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -965,6 +1044,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'ca12': {'prev':'ca10.1', 'next': 'aa13', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Откройте пути для эвакуации пациента. Передайте пациента бригаде скорой медицинской помощи, опишите детали произошедшего', 'Заполните медицинскую документацию'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -974,7 +1054,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
-
+            # вырезано
           'da12': {'prev':'da10.1', 'next': 'aa13', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Откройте пути для эвакуации пациента. Передайте пациента бригаде скорой медицинской помощи, опишите детали произошедшего', 'Заполните медицинскую документацию'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -985,6 +1065,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'ea12': {'prev':'ea10.1', 'next': 'aa13', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Откройте пути для эвакуации пациента. Передайте пациента бригаде скорой медицинской помощи, опишите детали произошедшего', 'Заполните медицинскую документацию'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -1015,6 +1096,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+
           'fc12': {'prev':'fc10.1', 'next': 'aa13', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Откройте пути для эвакуации пациента. Передайте пациента бригаде скорой медицинской помощи, опишите детали произошедшего', 'Заполните медицинскую документацию'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -1025,6 +1107,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'fd12': {'prev':'fd23', 'next': 'aa13', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Откройте пути для эвакуации пациента. Передайте пациента бригаде скорой медицинской помощи, опишите детали произошедшего', 'Заполните медицинскую документацию'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -1034,7 +1117,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
-
+            # вырезано
           'fe12': {'prev':'fe23', 'next': 'aa13', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Откройте пути для эвакуации пациента. Передайте пациента бригаде скорой медицинской помощи, опишите детали произошедшего', 'Заполните медицинскую документацию'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -1056,6 +1139,16 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                   }},
 
           'fg12': {'prev':'fy10.1', 'next': 'aa13', 'attr':{'base_url': 'test_first', 
+                                                  'info': {'text': ['Откройте пути для эвакуации пациента. Передайте пациента бригаде скорой медицинской помощи, опишите детали произошедшего', 'Заполните медицинскую документацию'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить', 'Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }},
+
+          'fh12': {'prev':'fg23', 'next': 'aa13', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Откройте пути для эвакуации пациента. Передайте пациента бригаде скорой медицинской помощи, опишите детали произошедшего', 'Заполните медицинскую документацию'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить', 'Выполнить'], 
@@ -1155,6 +1248,16 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+           'ba13': {'prev':'bab4', 'next': 'ba7.3', 'attr':{'base_url': 'test_first', 
+                                    'info': {'text': ['Уложите пациента на пол на спину', 'Удалите от пациента опасные предметы (пациента от предметов). Насильно не удерживайте пациента!!!'], 
+                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
+                                    'buttons': {'text': ['Выполнить', 'Выполнить'], 
+                                                'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
+                                    'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                    'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                    'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                    }},
+
           'fa13': {'prev':'fa3.2', 'next': 'aa9.1', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Уложите пациента на пол на спину', 'Удалите от пациента опасные предметы (пациента от предметов). Насильно не удерживайте пациента!!!'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -1195,6 +1298,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+          # вырезано
           'ca13.1': {'prev':'ca23', 'next': 'ca7', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Уложите пациента на пол на спину с приподнятыми ногами'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -1235,6 +1339,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'eb13.1': {'prev':'ea8', 'next': 'ga3.2', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Уложите пациента на пол на спину с приподнятыми ногами'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -1325,6 +1430,17 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+          'ca13.4': {'prev':'сa23', 'next': 'ca7', 'attr':{'base_url': 'test_first', 
+                                                  'info': {'text': ['Уложите пациента на кушетку'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }},
+
+            # вырезано
           'fa13.4': {'prev':'fa23', 'next': 'fa9.1', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Уложите пациента на кушетку'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -1355,7 +1471,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
-          'fd13.4': {'prev':'fa23.2', 'next': 'fa18', 'attr':{'base_url': 'test_first', 
+          'fd13.4': {'prev':'fa23.2', 'next': 'fb24.13', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Уложите пациента на кушетку'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить'], 
@@ -1375,7 +1491,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
-          'gb13.4': {'prev':'ga9.1', 'next': 'ga15', 'attr':{'base_url': 'test_first', 
+          'gb13.4': {'prev':'ga9.1', 'next': 'ga18', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Уложите пациента на кушетку'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить'], 
@@ -1409,17 +1525,18 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                   'info': {'text': ['Запрокиньте назад голову (разогните в шейном отделе)', 'Откройте рот пациента', 'Выдвиньте нижнюю челюсть и удалите все видимые инородные тела'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить', 'Выполнить', 'Выполнить'], 
-                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100', 'btn btn-lg btn-outline-success btn3 w-100', 'btn btn-lg btn-outline-success btn4 w-100']}, 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100', 'btn btn-lg btn-outline-success btn3 w-100']}, 
                                                   'navigation': {'text': ['В начало', 'Назад', 'Далее'],
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'fa14': {'prev':'fa15', 'next': 'fb15', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Запрокиньте назад голову (разогните в шейном отделе)', 'Откройте рот пациента', 'Выдвиньте нижнюю челюсть и удалите все видимые инородные тела'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить', 'Выполнить', 'Выполнить'], 
-                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100', 'btn btn-lg btn-outline-success btn3 w-100', 'btn btn-lg btn-outline-success btn4 w-100']}, 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100', 'btn btn-lg btn-outline-success btn3 w-100']}, 
                                                   'navigation': {'text': ['В начало', 'Назад', 'Далее'],
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
@@ -1429,7 +1546,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                   'info': {'text': ['Запрокиньте назад голову (разогните в шейном отделе)', 'Откройте рот пациента', 'Выдвиньте нижнюю челюсть и удалите все видимые инородные тела'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить', 'Выполнить', 'Выполнить'], 
-                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100', 'btn btn-lg btn-outline-success btn3 w-100', 'btn btn-lg btn-outline-success btn4 w-100']}, 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100', 'btn btn-lg btn-outline-success btn3 w-100']}, 
                                                   'navigation': {'text': ['В начало', 'Назад', 'Далее'],
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
@@ -1439,7 +1556,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                   'info': {'text': ['Запрокиньте назад голову (разогните в шейном отделе)', 'Откройте рот пациента', 'Выдвиньте нижнюю челюсть и удалите все видимые инородные тела'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить', 'Выполнить', 'Выполнить'], 
-                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100', 'btn btn-lg btn-outline-success btn3 w-100', 'btn btn-lg btn-outline-success btn4 w-100']}, 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100', 'btn btn-lg btn-outline-success btn3 w-100']}, 
                                                   'navigation': {'text': ['В начало', 'Назад', 'Далее'],
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
@@ -1449,7 +1566,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                   'info': {'text': ['Запрокиньте назад голову (разогните в шейном отделе)', 'Откройте рот пациента', 'Выдвиньте нижнюю челюсть и удалите все видимые инородные тела'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить', 'Выполнить', 'Выполнить'], 
-                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100', 'btn btn-lg btn-outline-success btn3 w-100', 'btn btn-lg btn-outline-success btn4 w-100']}, 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100', 'btn btn-lg btn-outline-success btn3 w-100']}, 
                                                   'navigation': {'text': ['В начало', 'Назад', 'Далее'],
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
@@ -1459,61 +1576,95 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                   'info': {'text': ['Запрокиньте назад голову (разогните в шейном отделе)', 'Откройте рот пациента', 'Выдвиньте нижнюю челюсть и удалите все видимые инородные тела'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить', 'Выполнить', 'Выполнить'], 
-                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100', 'btn btn-lg btn-outline-success btn3 w-100', 'btn btn-lg btn-outline-success btn4 w-100']}, 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100', 'btn btn-lg btn-outline-success btn3 w-100']}, 
                                                   'navigation': {'text': ['В начало', 'Назад', 'Далее'],
                                                                  'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
-
-          'ba15': {'prev':'ba7', 'next': '', 'attr':{'base_url': 'test_third', 
-                                                 'info': {'text': ['Проходимость дыхательных путей восстановилась, дыхание нормальное?', 'SpO2 более 92%?'], 
-                                                          'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
-                                                 'buttons':{'left': {'text': ['Да', 'Да'], 
-                                                                     'styles': ['btn btn-lg btn-outline-success btn151 w-100', 'btn btn-lg btn-outline-success btn153 w-100']}, 
-                                                            'right': {'text': ['Нет', 'Нет'], 
-                                                                      'styles': ['btn btn-lg btn-outline-danger btn152 w-100', 'btn btn-lg btn-outline-danger btn154 w-100']}}, 
+            # вырезано
+          'ba15': {'prev':'bb16', 'next': '', 'attr':{'base_url': 'test_fourth', 
+                                                 'info': {'text': ['Проходимость дыхательных путей  нормальная?'], 
+                                                          'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                 'buttons': {'text': ["Да", "Нет"], 
+                                                             'styles': ['btn btn-lg btn-outline-success btn181 w-100', 'btn btn-lg btn-outline-danger btn182 w-100']}, 
                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
-                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-warning w-100 btn-next disabled'],
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }},
 
-          'fa15': {'prev':'fa9.1', 'next': '', 'attr':{'base_url': 'test_third', 
-                                                 'info': {'text': ['Проходимость дыхательных путей восстановилась, дыхание нормальное?', 'SpO2 более 92%?'], 
-                                                          'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
-                                                 'buttons':{'left': {'text': ['Да', 'Да'], 
-                                                                     'styles': ['btn btn-lg btn-outline-success btn151 w-100', 'btn btn-lg btn-outline-success btn153 w-100']}, 
-                                                            'right': {'text': ['Нет', 'Нет'], 
-                                                                      'styles': ['btn btn-lg btn-outline-danger btn152 w-100', 'btn btn-lg btn-outline-danger btn154 w-100']}}, 
+            # вырезано
+          'fa15': {'prev':'fa9.1', 'next': '', 'attr':{'base_url': 'test_fourth', 
+                                                 'info': {'text': ['Проходимость дыхательных путей  нормальная?'], 
+                                                          'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                 'buttons': {'text': ["Да", "Нет"], 
+                                                             'styles': ['btn btn-lg btn-outline-success btn181 w-100', 'btn btn-lg btn-outline-danger btn182 w-100']}, 
                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
-                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-warning w-100 btn-next disabled'],
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }},
 
-          'fb15': {'prev':'fa14', 'next': '', 'attr':{'base_url': 'test_third', 
-                                                 'info': {'text': ['Проходимость дыхательных путей восстановилась, дыхание нормальное?', 'SpO2 более 92%?'], 
-                                                          'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
-                                                 'buttons':{'left': {'text': ['Да', 'Да'], 
-                                                                     'styles': ['btn btn-lg btn-outline-success btn151 w-100', 'btn btn-lg btn-outline-success btn153 w-100']}, 
-                                                            'right': {'text': ['Нет', 'Нет'], 
-                                                                      'styles': ['btn btn-lg btn-outline-danger btn152 w-100', 'btn btn-lg btn-outline-danger btn154 w-100']}}, 
+            # вырезано
+          'fb15': {'prev':'fa14', 'next': '', 'attr':{'base_url': 'test_fourth', 
+                                                 'info': {'text': ['Проходимость дыхательных путей  нормальная?'], 
+                                                          'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                 'buttons': {'text': ["Да", "Нет"], 
+                                                             'styles': ['btn btn-lg btn-outline-success btn181 w-100', 'btn btn-lg btn-outline-danger btn182 w-100']}, 
                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
-                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-warning w-100 btn-next disabled'],
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }},
 
-          'ga15': {'prev':'gb13.4', 'next': '', 'attr':{'base_url': 'test_third', 
-                                                 'info': {'text': ['Проходимость дыхательных путей восстановилась, дыхание нормальное?', 'SpO2 более 92%?'], 
-                                                          'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
-                                                 'buttons':{'left': {'text': ['Да', 'Да'], 
-                                                                     'styles': ['btn btn-lg btn-outline-success btn151 w-100', 'btn btn-lg btn-outline-success btn153 w-100']}, 
-                                                            'right': {'text': ['Нет', 'Нет'], 
-                                                                      'styles': ['btn btn-lg btn-outline-danger btn152 w-100', 'btn btn-lg btn-outline-danger btn154 w-100']}}, 
+          'ga15': {'prev':'gb13.4', 'next': '', 'attr':{'base_url': 'test_fourth', 
+                                                 'info': {'text': ['Проходимость дыхательных путей  нормальная?'], 
+                                                          'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                 'buttons': {'text': ["Да", "Нет"], 
+                                                             'styles': ['btn btn-lg btn-outline-success btn181 w-100', 'btn btn-lg btn-outline-danger btn182 w-100']}, 
                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
-                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-warning w-100 btn-next disabled'],
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }},
+            # вырезано
+          'ba15.1': {'prev':'ba7.3', 'next': '', 'attr':{'base_url': 'test_fourth', 
+                                        'info': {'text': ['SpO2 более 92%?'], 
+                                                'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                        'buttons': {'text': ["Да", "Нет"], 
+                                                    'styles': ['btn btn-lg btn-outline-success btn181 w-100', 'btn btn-lg btn-outline-danger btn182 w-100']}, 
+                                        'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                    'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                    'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                        }},
+            
+          'bb15.1': {'prev':'bb7.3', 'next': '', 'attr':{'base_url': 'test_fourth', 
+                                                    'info': {'text': ['SpO2 более 92%?'], 
+                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                    'buttons': {'text': ["Да", "Нет"], 
+                                                                'styles': ['btn btn-lg btn-outline-success btn181 w-100', 'btn btn-lg btn-outline-danger btn182 w-100']}, 
+                                                    'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                    }},
+
+          'bc15.1': {'prev':'bc7.3', 'next': '', 'attr':{'base_url': 'test_fourth', 
+                                                    'info': {'text': ['SpO2 более 92%?'], 
+                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                    'buttons': {'text': ["Да", "Нет"], 
+                                                                'styles': ['btn btn-lg btn-outline-success btn181 w-100', 'btn btn-lg btn-outline-danger btn182 w-100']}, 
+                                                    'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                    }},
+
+          'bd15.1': {'prev':'bd7.3', 'next': '', 'attr':{'base_url': 'test_fourth', 
+                                                    'info': {'text': ['SpO2 более 92%?'], 
+                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                    'buttons': {'text': ["Да", "Нет"], 
+                                                                'styles': ['btn btn-lg btn-outline-success btn181 w-100', 'btn btn-lg btn-outline-danger btn182 w-100']}, 
+                                                    'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                    }},
           
-          'ba16': {'prev':'ba17', 'next': 'bc4', 'attr':{'base_url': 'test_first', 
+          'ba16': {'prev':'ba15.1', 'next': 'fa6', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Подключите к пациенту кислород (при наличии возможности)'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить'], 
@@ -1523,7 +1674,27 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
-          'bb16': {'prev':'ba15', 'next': 'bc4', 'attr':{'base_url': 'test_first', 
+          'bb16': {'prev':'bb15.1', 'next': 'ba15', 'attr':{'base_url': 'test_first', 
+                                                  'info': {'text': ['Подключите к пациенту кислород (при наличии возможности)'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }},
+
+          'bc16': {'prev':'bc15.1', 'next': 'fa6', 'attr':{'base_url': 'test_first', 
+                                                  'info': {'text': ['Подключите к пациенту кислород (при наличии возможности)'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }},
+
+          'bd16': {'prev':'bd15.1', 'next': 'ca5', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Подключите к пациенту кислород (при наличии возможности)'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить'], 
@@ -1533,6 +1704,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
           
+          # вырезано
           'fa16': {'prev':'fa15', 'next': 'fb18', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Подключите к пациенту кислород (при наличии возможности)'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -1553,6 +1725,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'fc16': {'prev':'fb15', 'next': 'fa4', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Подключите к пациенту кислород (при наличии возможности)'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -1563,6 +1736,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'fd16': {'prev':'fb17', 'next': 'fa4', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Подключите к пациенту кислород (при наличии возможности)'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -1623,6 +1797,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'gb16': {'prev':'ga15', 'next': 'ga4', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Подключите к пациенту кислород (при наличии возможности)'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -1633,7 +1808,28 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'ga16': {'prev':'ga17', 'next': 'ga4', 'attr':{'base_url': 'test_first', 
+                                                  'info': {'text': ['Подключите к пациенту кислород (при наличии возможности)'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }},
+
+            'ha16': {'prev':'ha17', 'next': 'ha28.5', 'attr':{'base_url': 'test_first', 
+                                                  'info': {'text': ['Подключите к пациенту кислород (при наличии возможности)'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }},
+
+            'hb16': {'prev':'hb17', 'next': 'ha33.1', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Подключите к пациенту кислород (при наличии возможности)'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить'], 
@@ -1663,7 +1859,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
-          'ba17': {'prev':'ba15', 'next': 'ba16', 'attr':{'base_url': 'test_first', 
+          'ba17': {'prev':'ba15', 'next': 'ba3.2', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Установите воздуховод № или ларингеальную маску № '], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить'], 
@@ -1683,6 +1879,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'fa17': {'prev':'fb15', 'next': 'fa4', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Установите воздуховод № или ларингеальную маску № '], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -1693,6 +1890,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'fb17': {'prev':'fb15', 'next': 'fd16', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Установите воздуховод № или ларингеальную маску № '], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -1703,6 +1901,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'ga17': {'prev':'ga15', 'next': 'ga16', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Установите воздуховод № или ларингеальную маску № '], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -1713,6 +1912,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'gb17': {'prev':'ga15', 'next': 'ga4', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Установите воздуховод № или ларингеальную маску № '], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -1723,7 +1923,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
-          'ha17': {'prev':'hb14', 'next': 'ha28.5', 'attr':{'base_url': 'test_first', 
+          'ha17': {'prev':'hb14', 'next': 'ha16', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Установите воздуховод № или ларингеальную маску № '], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить'], 
@@ -1733,7 +1933,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
-          'hb17': {'prev':'hb14', 'next': 'ha33.1', 'attr':{'base_url': 'test_first', 
+          'hb17': {'prev':'hb14', 'next': 'hb16', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Установите воздуховод № или ларингеальную маску № '], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить'], 
@@ -1823,6 +2023,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'fd18': {'prev':'', 'next': 'fb24.9', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Обеспечьте внутривенный/внутрикостный сосудистый доступ'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -2033,6 +2234,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }},
 
+            # вырезано
           'da23': {'prev':'ca5', 'next': '', 'attr':{'base_url': 'test_fourth', 
                                                  'info': {'text': ['Пациент может выполнять команды?'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -2042,7 +2244,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }},
-
+            
           'ea23': {'prev':'ca5', 'next': '', 'attr':{'base_url': 'test_fourth', 
                                                  'info': {'text': ['Пациент может выполнять команды?'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -2052,7 +2254,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }},
-
+            # вырезано
           'eb23': {'prev':'ea11', 'next': '', 'attr':{'base_url': 'test_fourth', 
                                                  'info': {'text': ['Пациент может выполнять команды?'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -2073,6 +2275,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }},
 
+            # вырезано
           'cb23': {'prev':'ca11', 'next': '', 'attr':{'base_url': 'test_fourth', 
                                                  'info': {'text': ['Пациент может выполнять команды?'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -2123,6 +2326,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }},
 
+            # вырезано
           'fe23': {'prev':'fe10.1', 'next': '', 'attr':{'base_url': 'test_fourth', 
                                                  'info': {'text': ['Пациент может выполнять команды?'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -2133,7 +2337,18 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }},
 
+            # вырезано
           'ff23': {'prev':'ff10.1', 'next': '', 'attr':{'base_url': 'test_fourth', 
+                                                 'info': {'text': ['Пациент может выполнять команды?'], 
+                                                          'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                 'buttons': {'text': ["Да", "Нет"], 
+                                                             'styles': ['btn btn-lg btn-outline-success btn181 w-100', 'btn btn-lg btn-outline-danger btn182 w-100']},  
+                                                 'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                 }},
+
+          'fg23': {'prev':'fx.10.1', 'next': '', 'attr':{'base_url': 'test_fourth', 
                                                  'info': {'text': ['Пациент может выполнять команды?'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                  'buttons': {'text': ["Да", "Нет"], 
@@ -2427,7 +2642,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
-          'ea24.7': {'prev':'ea16', 'next': 'ea10', 'attr':{'base_url': 'test_first', 
+          'ea24.7': {'prev':'ea16', 'next': 'ba3.2', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Введите внутривенно  Нитроглицерин 10 мг в/в капельно При отсутствии сосудистого доступа дайте пациенту Нитроглицерин 0,4 мг под язык', 'Введите внутривенно или (при отсутствии сосудистого доступа – внутримышечно) Морфин 1 % - 1 мл (при наличии) Фуросемид 40 мг (4 мл)'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить', 'Выполнить'], 
@@ -2437,7 +2652,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
-          'fa24.7': {'prev':'fc18', 'next': 'fa10', 'attr':{'base_url': 'test_first', 
+          'fa24.7': {'prev':'fc18', 'next': 'ba3.2', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Введите внутривенно  Нитроглицерин 10 мг в/в капельно При отсутствии сосудистого доступа дайте пациенту Нитроглицерин 0,4 мг под язык', 'Введите внутривенно или (при отсутствии сосудистого доступа – внутримышечно) Морфин 1 % - 1 мл (при наличии) Фуросемид 40 мг (4 мл)'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить', 'Выполнить'], 
@@ -2497,6 +2712,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+            # вырезано
           'fb24.9': {'prev':'', 'next': 'fa26.2', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Важно! Только при ДаД выше 120 мм.рт.ст. АД снижать на 10-15% Введите внутривенно/внутрикостно Урапидил 12, 5 мг в/в медленно, далее капельно (у пациентов старше 18 лет)', 'Сульфат магнезии 25% мл (25-50 мг\кг) в/в медленно'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -2597,6 +2813,16 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
+          'fb24.13': {'prev':'fd13.4', 'next': 'fb26.3', 'attr':{'base_url': 'test_first', 
+                                                  'info': {'text': ['Дайте пациенту Нитроглицерин 0,4 мг под язык', 'Ацетилсалициловую кислоту внутрь 150-300 мг, если прием внутрь возможен'], 
+                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
+                                                  'buttons': {'text': ['Выполнить', 'Выполнить'], 
+                                                              'styles': ['btn btn-lg btn-outline-success btn1 w-100', 'btn btn-lg btn-outline-success btn2 w-100']}, 
+                                                  'navigation': {'text': ['В начало', 'Назад', 'Далее'],
+                                                                 'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                  }},
+
           'ia24.13': {'prev':'ib13.4', 'next': 'ia26.5', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Дайте пациенту Нитроглицерин 0,4 мг под язык', 'Ацетилсалициловую кислоту внутрь 150-300 мг, если прием внутрь возможен'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
@@ -2667,6 +2893,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }},
 
+            # вырезано
           'fa26.2': {'prev':'fa24.9', 'next':'', 'attr':{'base_url': 'test_fourth', 
                                                  'info': {'text': ['Артериальное давление снизилось на 15% от исходных величин?'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
@@ -2678,6 +2905,16 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                  }},
 
           'fa26.3': {'prev':'fa24.10', 'next':'', 'attr':{'base_url': 'test_fourth', 
+                                                 'info': {'text': ['Артериальное давление снизилось на 25% от исходных величин, болевой синдром купирован?'], 
+                                                          'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
+                                                 'buttons': {'text': ["Да", "Нет"], 
+                                                             'styles': ['btn btn-lg btn-outline-success btn181 w-100', 'btn btn-lg btn-outline-danger btn182 w-100']}, 
+                                                 'navigation': {'text': ['В начало', 'Назад', 'Далее'], 
+                                                                'styles': ['btn btn-lg btn-outline-primary w-100 btn-begining', 'btn btn-lg btn-secondary w-100 btn-back', 'btn btn-lg btn-outline-danger w-100 btn-next disabled'],
+                                                                'links': ['/to_beginning', '/prev_stage', '/next_stage']}
+                                                 }},
+
+          'fb26.3': {'prev':'fa24.10', 'next':'', 'attr':{'base_url': 'test_fourth', 
                                                  'info': {'text': ['Артериальное давление снизилось на 25% от исходных величин, болевой синдром купирован?'], 
                                                           'styles': ['alert alert-primary alert-dismissible fade show text-center']}, 
                                                  'buttons': {'text': ["Да", "Нет"], 
@@ -3127,7 +3364,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                  'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                   }},
 
-          'ha28.5': {'prev':'ha17', 'next':'hb27.2.3', 'attr':{'base_url': 'test_first', 
+          'ha28.5': {'prev':'ha16', 'next':'hb27.2.3', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Присоедините к лицевой маске  (размер       ) или установленной ларингеальной маске ( размер          )    дыхательный мешок', 'Выполните 2 искусственных вдоха при помощи дыхательного мешка', 'Делайте каждый вдох в течение 1 секунды, чтобы грудь заметно приподнималась', 'Пауза в компрессиях грудной клетки для двух вдохов – 5 секунд'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить', 'Выполнить', 'Выполнить', 'Выполнить'], 
@@ -3267,7 +3504,7 @@ stages = {'aa0': {'prev':'', 'next':'aa1', 'attr':{'base_url': '',
                                                                 'links': ['/to_beginning', '/prev_stage', '/next_stage']}
                                                  }},
 
-          'ha33.1': {'prev':'hb17', 'next':'hc27.1', 'attr':{'base_url': 'test_first', 
+          'ha33.1': {'prev':'hb16', 'next':'hc27.1', 'attr':{'base_url': 'test_first', 
                                                   'info': {'text': ['Присоедините к лицевой маске (размер) или установленной ларингеальной маске (размер) дыхательный мешок', 'Выполните 5 искусственных вдохов при помощи дыхательного мешка', 'Делайте каждый вдох в течение 1 секунды, чтобы грудь заметно приподнималась'], 
                                                            'styles': ['alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center', 'alert alert-primary alert-dismissible fade show text-center']}, 
                                                   'buttons': {'text': ['Выполнить', 'Выполнить', 'Выполнить'], 
